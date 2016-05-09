@@ -2,6 +2,8 @@
 import UnityEngine.UI;
 import System.Collections.Generic;
 
+var selectedBots: List.<GameObject> = new List.<GameObject>();
+
 function avatarSelected(avatar: GameObject) {
 	var bot = botForAvatar(avatar);
 	toggleBotSelection(bot);
@@ -12,19 +14,25 @@ function addSelected() {
 }
 
 // Avatars
-
 public var avatarPrefab: GameObject;
 public var botPrefab: GameObject;
 
 private function insertNewBot() {
-	var newBot = Instantiate(botPrefab, Vector3(0, 10, 0), Quaternion());
+	var oldBotCount = bots().length;
 
-	var avatar = Instantiate(avatarPrefab, Vector3(), Quaternion());
+	var avatarTransform = Vector3();
+	var width = 50.0; // TODO calculate based off space available
+	avatarTransform.x = width * 0.5 + (width * (oldBotCount));
+	// Debug.Log(avatarTransform);
+	var avatar = Instantiate(avatarPrefab, avatarTransform, Quaternion());
+	avatar.GetComponent.<Image>().color = colorForSelectionState(false);
 	avatar.transform.SetParent(this.transform, false);
-	var buttonComponent = avatar.GetComponent.<Button>();
-	buttonComponent.onClick.AddListener(function() {
+	avatar.GetComponent.<Button>().onClick.AddListener(function() {
 		avatarSelected(avatar);
 	});
+
+	var newBot = Instantiate(botPrefab, Vector3(0, 10, 0), Quaternion());
+	newBot.GetComponent.<Renderer>().material.color = colorForSelectionState(false);
 }
 
 private function avatars() {
@@ -32,9 +40,6 @@ private function avatars() {
 };
 
 // Bots
-
-var selectedBots: List.<GameObject> = new List.<GameObject>();
-
 function toggleBotSelection(bot: GameObject) {
 	var isSelected = selectedBots.Contains(bot);
 	if (isSelected) {
@@ -43,13 +48,12 @@ function toggleBotSelection(bot: GameObject) {
 	else {
 		selectedBots.Add(bot);
 	}
-	bot.GetComponent.<Renderer>().material.color = colorForSelectionState(isSelected);
+	bot.GetComponent.<Renderer>().material.color = colorForSelectionState(!isSelected);
 }
 
 private function bots() {
 	return GameObject.FindGameObjectsWithTag("bot");
 };
-
 
 private function botForAvatar(avatar: GameObject) {
 	var index = System.Array.IndexOf(avatars(), avatar);
