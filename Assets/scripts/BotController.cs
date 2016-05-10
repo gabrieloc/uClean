@@ -2,11 +2,13 @@ using UnityEngine;
 
 public class BotController: MonoBehaviour
 {
-	public float speed;
+	public float speed = 15.0f;
+	public float relocationRadus = 5.0f;
 	public SelectionController selectionController;
 
 	Vector3 contactOrigin;
 	Vector3 contactPoint;
+
 
 	void Update()
 	{
@@ -23,7 +25,10 @@ public class BotController: MonoBehaviour
 			foreach(GameObject bot in selectionController.selectedBots) {
 				Vector3 newPosition = contactPoint;
 				newPosition.y = 0.5f;
-				bot.transform.position = Vector3.MoveTowards(bot.transform.position, newPosition, distanceDelta);
+				float distance = Vector3.Distance(newPosition, bot.transform.position);
+				if (distance > relocationRadus) {
+					bot.transform.position = Vector3.MoveTowards(bot.transform.position, newPosition, distanceDelta);
+				}
 			}
 		}
 		Debug.DrawLine(contactOrigin, contactPoint, Color.red);

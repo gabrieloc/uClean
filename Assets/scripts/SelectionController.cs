@@ -41,13 +41,20 @@ public class SelectionController: MonoBehaviour
 	void insertNewBot() 
 	{
 		int oldBotCount = GameObjectExtensions.BotObjects().Length;
-		Vector3 avatarTransform = new Vector3();
-		float width = 50.0f; // TODO calculate based off space available
-		avatarTransform.x = (width + 1.0f) * oldBotCount;
-		// Debug.Log(avatarTransform);
-		GameObject avatar = Instantiate(avatarPrefab, avatarTransform, new Quaternion()) as GameObject;
+
+		GameObject avatarContainer = GameObjectExtensions.AvatarContainer();
+		Rect containerRect = avatarContainer.GetComponent<RectTransform>().rect;
+
+		GridLayoutGroup layout = avatarContainer.GetComponent<GridLayoutGroup>();
+
+		int columns = (int)(containerRect.width / containerRect.height);
+		int rows = (oldBotCount / columns) + 1;
+		float height = containerRect.height / rows;
+		layout.cellSize = new Vector2(50.0f, height);
+
+		GameObject avatar = Instantiate(avatarPrefab, new Vector3(), new Quaternion()) as GameObject;
 		avatar.SetSelected(false);
-		avatar.transform.SetParent(this.transform, false);
+		avatar.transform.SetParent(GameObjectExtensions.AvatarContainer().transform, false);
 		avatar.GetComponent<Button>().onClick.AddListener(() => avatarSelected(avatar));
 
 		GameObject newBot = Instantiate(botPrefab, new Vector3(0, 10, 0), new Quaternion()) as GameObject;

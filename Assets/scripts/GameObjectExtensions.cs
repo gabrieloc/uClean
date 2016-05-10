@@ -15,6 +15,11 @@ public static class GameObjectExtensions
 		}
 	}
 
+	public static GameObject AvatarContainer()
+	{
+		return GameObject.Find("AvatarContainer");
+	}
+
 	public static GameObject[] AvatarObjects()
 	{
 		return GameObject.FindGameObjectsWithTag("avatar");
