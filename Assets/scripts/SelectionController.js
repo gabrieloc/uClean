@@ -6,7 +6,7 @@ var selectedBots: List.<GameObject> = new List.<GameObject>();
 
 function avatarSelected(avatar: GameObject) {
 	var bot = botForAvatar(avatar);
-	toggleBotSelection(bot);
+	toggleBotSelection(bot, avatar);
 }
 
 function addSelected() {
@@ -22,7 +22,7 @@ private function insertNewBot() {
 
 	var avatarTransform = Vector3();
 	var width = 50.0; // TODO calculate based off space available
-	avatarTransform.x = width * 0.5 + (width * (oldBotCount));
+	avatarTransform.x = (width + 1.0) * oldBotCount;
 	// Debug.Log(avatarTransform);
 	var avatar = Instantiate(avatarPrefab, avatarTransform, Quaternion());
 	avatar.GetComponent.<Image>().color = colorForSelectionState(false);
@@ -40,7 +40,7 @@ private function avatars() {
 };
 
 // Bots
-function toggleBotSelection(bot: GameObject) {
+function toggleBotSelection(bot: GameObject, avatar: GameObject) {
 	var isSelected = selectedBots.Contains(bot);
 	if (isSelected) {
 		selectedBots.Remove(bot);
@@ -49,6 +49,7 @@ function toggleBotSelection(bot: GameObject) {
 		selectedBots.Add(bot);
 	}
 	bot.GetComponent.<Renderer>().material.color = colorForSelectionState(!isSelected);
+	avatar.GetComponent.<Image>().color = colorForSelectionState(!isSelected);
 }
 
 private function bots() {
