@@ -2,17 +2,15 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-
 public class SelectionController: MonoBehaviour 
 {
-
 	void Start() 
 	{
 		GameObject addButton = this.transform.Find("AddButton").gameObject;
 		addButton.GetComponent<Button>().onClick.AddListener(() => insertNewBot());
 	}
 
-	List<GameObject> selectedBots = new List<GameObject>();
+	public List<GameObject> selectedBots = new List<GameObject>();
 	public GameObject avatarPrefab;
 	public GameObject botPrefab;
 
