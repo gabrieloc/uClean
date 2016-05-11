@@ -11,6 +11,8 @@ public class SelectionController: MonoBehaviour
 	}
 
 	public List<GameObject> selectedBots = new List<GameObject>();
+	public Dictionary<GameObject, GameObject> availableLiftables = new Dictionary<GameObject, GameObject>();
+
 	public GameObject avatarPrefab;
 	public GameObject botPrefab;
 
@@ -59,6 +61,15 @@ public class SelectionController: MonoBehaviour
 
 		GameObject newBot = Instantiate(botPrefab, new Vector3(0, 10, 0), new Quaternion()) as GameObject;
 		newBot.SetSelected(false);
+	}
+
+	public void SetLiftableForBot(GameObject liftable, GameObject bot)
+	{
+		availableLiftables[bot] = liftable;
+	}
+	public void ClearLiftableForBot(GameObject bot)
+	{
+		availableLiftables.Remove(bot);
 	}
 }
 

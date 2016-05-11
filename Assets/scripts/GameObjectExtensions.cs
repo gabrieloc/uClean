@@ -29,5 +29,9 @@ public static class GameObjectExtensions
 	{
 		return GameObject.FindGameObjectsWithTag("bot");
 	}
+	public static GameObject[] LiftableObjects()
+	{
+		return GameObject.FindGameObjectsWithTag("liftable");
+	}
 }
 

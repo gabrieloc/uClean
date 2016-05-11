@@ -46,8 +46,10 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\scripts\BotController.cs" />
+     <Compile Include="Assets\scripts\CleanKit.cs" />
      <Compile Include="Assets\scripts\Controls.cs" />
      <Compile Include="Assets\scripts\GameObjectExtensions.cs" />
+     <Compile Include="Assets\scripts\PropController.cs" />
      <Compile Include="Assets\scripts\SelectionController.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
