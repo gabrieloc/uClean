@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-// TODO interprate touch controls too
 public static class Controls
 {
 		public static bool RelocationInputExists() 

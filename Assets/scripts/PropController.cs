@@ -12,7 +12,6 @@ public class PropController : MonoBehaviour
 			GameObject prop = CleanKit.CreateTestProp();
 			prop.transform.SetParent(transform, false);
 			prop.transform.position = new Vector3((Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1), 5, (Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1));
-			Debug.Log(prop.transform.position);
 		}
 	}
 
