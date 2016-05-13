@@ -6,7 +6,7 @@ namespace CleanKit
 	{
 		public float speed = 15.0f;
 		public float relocationRadus = 5.0f;
-		public float liftableDetectionRadius = 10.0f;
+		public float interactableDetectionRadius = 10.0f;
 		public SelectionController selectionController;
 
 		Vector3 contactOrigin;
@@ -33,27 +33,27 @@ namespace CleanKit
 					bot.transform.position = Vector3.MoveTowards (bot.transform.position, newPosition, distanceDelta);
 				}
 
-				// Before looking for liftables, clear the last available one selectionController.ClearLiftableForBot (bot);
+				// Before looking for interactables, clear the last available one selectionController.ClearInteractableForBot (bot);
 
-				foreach (GameObject liftable in GameObjectExtensions.LiftableObjects()) {
-					float distance = Vector3.Distance (liftable.transform.position, bot.transform.position);
+				foreach (GameObject interactable in GameObjectExtensions.InteractableObjects()) {
+					float distance = Vector3.Distance (interactable.transform.position, bot.transform.position);
 
-					// A liftable was available, but select this one if it's closer
-					if (selectionController.LiftableForBot (bot)) {
-						GameObject liftableForBot = selectionController.LiftableForBot (bot);
-						float previousDistance = Vector3.Distance (bot.transform.position, liftableForBot.transform.position);
+					// A interactable was available, but select this one if it's closer
+					if (selectionController.InteractableForBot (bot)) {
+						GameObject interactableForBot = selectionController.InteractableForBot (bot);
+						float previousDistance = Vector3.Distance (bot.transform.position, interactableForBot.transform.position);
 						if (distance < previousDistance) {
-							selectionController.SetLiftableForBot (liftable, bot);
+							selectionController.SetInteractableForBot (interactable, bot);
 						}
 					} 
-					// No liftable was available, select this one if it's close enough
-					else if (distance < liftableDetectionRadius) {
-						selectionController.SetLiftableForBot (liftable, bot);
+					// No interactable was available, select this one if it's close enough
+					else if (distance < interactableDetectionRadius) {
+						selectionController.SetInteractableForBot (interactable, bot);
 					}
 				}
 
-				if (selectionController.LiftableForBot (bot)) {
-					Debug.DrawLine (bot.transform.position, selectionController.LiftableForBot (bot).transform.position, Color.blue);
+				if (selectionController.InteractableForBot (bot)) {
+					Debug.DrawLine (bot.transform.position, selectionController.InteractableForBot (bot).transform.position, Color.blue);
 				}
 			}
 		}

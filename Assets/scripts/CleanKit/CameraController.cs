@@ -25,6 +25,44 @@ namespace CleanKit
 			_camera = Camera.main;
 		}
 
+		#if UNITY_EDITOR
+
+		Vector3 storedPosition;
+		bool isPanning = false;
+
+		void Update ()
+		{
+			if (Input.GetMouseButtonDown (0)) {
+				isPanning = true;
+				storedPosition = Input.mousePosition;
+			} else if (Input.GetMouseButtonUp (0)) {
+				isPanning = false;
+			}
+			if (isPanning) {
+				Vector3 currentPositon = _camera.ScreenToViewportPoint (Input.mousePosition);
+				Vector3 delta = currentPositon - storedPosition;
+
+				float positionX = -delta.x * moveSensitivityX * 0.1f * Time.deltaTime;
+				float positionY = -delta.y * moveSensitivityY * 0.1f * Time.deltaTime;
+				panPosition = new Vector3 (positionX, positionY, 0);
+
+				Debug.Log (panPosition);
+				_camera.transform.position += panPosition;
+			} else {
+				panPosition *= panDecelerationCurve;
+				_camera.transform.position += panPosition;
+			}
+//			zoomValue = 0.0f;
+
+		}
+
+
+		//			if (Input.GetAxis("Mouse ScrollWheel") > 0f ) {
+		//				// forwards
+		//			} else if (Input.GetAxis("Mouse ScrollWheel") < 0f ) {
+		//				// backwards
+		//			}
+		#else
 		void Update ()
 		{
 			if (updateZoomSensitivity) {
@@ -32,7 +70,7 @@ namespace CleanKit
 				moveSensitivityY = _camera.orthographicSize / 5.0f;
 			}
 
-			Touch[] touches = Input.touches; // TODO: delegate to Controls.cs
+			Touch[] touches = Input.touches;
 			switch (touches.Length) {
 			case 1:
 				TouchPhase phase = touches [0].phase;
@@ -78,5 +116,6 @@ namespace CleanKit
 				break;
 			}
 		}
+		#endif
 	}
 }

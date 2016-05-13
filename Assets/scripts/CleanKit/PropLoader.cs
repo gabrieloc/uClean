@@ -12,7 +12,7 @@ namespace CleanKit
 			testProp.GetComponent<Renderer> ().material.color = Color.cyan;
 			testProp.transform.localScale = new Vector3 (2, 5, 2);
 			testProp.name = "Prop";
-			testProp.tag = "liftable";
+			testProp.tag = "interactable";
 			return testProp;
 		}
 	}

@@ -10,7 +10,7 @@ namespace CleanKit
 		{
 			GameObject addButton = this.transform.Find ("AddButton").gameObject;
 			addButton.GetComponent<Button> ().onClick.AddListener (() => insertNewBot ());
-			sceneInteractionController = GameObject.Find ("InteractionController").GetComponent<SceneInteractionController> ();
+			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
 		}
 
 		public List<GameObject> selectedBots = new List<GameObject> ();
@@ -66,27 +66,27 @@ namespace CleanKit
 
 		// Lifting
 
-		private Liftman liftman = new Liftman ();
-		private SceneInteractionController sceneInteractionController;
+		private InteractableManager interMan = new InteractableManager ();
+		private InteractionController interactionController;
 
-		public GameObject LiftableForBot (GameObject bot)
+		public GameObject InteractableForBot (GameObject bot)
 		{
-			return liftman.LiftableForBot (bot);
+			return interMan.InteractableForBot (bot);
 		}
 
-		public void SetLiftableForBot (GameObject liftable, GameObject bot)
+		public void SetInteractableForBot (GameObject interactable, GameObject bot)
 		{
-			ClearLiftableForBot (bot);
-			liftman.SetLiftableForBot (liftable, bot);
-			sceneInteractionController.SetLiftableAvailable (liftable, true);
+			ClearInteractableForBot (bot);
+			interMan.SetInteractableForBot (interactable, bot);
+			interactionController.SetInteractableAvailable (interactable, true);
 		}
 
-		public void ClearLiftableForBot (GameObject bot)
+		public void ClearInteractableForBot (GameObject bot)
 		{
-			GameObject liftable = liftman.ClearLiftableForBot (bot);
-			if (liftable != null) {
-				bool liftableAvailable = liftman.LiftableIsAvailable (liftable);
-				sceneInteractionController.SetLiftableAvailable (liftable, liftableAvailable);
+			GameObject interactable = interMan.ClearInteractableForBot (bot);
+			if (interactable != null) {
+				bool interactableAvailable = interMan.InteractableIsAvailable (interactable);
+				interactionController.SetInteractableAvailable (interactable, interactableAvailable);
 			}
 		}
 	}
