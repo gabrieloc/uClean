@@ -17,6 +17,11 @@ namespace CleanKit
 			}
 		}
 
+		public static GameObject HUDCanvas ()
+		{
+			return GameObject.Find ("/HUDCanvas"); 
+		}
+
 		public static GameObject AvatarContainer ()
 		{
 			return GameObject.Find ("AvatarContainer");
@@ -35,6 +40,21 @@ namespace CleanKit
 		public static GameObject[] LiftableObjects ()
 		{
 			return GameObject.FindGameObjectsWithTag ("liftable");
+		}
+
+		public static List<GameObject> LiftableIndicators ()
+		{
+			return ChildGameObjectsForParentNamed ("InteractionController");
+		}
+
+		public static List<GameObject> ChildGameObjectsForParentNamed (string parentName)
+		{
+			GameObject parentObject = GameObject.Find (parentName);
+			List<GameObject> objects = new List<GameObject> ();
+			foreach (Transform childTransform in parentObject.transform) {
+				objects.Add (childTransform.gameObject);
+			}
+			return objects;
 		}
 	}
 }

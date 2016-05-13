@@ -6,15 +6,14 @@ namespace CleanKit
 {
 	public class SelectionController: MonoBehaviour
 	{
-		void Start ()
+		void Awake ()
 		{
 			GameObject addButton = this.transform.Find ("AddButton").gameObject;
 			addButton.GetComponent<Button> ().onClick.AddListener (() => insertNewBot ());
+			sceneInteractionController = GameObject.Find ("InteractionController").GetComponent<SceneInteractionController> ();
 		}
 
 		public List<GameObject> selectedBots = new List<GameObject> ();
-		public Dictionary<GameObject, GameObject> availableLiftables = new Dictionary<GameObject, GameObject> ();
-
 		public GameObject avatarPrefab;
 		public GameObject botPrefab;
 
@@ -65,14 +64,30 @@ namespace CleanKit
 			newBot.SetSelected (false);
 		}
 
+		// Lifting
+
+		private Liftman liftman = new Liftman ();
+		private SceneInteractionController sceneInteractionController;
+
+		public GameObject LiftableForBot (GameObject bot)
+		{
+			return liftman.LiftableForBot (bot);
+		}
+
 		public void SetLiftableForBot (GameObject liftable, GameObject bot)
 		{
-			availableLiftables [bot] = liftable;
+			ClearLiftableForBot (bot);
+			liftman.SetLiftableForBot (liftable, bot);
+			sceneInteractionController.SetLiftableAvailable (liftable, true);
 		}
 
 		public void ClearLiftableForBot (GameObject bot)
 		{
-			availableLiftables.Remove (bot);
+			GameObject liftable = liftman.ClearLiftableForBot (bot);
+			if (liftable != null) {
+				bool liftableAvailable = liftman.LiftableIsAvailable (liftable);
+				sceneInteractionController.SetLiftableAvailable (liftable, liftableAvailable);
+			}
 		}
 	}
 }

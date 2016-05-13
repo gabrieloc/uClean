@@ -34,14 +34,15 @@ namespace CleanKit
 				}
 
 				// Before looking for liftables, clear the last available one
-				selectionController.ClearLiftableForBot (bot);
+//				selectionController.ClearLiftableForBot (bot);
 
 				foreach (GameObject liftable in GameObjectExtensions.LiftableObjects()) {
 					float distance = Vector3.Distance (liftable.transform.position, bot.transform.position);
 
 					// A liftable was available, but select this one if it's closer
-					if (selectionController.availableLiftables.ContainsKey (bot)) { 
-						float previousDistance = Vector3.Distance (bot.transform.position, selectionController.availableLiftables [bot].transform.position);
+					if (selectionController.LiftableForBot (bot)) {
+						GameObject liftableForBot = selectionController.LiftableForBot (bot);
+						float previousDistance = Vector3.Distance (bot.transform.position, liftableForBot.transform.position);
 						if (distance < previousDistance) {
 							selectionController.SetLiftableForBot (liftable, bot);
 						}
@@ -51,8 +52,9 @@ namespace CleanKit
 						selectionController.SetLiftableForBot (liftable, bot);
 					}
 				}
-				if (selectionController.availableLiftables.ContainsKey (bot)) {
-					Debug.DrawLine (bot.transform.position, selectionController.availableLiftables [bot].transform.position, Color.blue);
+
+				if (selectionController.LiftableForBot (bot)) {
+					Debug.DrawLine (bot.transform.position, selectionController.LiftableForBot (bot).transform.position, Color.blue);
 				}
 			}
 		}
