@@ -17,7 +17,7 @@ namespace CleanKit
 			if (Controls.RelocationInputExists ()) {
 				Ray ray = Camera.main.ScreenPointToRay (Controls.RelocationInput ());
 				RaycastHit hit;
-				if (Physics.Raycast (ray, out hit, 100)) {
+				if (Physics.Raycast (ray, out hit, 1000)) {
 					contactOrigin = ray.origin;
 					contactPoint = hit.point;
 				}
@@ -33,8 +33,7 @@ namespace CleanKit
 					bot.transform.position = Vector3.MoveTowards (bot.transform.position, newPosition, distanceDelta);
 				}
 
-				// Before looking for liftables, clear the last available one
-//				selectionController.ClearLiftableForBot (bot);
+				// Before looking for liftables, clear the last available one selectionController.ClearLiftableForBot (bot);
 
 				foreach (GameObject liftable in GameObjectExtensions.LiftableObjects()) {
 					float distance = Vector3.Distance (liftable.transform.position, bot.transform.position);
