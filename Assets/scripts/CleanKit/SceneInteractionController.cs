@@ -12,7 +12,7 @@ namespace CleanKit
 		{
 			foreach (GameObject liftable in availableLiftables) {
 				GameObject indicator = indicatorForLiftableObject (liftable);
-				Vector3 position = RectTransformUtility.WorldToScreenPoint (Camera.main, liftable.transform.position);//TODO convert?
+				Vector3 position = RectTransformUtility.WorldToScreenPoint (Camera.main, liftable.transform.position);
 				indicator.transform.position = position;
 			}	
 		}
@@ -33,7 +33,7 @@ namespace CleanKit
 
 		private GameObject createLiftableIndicator (string identifier)
 		{
-			GameObject indicator = GameObject.Instantiate (Resources.Load ("LiftableIndicator"), new Vector3 (), new Quaternion ()) as GameObject;
+			GameObject indicator = GameObject.Instantiate (Resources.Load ("LiftableIndicator")) as GameObject;
 			indicator.name = identifier;
 			return indicator;
 		}
