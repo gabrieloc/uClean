@@ -9,7 +9,6 @@ namespace CleanKit
 		public float relocationRadus = 5.0f;
 		public float interactableDetectionRadius = 10.0f;
 
-		Vector3 contactOrigin;
 		Vector3 contactPoint = Vector3.zero;
 
 		void Awake ()
@@ -24,7 +23,6 @@ namespace CleanKit
 				Ray ray = Camera.main.ScreenPointToRay (Controls.RelocationInput ());
 				RaycastHit hit;
 				if (Physics.Raycast (ray, out hit, 1000)) {
-					contactOrigin = ray.origin;
 					contactPoint = hit.point;
 				}
 			}
