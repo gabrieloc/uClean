@@ -13,6 +13,7 @@ namespace CleanKit
 			testProp.transform.localScale = new Vector3 (2, 5, 2);
 			testProp.name = "Prop";
 			testProp.tag = "interactable";
+			testProp.AddComponent<Interactable> ();
 			return testProp;
 		}
 	}

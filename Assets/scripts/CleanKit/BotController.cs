@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace CleanKit
 {
@@ -7,10 +8,15 @@ namespace CleanKit
 		public float speed = 15.0f;
 		public float relocationRadus = 5.0f;
 		public float interactableDetectionRadius = 10.0f;
-		public SelectionController selectionController;
 
 		Vector3 contactOrigin;
 		Vector3 contactPoint = Vector3.zero;
+
+		void Awake ()
+		{
+			selectionController = GameObject.Find ("SelectionController").GetComponent<SelectionController> ();
+			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
+		}
 
 		void Update ()
 		{
@@ -25,36 +31,66 @@ namespace CleanKit
 			Debug.DrawLine (contactOrigin, contactPoint, Color.red);
 
 			float distanceDelta = speed * Time.deltaTime;
-			foreach (GameObject bot in GameObjectExtensions.BotObjects()) {
+			foreach (Bot bot in selectionController.allBots) {
 				Vector3 newPosition = contactPoint;
 				newPosition.y = 0.5f;
-				bool botSelected = selectionController.selectedBots.Contains (bot);
-				if (botSelected && Vector3.Distance (newPosition, bot.transform.position) > relocationRadus) {
+				bool botSelected = selectionController.IsBotSelected (bot);
+				if (botSelected && Vector3.Distance (newPosition, bot.gameObject.transform.position) > relocationRadus) {
 					bot.transform.position = Vector3.MoveTowards (bot.transform.position, newPosition, distanceDelta);
 				}
 
 				// Before looking for interactables, clear the last available one selectionController.ClearInteractableForBot (bot);
 
-				foreach (GameObject interactable in GameObjectExtensions.InteractableObjects()) {
+				foreach (Interactable interactable in interactionController.allInteractables) {
 					float distance = Vector3.Distance (interactable.transform.position, bot.transform.position);
 
 					// A interactable was available, but select this one if it's closer
-					if (selectionController.InteractableForBot (bot)) {
-						GameObject interactableForBot = selectionController.InteractableForBot (bot);
-						float previousDistance = Vector3.Distance (bot.transform.position, interactableForBot.transform.position);
+					Interactable existingInteractable = interactableForBot (bot);
+					if (existingInteractable != null) {
+						float previousDistance = Vector3.Distance (bot.transform.position, existingInteractable.transform.position);
 						if (distance < previousDistance) {
-							selectionController.SetInteractableForBot (interactable, bot);
+							setInteractableForBot (interactable, bot);
 						}
 					} 
 					// No interactable was available, select this one if it's close enough
 					else if (distance < interactableDetectionRadius) {
-						selectionController.SetInteractableForBot (interactable, bot);
+						setInteractableForBot (interactable, bot);
 					}
 				}
 
-				if (selectionController.InteractableForBot (bot)) {
-					Debug.DrawLine (bot.transform.position, selectionController.InteractableForBot (bot).transform.position, Color.blue);
+				if (interactableForBot (bot)) {
+					Debug.DrawLine (bot.transform.position, interactableForBot (bot).transform.position, Color.blue);
 				}
+			}
+		}
+
+		// Selection
+
+		private SelectionController selectionController;
+
+		// Interactables
+
+		private InteractableManager interMan = new InteractableManager ();
+		private InteractionController interactionController;
+
+		private Interactable interactableForBot (Bot bot)
+		{
+			return interMan.InteractableForBot (bot);
+		}
+
+		private void setInteractableForBot (Interactable interactable, Bot bot)
+		{
+			clearInteractableForBot (bot);
+			interMan.SetInteractableForBot (interactable, bot);
+			interactionController.SetInteractableAvailable (interactable, true);
+		}
+
+		private void clearInteractableForBot (Bot bot)
+		{
+			Interactable interactable = interMan.ClearInteractableForBot (bot);
+			if (interactable != null) {
+				bool interactableAvailable = interMan.InteractableIsAvailable (interactable);
+				interactionController.SetInteractableAvailable (interactable, interactableAvailable);
 			}
 		}
 	}

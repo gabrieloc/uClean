@@ -2,22 +2,29 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+/*
+ * Manages interaction with objects in scene
+ * Interprets events and sends elsewhere
+ * eg. tells BotController to pick up a liftable object, or to relocate bots
+ */
+
 namespace CleanKit
 {
 	public class InteractionController : MonoBehaviour
 	{
-		private List<GameObject> availableInteractables = new List<GameObject> ();
+		public List<Interactable> allInteractables = new List<Interactable> ();
+		private List<Interactable> availableInteractables = new List<Interactable> ();
 
 		void Update ()
 		{
-			foreach (GameObject interactable in availableInteractables) {
+			foreach (Interactable interactable in availableInteractables) {
 				GameObject indicator = indicatorForInteractableObject (interactable);
 				Vector3 position = RectTransformUtility.WorldToScreenPoint (Camera.main, interactable.transform.position);
 				indicator.transform.position = position;
 			}	
 		}
 
-		public void SetInteractableAvailable (GameObject interactable, bool available)
+		public void SetInteractableAvailable (Interactable interactable, bool available)
 		{
 			if (availableInteractables.Contains (interactable) == false && available) {
 				availableInteractables.Add (interactable);
@@ -38,7 +45,7 @@ namespace CleanKit
 			return indicator;
 		}
 
-		private GameObject indicatorForInteractableObject (GameObject interactable)
+		private GameObject indicatorForInteractableObject (Interactable interactable)
 		{
 			List<GameObject> interactableIndicators = GameObjectExtensions.InteractableIndicators ();
 			foreach (GameObject indicator in interactableIndicators) {
@@ -49,7 +56,7 @@ namespace CleanKit
 			return null;
 		}
 
-		private string stringIdentifierForInteractable (GameObject interactable)
+		private string stringIdentifierForInteractable (Interactable interactable)
 		{
 			return interactable.gameObject.GetInstanceID ().ToString ();
 		}

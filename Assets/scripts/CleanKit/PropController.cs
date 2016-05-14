@@ -10,16 +10,16 @@ namespace CleanKit
 
 		void Start ()
 		{
+			InteractionController interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
+
 			for (int index = 0; index < initialSpawn; index++) {
 				GameObject prop = PropLoader.CreateTestProp ();
 				prop.transform.SetParent (transform, false);
 				prop.transform.position = new Vector3 ((Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1), 10, (Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1));
-			}
-		}
 
-		void Update ()
-		{
-			
+				Interactable interactable = prop.GetComponent<Interactable> ();
+				interactionController.allInteractables.Add (interactable);
+			}
 		}
 	}
 }

@@ -1,26 +1,25 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CleanKit
 {
 	public class InteractableManager
 	{
-		private Dictionary<GameObject, List<GameObject>> availableInteractables = new Dictionary<GameObject, List<GameObject>> ();
+		private Dictionary<Interactable, List<Bot>> availableInteractables = new Dictionary<Interactable, List<Bot>> ();
 
-		public void SetInteractableForBot (GameObject interactable, GameObject bot)
+		public void SetInteractableForBot (Interactable interactable, Bot bot)
 		{
 			if (availableInteractables.ContainsKey (interactable)) {
-				List<GameObject> bots = availableInteractables [interactable];
+				List<Bot> bots = availableInteractables [interactable];
 				bots.Add (bot);
 			} else {
-				availableInteractables [interactable] = new List<GameObject> ();
+				availableInteractables [interactable] = new List<Bot> ();
 				SetInteractableForBot (interactable, bot);
 			}
 		}
 
-		public GameObject InteractableForBot (GameObject bot)
+		public Interactable InteractableForBot (Bot bot)
 		{
-			foreach (GameObject interactable in availableInteractables.Keys) {
+			foreach (Interactable interactable in availableInteractables.Keys) {
 				if (availableInteractables [interactable].Contains (bot)) {
 					return interactable;
 				}
@@ -28,11 +27,10 @@ namespace CleanKit
 			return null;
 		}
 
-		// Returns interactable
-		public GameObject ClearInteractableForBot (GameObject bot)
+		public Interactable ClearInteractableForBot (Bot bot)
 		{
-			foreach (GameObject interactable in availableInteractables.Keys) {
-				List<GameObject> botsForInteractable = availableInteractables [interactable];
+			foreach (Interactable interactable in availableInteractables.Keys) {
+				List<Bot> botsForInteractable = availableInteractables [interactable];
 				if (botsForInteractable.Contains (bot)) {
 					botsForInteractable.Remove (bot);
 					if (botsForInteractable.Count == 0) {
@@ -44,7 +42,7 @@ namespace CleanKit
 			return null;
 		}
 
-		public bool InteractableIsAvailable (GameObject interactable)
+		public bool InteractableIsAvailable (Interactable interactable)
 		{
 			return availableInteractables.ContainsKey (interactable);
 		}

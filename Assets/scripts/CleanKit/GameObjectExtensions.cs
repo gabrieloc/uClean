@@ -32,16 +32,6 @@ namespace CleanKit
 			return GameObject.FindGameObjectsWithTag ("avatar");
 		}
 
-		public static GameObject[] BotObjects ()
-		{
-			return GameObject.FindGameObjectsWithTag ("bot");
-		}
-
-		public static GameObject[] InteractableObjects ()
-		{
-			return GameObject.FindGameObjectsWithTag ("interactable");
-		}
-
 		public static List<GameObject> InteractableIndicators ()
 		{
 			return ChildGameObjectsForParentNamed ("InteractionController");

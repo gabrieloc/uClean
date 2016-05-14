@@ -2,6 +2,12 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+/*
+ * Responsible for managing 2D UI (HUD)
+ * Informs BotController of selection/deselection
+ * Takes no responsibility for behaviour
+*/
+
 namespace CleanKit
 {
 	public class SelectionController: MonoBehaviour
@@ -10,40 +16,46 @@ namespace CleanKit
 		{
 			GameObject addButton = this.transform.Find ("AddButton").gameObject;
 			addButton.GetComponent<Button> ().onClick.AddListener (() => insertNewBot ());
-			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
 		}
 
-		public List<GameObject> selectedBots = new List<GameObject> ();
+		public List<Bot> allBots = new List<Bot> ();
+		private List<Bot> selectedBots = new List<Bot> ();
 		public GameObject avatarPrefab;
 		public GameObject botPrefab;
 
 		void avatarSelected (GameObject avatar)
 		{
-			GameObject bot = botForAvatar (avatar);
+			Bot bot = botForAvatar (avatar);
 			toggleBotSelection (bot, avatar);
 		}
 
-		GameObject botForAvatar (GameObject avatar)
+		Bot botForAvatar (GameObject avatar)
 		{
 			int index = System.Array.IndexOf (GameObjectExtensions.AvatarObjects (), avatar);
-			return GameObjectExtensions.BotObjects () [index];
+			return allBots [index];
 		}
 
-		void toggleBotSelection (GameObject bot, GameObject avatar)
+		void toggleBotSelection (Bot bot, GameObject avatar)
 		{
-			bool wasSelected = selectedBots.Contains (bot);
+			bool wasSelected = IsBotSelected (bot);
 			if (wasSelected) {
 				selectedBots.Remove (bot);
 			} else {
 				selectedBots.Add (bot);
 			}
-			bot.SetSelected (!wasSelected);
+			bot.gameObject.SetSelected (!wasSelected);
 			avatar.SetSelected (!wasSelected);
 		}
 
+		public bool IsBotSelected (Bot bot)
+		{
+			return selectedBots.Contains (bot);
+		}
+
+		// Remove this method once UI is rebuilt
 		void insertNewBot ()
 		{
-			int oldBotCount = GameObjectExtensions.BotObjects ().Length;
+			int oldBotCount = allBots.Count;
 
 			GameObject avatarContainer = GameObjectExtensions.AvatarContainer ();
 			Rect containerRect = avatarContainer.GetComponent<RectTransform> ().rect;
@@ -60,34 +72,12 @@ namespace CleanKit
 			avatar.transform.SetParent (GameObjectExtensions.AvatarContainer ().transform, false);
 			avatar.GetComponent<Button> ().onClick.AddListener (() => avatarSelected (avatar));
 
-			GameObject newBot = Instantiate (botPrefab, new Vector3 (0, 10, 0), new Quaternion ()) as GameObject;
-			newBot.SetSelected (false);
-		}
+			GameObject botGameObject = Instantiate (botPrefab, new Vector3 (0, 10, 0), new Quaternion ()) as GameObject;
+			botGameObject.SetSelected (false);
 
-		// Lifting
+			Bot newBot = botGameObject.GetComponent<Bot> ();
 
-		private InteractableManager interMan = new InteractableManager ();
-		private InteractionController interactionController;
-
-		public GameObject InteractableForBot (GameObject bot)
-		{
-			return interMan.InteractableForBot (bot);
-		}
-
-		public void SetInteractableForBot (GameObject interactable, GameObject bot)
-		{
-			ClearInteractableForBot (bot);
-			interMan.SetInteractableForBot (interactable, bot);
-			interactionController.SetInteractableAvailable (interactable, true);
-		}
-
-		public void ClearInteractableForBot (GameObject bot)
-		{
-			GameObject interactable = interMan.ClearInteractableForBot (bot);
-			if (interactable != null) {
-				bool interactableAvailable = interMan.InteractableIsAvailable (interactable);
-				interactionController.SetInteractableAvailable (interactable, interactableAvailable);
-			}
+			allBots.Add (newBot);
 		}
 	}
 }
