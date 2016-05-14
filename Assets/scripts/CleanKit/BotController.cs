@@ -28,7 +28,9 @@ namespace CleanKit
 					contactPoint = hit.point;
 				}
 			}
-			Debug.DrawLine (contactOrigin, contactPoint, Color.red);
+			Debug.DrawLine (contactPoint - new Vector3 (2, 0, 0), contactPoint + new Vector3 (2, 0, 0), Color.red);
+			Debug.DrawLine (contactPoint - new Vector3 (0, 0, 2), contactPoint + new Vector3 (0, 0, 2), Color.red);
+
 
 			float distanceDelta = speed * Time.deltaTime;
 			foreach (Bot bot in selectionController.allBots) {
