@@ -39,8 +39,6 @@ namespace CleanKit
 					bot.transform.position = Vector3.MoveTowards (bot.transform.position, newPosition, distanceDelta);
 				}
 
-				// Before looking for interactables, clear the last available one selectionController.ClearInteractableForBot (bot);
-
 				foreach (Interactable interactable in interactionController.allInteractables) {
 					float distance = Vector3.Distance (interactable.transform.position, bot.transform.position);
 
@@ -58,8 +56,14 @@ namespace CleanKit
 					}
 				}
 
-				if (interactableForBot (bot)) {
-					Debug.DrawLine (bot.transform.position, interactableForBot (bot).transform.position, Color.blue);
+				// Clear existing interactable if bot is too far away
+				if (interactableForBot (bot) != null) {
+					float distance = Vector3.Distance (interactableForBot (bot).transform.position, bot.transform.position);
+					if (distance > interactableDetectionRadius) {
+						clearInteractableForBot (bot);
+					} else {
+						Debug.DrawLine (bot.transform.position, interactableForBot (bot).transform.position, Color.blue);
+					}
 				}
 			}
 		}
@@ -80,9 +84,11 @@ namespace CleanKit
 
 		private void setInteractableForBot (Interactable interactable, Bot bot)
 		{
-			clearInteractableForBot (bot);
-			interMan.SetInteractableForBot (interactable, bot);
-			interactionController.SetInteractableAvailable (interactable, true);
+			if (interMan.InteractableForBot (bot) != interactable) {
+				clearInteractableForBot (bot);
+				interMan.SetInteractableForBot (interactable, bot);
+				interactionController.SetInteractableAvailable (interactable, true);
+			}
 		}
 
 		private void clearInteractableForBot (Bot bot)
