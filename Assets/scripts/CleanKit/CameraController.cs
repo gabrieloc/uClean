@@ -27,41 +27,35 @@ namespace CleanKit
 
 		#if UNITY_EDITOR
 
-		Vector3 storedPosition;
 		bool isPanning = false;
+		Vector3 panOrigin;
 
 		void Update ()
 		{
+			Rect screenRect = new Rect (0, 0, Screen.width, Screen.height);
+			if (!screenRect.Contains (Input.mousePosition)) {
+				return;
+			}
+
+			float scrollPosition = Input.GetAxis ("Mouse ScrollWheel");
+			Vector3 mousePosition = Input.mousePosition;
+
 			if (Input.GetMouseButtonDown (0)) {
 				isPanning = true;
-				storedPosition = Input.mousePosition;
+				panPosition = _camera.transform.position;
+				panOrigin = Camera.main.ScreenToViewportPoint (mousePosition);
 			} else if (Input.GetMouseButtonUp (0)) {
 				isPanning = false;
 			}
-			if (isPanning) {
-				Vector3 currentPositon = _camera.ScreenToViewportPoint (Input.mousePosition);
-				Vector3 delta = currentPositon - storedPosition;
 
-				float positionX = -delta.x * moveSensitivityX * 0.1f * Time.deltaTime;
-				float positionY = -delta.y * moveSensitivityY * 0.1f * Time.deltaTime;
-				panPosition = new Vector3 (positionX, positionY, 0);
-
-				Debug.Log (panPosition);
-				_camera.transform.position += panPosition;
-			} else {
-				panPosition *= panDecelerationCurve;
-				_camera.transform.position += panPosition;
+			Vector3 position = _camera.ScreenToViewportPoint (Input.mousePosition) - panOrigin;
+			if (isPanning) {// && delta.magnitude > 0) {
+				_camera.transform.position = panPosition - position;
+			} else if (scrollPosition != 0.0f && mousePosition != Vector3.zero) {
+				_camera.orthographicSize -= Input.mouseScrollDelta.y;
+				_camera.orthographicSize = Mathf.Clamp (_camera.orthographicSize, minZoom, maxZoom);
 			}
-//			zoomValue = 0.0f;
-
 		}
-
-
-		//			if (Input.GetAxis("Mouse ScrollWheel") > 0f ) {
-		//				// forwards
-		//			} else if (Input.GetAxis("Mouse ScrollWheel") < 0f ) {
-		//				// backwards
-		//			}
 		#else
 		void Update ()
 		{
