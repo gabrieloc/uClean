@@ -10,30 +10,6 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public class BotCell: MonoBehaviour
-	{
-		public static List<BotCell> AllObjects ()
-		{
-			List<BotCell> objects = new List<BotCell> ();
-			foreach (BotCell cell in GameObject.FindObjectsOfType<BotCell> ()) {
-				objects.Add (cell.GetComponent<BotCell> ());
-			}
-			return objects;
-		}
-	}
-
-	public class BotGroupCell: MonoBehaviour
-	{
-		public static List<BotGroupCell> AllObjects ()
-		{
-			List<BotGroupCell> objects = new List<BotGroupCell> ();
-			foreach (BotGroupCell cell in GameObject.FindObjectsOfType<BotGroupCell> ()) {
-				objects.Add (cell.GetComponent<BotGroupCell> ());
-			}
-			return objects;
-		}
-	}
-
 	public class SelectionController: MonoBehaviour
 	{
 		private List<Bot> allBots = new List<Bot> ();
