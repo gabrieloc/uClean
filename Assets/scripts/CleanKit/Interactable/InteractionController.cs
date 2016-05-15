@@ -35,7 +35,6 @@ namespace CleanKit
 				GameObject interactableIndicator = indicatorForInteractableObject (interactable);
 				Destroy (interactableIndicator);
 			}
-			Debug.Log (availableInteractables.Count + " available");
 		}
 
 		private GameObject createInteractableIndicator (string identifier)

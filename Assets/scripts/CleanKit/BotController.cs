@@ -13,8 +13,9 @@ namespace CleanKit
 
 		void Awake ()
 		{
-			selectionController = GameObject.Find ("SelectionController").GetComponent<SelectionController> ();
 			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
+			selectionController = GameObject.Find ("SelectionController").GetComponent<SelectionController> ();
+			selectionController.selectionDelegate = this;
 		}
 
 		void Update ()
@@ -31,11 +32,14 @@ namespace CleanKit
 
 
 			float distanceDelta = speed * Time.deltaTime;
-			foreach (Bot bot in selectionController.allBots) {
+			foreach (Bot bot in selectionController.selectedBots) {
 				Vector3 newPosition = contactPoint;
 				newPosition.y = 0.5f;
-				bool botSelected = selectionController.IsBotSelected (bot);
-				if (botSelected && Vector3.Distance (newPosition, bot.gameObject.transform.position) > relocationRadus) {
+
+//				bool botBelongsToGroup = selectionController.BotBelongsToGroup(bot);
+				// If bot belongs to group, move
+
+				if (canRelocateBot (bot, newPosition)) {
 					bot.transform.position = Vector3.MoveTowards (bot.transform.position, newPosition, distanceDelta);
 				}
 
@@ -68,9 +72,37 @@ namespace CleanKit
 			}
 		}
 
+		private bool canRelocateBot (Bot bot, Vector3 toPosition)
+		{
+			return Vector3.Distance (toPosition, bot.transform.position) > relocationRadus;
+		}
+
 		// Selection
 
 		private SelectionController selectionController;
+
+		public void AddBot ()
+		{
+			GameObject botGameObject = Instantiate (Resources.Load ("Bot"), new Vector3 (0, 10, 0), new Quaternion ()) as GameObject;
+			botGameObject.SetSelected (false);
+
+			Bot bot = botGameObject.GetComponent<Bot> ();
+			bot.transform.SetParent (transform);
+
+			selectionController.DidInsertBot (bot);
+		}
+
+		// TODO replace with proper delegate
+
+		public void selectionControllerSelectedBot (Bot bot)
+		{
+
+		}
+
+		public void selectionControllerDeselectedBot (Bot bot)
+		{
+			
+		}
 
 		// Interactables
 
@@ -87,6 +119,8 @@ namespace CleanKit
 			if (interMan.InteractableForBot (bot) != interactable) {
 				clearInteractableForBot (bot);
 				interMan.SetInteractableForBot (interactable, bot);
+
+				// TODO Only update UI if bot is selected
 				interactionController.SetInteractableAvailable (interactable, true);
 			}
 		}

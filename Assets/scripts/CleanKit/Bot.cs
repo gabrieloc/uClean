@@ -5,11 +5,39 @@ namespace CleanKit
 {
 	public class BotGroup
 	{
-		private List<Bot> bots;
+		public List<Bot> bots = new List<Bot> ();
+
+		public BotGroup (List<Bot> initialBots)
+		{
+			bots = initialBots;
+		}
+
+		public int BotCount ()
+		{
+			return bots.Count;	
+		}
+
+		public void AddBot (Bot bot)
+		{
+			bots.Add (bot);
+			bot.group = this;
+		}
+
+		public void RemoveBot (Bot bot)
+		{
+			bots.Remove (bot);
+			bot.group = null;
+		}
+
+		public Bot BotAtIndex (int index)
+		{
+			return bots [index];
+		}
 	}
 
 	public class Bot : MonoBehaviour
 	{
+		public BotGroup group;
 	}
 
 	public class Interactable : MonoBehaviour

@@ -22,14 +22,9 @@ namespace CleanKit
 			return GameObject.Find ("/HUDCanvas"); 
 		}
 
-		public static GameObject AvatarContainer ()
+		public static List<GameObject> BotCellObjects ()
 		{
-			return GameObject.Find ("AvatarContainer");
-		}
-
-		public static GameObject[] AvatarObjects ()
-		{
-			return GameObject.FindGameObjectsWithTag ("avatar");
+			return ChildGameObjectsForParentNamed ("SelectionController");
 		}
 
 		public static List<GameObject> InteractableIndicators ()

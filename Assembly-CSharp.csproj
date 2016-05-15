@@ -47,6 +47,7 @@
   <ItemGroup>
      <Compile Include="Assets\scripts\CleanKit\Bot.cs" />
      <Compile Include="Assets\scripts\CleanKit\BotController.cs" />
+     <Compile Include="Assets\scripts\CleanKit\BotSelectionLayout.cs" />
      <Compile Include="Assets\scripts\CleanKit\CameraController.cs" />
      <Compile Include="Assets\scripts\CleanKit\Controls.cs" />
      <Compile Include="Assets\scripts\CleanKit\GameObjectExtensions.cs" />
