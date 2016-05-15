@@ -12,9 +12,25 @@ namespace CleanKit
 {
 	public class BotCell: MonoBehaviour
 	{
-		public void SetSelected (bool selected)
+		public static List<BotCell> AllObjects ()
 		{
-			// TODO
+			List<BotCell> objects = new List<BotCell> ();
+			foreach (BotCell cell in GameObject.FindObjectsOfType<BotCell> ()) {
+				objects.Add (cell.GetComponent<BotCell> ());
+			}
+			return objects;
+		}
+	}
+
+	public class BotGroupCell: MonoBehaviour
+	{
+		public static List<BotGroupCell> AllObjects ()
+		{
+			List<BotGroupCell> objects = new List<BotGroupCell> ();
+			foreach (BotGroupCell cell in GameObject.FindObjectsOfType<BotGroupCell> ()) {
+				objects.Add (cell.GetComponent<BotGroupCell> ());
+			}
+			return objects;
 		}
 	}
 
@@ -60,27 +76,12 @@ namespace CleanKit
 		{
 			allBots.Add (bot);
 
-			Rect rect = GetComponent<RectTransform> ().rect;
-			GridLayoutGroup layout = GetComponent<GridLayoutGroup> ();
-
-			float h = rect.height - layout.padding.top - layout.padding.bottom;
-			float w = rect.width - layout.padding.left - layout.padding.right;
-
-			int count = allBots.Count;
-			bool useSmallSize = (count * h) > w;
-			int rows = useSmallSize ? 2 : 1;
-			layout.constraintCount = rows;
-
-			float gutter = useSmallSize ? 4.0f : 2.0f;
-			layout.spacing = new Vector2 (gutter, gutter);
-				
-			float cellLength = (h * 0.5f) - ((rows - 1) * gutter);
-			layout.cellSize = new Vector2 (cellLength, cellLength);
-
 			GameObject cell = Instantiate (Resources.Load ("BotCell"), new Vector3 (), new Quaternion ()) as GameObject;
 			cell.SetSelected (false);
 			cell.transform.SetParent (transform, false);
 			cell.GetComponent<Button> ().onClick.AddListener (() => didSelectBot (bot));
+
+			layout.UpdateLayout ();
 		}
 
 		private void didSelectBot (Bot bot)
@@ -94,9 +95,9 @@ namespace CleanKit
 			bot.gameObject.SetSelected (!wasSelected);
 
 			BotCell cell = cellForBot (bot);
-			cell.SetSelected (!wasSelected);
+			cell.gameObject.SetSelected (!wasSelected);
 
-			layoutCells ();
+			layout.UpdateLayout ();
 		}
 
 		private void didSelectBotGroup (BotGroup group)
@@ -140,13 +141,8 @@ namespace CleanKit
 		private BotCell cellForBot (Bot bot)
 		{
 			int index = allBots.IndexOf (bot);
-			GameObject gameObject = GameObjectExtensions.BotCellObjects () [index];
-			return gameObject.GetComponent<BotCell> ();
-		}
-
-		private void layoutCells ()
-		{
-			
+			BotCell cell = BotCell.AllObjects () [index];
+			return cell;
 		}
 
 		// Public Conveniences

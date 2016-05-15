@@ -22,11 +22,6 @@ namespace CleanKit
 			return GameObject.Find ("/HUDCanvas"); 
 		}
 
-		public static List<GameObject> BotCellObjects ()
-		{
-			return ChildGameObjectsForParentNamed ("SelectionController");
-		}
-
 		public static List<GameObject> InteractableIndicators ()
 		{
 			return ChildGameObjectsForParentNamed ("InteractionController");
