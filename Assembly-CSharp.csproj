@@ -45,8 +45,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\BotCell.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bot.cs" />
+     <Compile Include="Assets\scripts\CleanKit\BotCell.cs" />
      <Compile Include="Assets\scripts\CleanKit\BotController.cs" />
      <Compile Include="Assets\scripts\CleanKit\BotSelectionLayout.cs" />
      <Compile Include="Assets\scripts\CleanKit\CameraController.cs" />
