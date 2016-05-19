@@ -38,10 +38,16 @@ namespace CleanKit
 	public class Bot : MonoBehaviour
 	{
 		public BotGroup group;
+
+		public bool belongsToGroup {
+			get {
+				return group != null;
+			}
+		}
 	}
 
 	public class Interactable : MonoBehaviour
 	{
 	}
 }
-
+	

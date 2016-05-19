@@ -15,31 +15,29 @@ namespace CleanKit
 
 		public void UpdateLayout ()
 		{
-
 			Rect rect = layoutDelegate.GetComponent<RectTransform> ().rect;
+			float containerHeight = rect.height;
 
-			// TODO figure out how to resize parent
+			List<Bot> bots = layoutDelegate.allBots;
+			List<BotGroup> groups = layoutDelegate.botGroups;
+			int ungroupedIndex = 0;
 
-//			float intrinsicHeight = Insets.x * 2.0f;
-//			float availableWidth = rect.width - Insets.y * 2.0f;
+			foreach (Bot bot in bots) {
+				if (bot.belongsToGroup) {
+					
+				} else {
+					BotCell cell = layoutDelegate.cellForBot (bot);
+					RectTransform rectTransform = cell.GetComponent<RectTransform> ();
 
-			// Bot Group Cells
-			List<BotGroupCell> botGroupCells = BotGroupCell.AllObjects ();
-			foreach (BotGroupCell cell in botGroupCells) {
-				// TODO
+					float length = containerHeight;
+
+					rectTransform.offsetMin = new Vector2 (length * ungroupedIndex, 0.0f);
+					rectTransform.offsetMax = new Vector2 (length * (ungroupedIndex + 1), 0.0f);
+
+					ungroupedIndex++;
+				}
 			}
 
-			// Available Bot Cells
-			List<BotCell> botCells = BotCell.AllObjects ();
-			foreach (BotCell cell in botCells) {
-				
-			}
-//
-//			float gutter = useSmallSize ? 4.0f : 2.0f;
-//			layout.spacing = new Vector2 (gutter, gutter);
-//
-//			float cellLength = (h * 0.5f) - ((rows - 1) * gutter);
-//			layout.cellSize = new Vector2 (cellLength, cellLength);
 		}
 	}
 }

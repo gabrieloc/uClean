@@ -12,8 +12,8 @@ namespace CleanKit
 {
 	public class SelectionController: MonoBehaviour
 	{
-		private List<Bot> allBots = new List<Bot> ();
-		private List<BotGroup> botGroups = new List<BotGroup> ();
+		internal List<Bot> allBots = new List<Bot> ();
+		internal List<BotGroup> botGroups = new List<BotGroup> ();
 		public List<Bot> selectedBots = new List<Bot> ();
 
 		// TODO use proper delegation syntax
@@ -114,7 +114,7 @@ namespace CleanKit
 			selectionDelegate.selectionControllerDeselectedBot (bot);
 		}
 
-		private BotCell cellForBot (Bot bot)
+		internal BotCell cellForBot (Bot bot)
 		{
 			int index = allBots.IndexOf (bot);
 			BotCell cell = BotCell.AllObjects () [index];
