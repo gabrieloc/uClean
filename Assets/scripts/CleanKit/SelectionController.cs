@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Assertions;
 using System.Collections.Generic;
 
 /*
@@ -19,7 +20,7 @@ namespace CleanKit
 		// TODO use proper delegation syntax
 		public BotController selectionDelegate;
 
-		public BotSelectionLayout layout;
+		private Button groupButton;
 
 		public int NumberOfGroups ()
 		{
@@ -44,8 +45,7 @@ namespace CleanKit
 
 		void Awake ()
 		{
-			layout = GetComponent<BotSelectionLayout> ();
-			layout.layoutDelegate = this;
+			groupButton = GameObject.Find ("GroupButton").GetComponent<Button> ();
 		}
 
 		public void DidInsertBot (Bot bot)
@@ -56,8 +56,6 @@ namespace CleanKit
 			cell.SetSelected (false);
 			cell.transform.SetParent (transform, false);
 			cell.GetComponent<Button> ().onClick.AddListener (() => didSelectBot (bot));
-
-			layout.UpdateLayout ();
 		}
 
 		private void didSelectBot (Bot bot)
@@ -72,8 +70,6 @@ namespace CleanKit
 
 			BotCell cell = cellForBot (bot);
 			cell.gameObject.SetSelected (!wasSelected);
-
-			layout.UpdateLayout ();
 		}
 
 		private void didSelectBotGroup (BotGroup group)
