@@ -3,7 +3,11 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public class BotGroup
+	public class Entity: MonoBehaviour
+	{
+	}
+
+	public class BotGroup: Entity
 	{
 		public List<Bot> bots = new List<Bot> ();
 
@@ -35,8 +39,17 @@ namespace CleanKit
 		}
 	}
 
-	public class Bot : MonoBehaviour
+	public class Bot: Entity
 	{
+		public static Bot Instantiate ()
+		{
+			GameObject gameObject = Instantiate (Resources.Load ("Bot"), new Vector3 (0, 10, 0), new Quaternion ()) as GameObject;
+			gameObject.SetSelected (false);
+			gameObject.name = BotNamer.New ();
+			Bot bot = gameObject.GetComponent<Bot> ();
+			return bot;
+		}
+
 		public BotGroup group;
 
 		public bool belongsToGroup {

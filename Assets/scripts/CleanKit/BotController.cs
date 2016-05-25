@@ -83,10 +83,7 @@ namespace CleanKit
 
 		public void AddBot ()
 		{
-			GameObject botGameObject = Instantiate (Resources.Load ("Bot"), new Vector3 (0, 10, 0), new Quaternion ()) as GameObject;
-			botGameObject.SetSelected (false);
-
-			Bot bot = botGameObject.GetComponent<Bot> ();
+			Bot bot = Bot.Instantiate ();
 			bot.transform.SetParent (transform);
 
 			selectionController.DidInsertBot (bot);
@@ -96,12 +93,12 @@ namespace CleanKit
 
 		public void selectionControllerSelectedBot (Bot bot)
 		{
-
+			bot.gameObject.SetSelected (true);
 		}
 
 		public void selectionControllerDeselectedBot (Bot bot)
 		{
-			
+			bot.gameObject.SetSelected (false);
 		}
 
 		// Interactables

@@ -13,47 +13,36 @@ namespace CleanKit
 {
 	public class SelectionController: MonoBehaviour
 	{
-		internal List<Bot> allBots = new List<Bot> ();
-		internal List<BotGroup> botGroups = new List<BotGroup> ();
+		//		internal List<Bot> allBots = new List<Bot> ();
+		//		internal List<BotGroup> botGroups = new List<BotGroup> ();
+		public List<Entity> availableEntities = new List<Entity> ();
 		public List<Bot> selectedBots = new List<Bot> ();
+
+		internal bool isGroupingEnabled;
 
 		// TODO use proper delegation syntax
 		public BotController selectionDelegate;
 
 		private Button groupButton;
 
-		public int NumberOfGroups ()
-		{
-			return botGroups.Count;
-		}
-
-		public int NumberOfBotsInGroup (int groupIndex)
-		{
-			BotGroup group = botGroups [groupIndex];
-			return group.BotCount ();
-		}
-
-		public int NumberOfUngroupedBots ()
-		{
-			int count = 0;
-			foreach (Bot bot in allBots) {
-				count += bot.group != null ? 1 : 0;
-			}
-			return count;
-		}
-
-
 		void Awake ()
 		{
 			groupButton = GameObject.Find ("GroupButton").GetComponent<Button> ();
+			groupButton.GetComponent<Button> ().onClick.AddListener (() => toggleGrouping ());
+		}
+
+		private void toggleGrouping ()
+		{
+			isGroupingEnabled = !isGroupingEnabled;
+
+			groupButton.GetComponent<Image> ().color = isGroupingEnabled ? Color.red : Color.black;
 		}
 
 		public void DidInsertBot (Bot bot)
 		{
-			allBots.Add (bot);
+			availableEntities.Add (bot);
 
-			GameObject cell = Instantiate (Resources.Load ("BotCell"), new Vector3 (), new Quaternion ()) as GameObject;
-			cell.SetSelected (false);
+			BotCell cell = BotCell.Instantiate (bot);
 			cell.transform.SetParent (transform, false);
 			cell.GetComponent<Button> ().onClick.AddListener (() => didSelectBot (bot));
 		}
@@ -66,10 +55,9 @@ namespace CleanKit
 			} else {
 				addBotToSelection (bot);
 			}
-			bot.gameObject.SetSelected (!wasSelected);
-
-			BotCell cell = cellForBot (bot);
+			BotCell cell = cellForEntity (bot);
 			cell.gameObject.SetSelected (!wasSelected);
+			cell.GetComponent<Button> ().onClick.AddListener (() => didSelectBot (bot));
 		}
 
 		private void didSelectBotGroup (BotGroup group)
@@ -88,17 +76,37 @@ namespace CleanKit
 		{
 			selectedBots.Add (bot);
 
-			if (selectedBots.Count > 1) {
-				BotGroup group = bot.group;
-				if (group != null) {
-					group.RemoveBot (bot);
-					if (group.BotCount () == 0) {
-						botGroups.Remove (group);
+			if (selectedBots.Count > 1 && isGroupingEnabled) {
+
+				BotGroup group = null;
+
+				foreach (Bot selectedBot in selectedBots) {
+					if (selectedBot.belongsToGroup) {
+						group = selectedBot.group;
+						break;
 					}
-				} else {
-					group = new BotGroup (selectedBots);
-					botGroups.Add (group);
 				}
+
+				if (group == null) {
+					group = new BotGroup (selectedBots);
+					int index = availableEntities.IndexOf (selectedBots [0]);
+					availableEntities [index] = group;
+
+					foreach (Bot selectedBot in selectedBots) {
+						availableEntities.Remove (selectedBot);
+						BotCell cell = cellForEntity (selectedBot);
+						GameObject.Destroy (cell);
+					}
+
+					availableEntities.Add (group);
+
+					BotCell newGroupCell = BotCell.Instantiate (group);
+					newGroupCell.transform.SetParent (transform, false);
+					newGroupCell.GetComponent<Button> ().onClick.AddListener (() => didSelectBotGroup (group));
+				}
+
+				BotCell groupCell = cellForEntity (group);
+				groupCell.SetGroupCount (group.BotCount ());
 			}
 
 			selectionDelegate.selectionControllerSelectedBot (bot);
@@ -107,13 +115,24 @@ namespace CleanKit
 		private void removeBotFromSelection (Bot bot)
 		{
 			selectedBots.Remove (bot);
+
+			if (isGroupingEnabled && bot.belongsToGroup) {
+				BotGroup group = bot.group;
+				if (group.BotCount () == 0) {
+					availableEntities.Remove (group);
+				} else {
+					group.RemoveBot (bot);
+				}
+			}
+
 			selectionDelegate.selectionControllerDeselectedBot (bot);
 		}
 
-		internal BotCell cellForBot (Bot bot)
+		internal BotCell cellForEntity (Entity entity)
 		{
-			int index = allBots.IndexOf (bot);
-			BotCell cell = BotCell.AllObjects () [index];
+			int index = availableEntities.IndexOf (entity);
+			List<BotCell> cells = BotCell.AllObjects ();
+			BotCell cell = cells [index];
 			return cell;
 		}
 

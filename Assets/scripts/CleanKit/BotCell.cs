@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 namespace CleanKit
@@ -13,21 +14,24 @@ namespace CleanKit
 			foreach (BotCell cell in GameObject.FindObjectsOfType<BotCell> ()) {
 				objects.Add (cell.GetComponent<BotCell> ());
 			}
+			objects.Reverse ();
 			return objects;
 		}
-	}
 
-	public class BotGroupCell: MonoBehaviour
-	{
-		public static List<BotGroupCell> AllObjects ()
+		public static BotCell Instantiate (Entity entity)
 		{
-			List<BotGroupCell> objects = new List<BotGroupCell> ();
-			foreach (BotGroupCell cell in GameObject.FindObjectsOfType<BotGroupCell> ()) {
-				objects.Add (cell.GetComponent<BotGroupCell> ());
-			}
-			return objects;
+			GameObject gameObject = Instantiate (Resources.Load ("BotCell"), new Vector3 (), new Quaternion ()) as GameObject;
+			gameObject.SetSelected (false);
+			BotCell cell = gameObject.GetComponent<BotCell> ();
+			cell.name = entity.name + "-cell";
+			return cell;
+		}
+
+		public void SetGroupCount (int count)
+		{
+			Text label = gameObject.GetComponentInChildren<Text> ();
+			label.text = count.ToString ();
 		}
 	}
-
 }
 
