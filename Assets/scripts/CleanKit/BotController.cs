@@ -11,6 +11,9 @@ namespace CleanKit
 
 		Vector3 contactPoint = Vector3.zero;
 
+		private int botSpawnCount = 5;
+		private int timeSinceLastSpawn = 0;
+
 		void Awake ()
 		{
 			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
@@ -20,6 +23,14 @@ namespace CleanKit
 
 		void Update ()
 		{
+			if (botSpawnCount > 0 && timeSinceLastSpawn == 0) {
+				AddBot ();
+				timeSinceLastSpawn = 10;
+				botSpawnCount--;
+			} else {
+				timeSinceLastSpawn--;
+			}
+			
 			if (Controls.RelocationInputExists ()) {
 				Ray ray = Camera.main.ScreenPointToRay (Controls.RelocationInput ());
 				RaycastHit hit;
@@ -85,7 +96,6 @@ namespace CleanKit
 		{
 			Bot bot = Bot.Instantiate ();
 			bot.transform.SetParent (transform);
-
 			selectionController.DidInsertBot (bot);
 		}
 

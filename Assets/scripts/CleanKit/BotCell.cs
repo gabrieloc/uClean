@@ -18,19 +18,18 @@ namespace CleanKit
 			return objects;
 		}
 
-		public static BotCell Instantiate (Entity entity)
+		public static BotCell Instantiate ()
 		{
 			GameObject gameObject = Instantiate (Resources.Load ("BotCell"), new Vector3 (), new Quaternion ()) as GameObject;
 			gameObject.SetSelected (false);
+
 			BotCell cell = gameObject.GetComponent<BotCell> ();
-			cell.name = entity.name + "-cell";
 			return cell;
 		}
 
-		public void SetGroupCount (int count)
+		public void SetBotName (string botName)
 		{
-			Text label = gameObject.GetComponentInChildren<Text> ();
-			label.text = count.ToString ();
+			gameObject.name = botName + "-cell";
 		}
 	}
 }

@@ -13,127 +13,121 @@ namespace CleanKit
 {
 	public class SelectionController: MonoBehaviour
 	{
-		//		internal List<Bot> allBots = new List<Bot> ();
-		//		internal List<BotGroup> botGroups = new List<BotGroup> ();
-		public List<Entity> availableEntities = new List<Entity> ();
+		internal List<Bot> allBots = new List<Bot> ();
+		internal List<Swarm> allSwarms = new List<Swarm> ();
+		//		public List<Entity> availableEntities = new List<Entity> ();
 		public List<Bot> selectedBots = new List<Bot> ();
 
-		internal bool isGroupingEnabled;
+		private bool isSwarmingToggled;
+		private Swarm currentSwarm = null;
 
 		// TODO use proper delegation syntax
 		public BotController selectionDelegate;
 
-		private Button groupButton;
+		private Button swarmButton;
 
 		void Awake ()
 		{
-			groupButton = GameObject.Find ("GroupButton").GetComponent<Button> ();
-			groupButton.GetComponent<Button> ().onClick.AddListener (() => toggleGrouping ());
+			swarmButton = GameObject.Find ("SwarmButton").GetComponent<Button> ();
+			swarmButton.GetComponent<Button> ().onClick.AddListener (() => toggleSwarming ());
 		}
 
-		private void toggleGrouping ()
+		private void toggleSwarming ()
 		{
-			isGroupingEnabled = !isGroupingEnabled;
+			isSwarmingToggled = !isSwarmingToggled;
+			swarmButton.GetComponent<Image> ().color = isSwarmingToggled ? Color.red : Color.black;
 
-			groupButton.GetComponent<Image> ().color = isGroupingEnabled ? Color.red : Color.black;
+			clearSelection ();
 		}
 
 		public void DidInsertBot (Bot bot)
 		{
-			availableEntities.Add (bot);
+			allBots.Add (bot);
 
-			BotCell cell = BotCell.Instantiate (bot);
+			BotCell cell = bot.cell;
 			cell.transform.SetParent (transform, false);
-			cell.GetComponent<Button> ().onClick.AddListener (() => didSelectBot (bot));
+			cell.GetComponent<Button> ().onClick.AddListener (() => didSelectCellForBot (bot));
 		}
 
-		private void didSelectBot (Bot bot)
+		private void didSelectCellForBot (Bot bot)
 		{
-			bool wasSelected = IsBotSelected (bot);
-			if (wasSelected) {
+			if (isSwarmingToggled) {
+				addBotToCurrentSwarm (bot);
+			} else {
+				selectBot (bot);
+			}
+		}
+
+		private void didSelectCellForSwarm (Swarm swarm)
+		{
+			foreach (Bot bot in swarm.bots) {
+				if (isSwarmingToggled) {
+					addBotToSelection (bot);
+				} else {
+					removeBotFromSelection (bot);
+				}
+			}
+			swarm.cell.gameObject.SetSelected (isSwarmingToggled);
+		}
+
+		private void clearSelection ()
+		{
+			List<Swarm> selectedSwarms = new List<Swarm> ();
+			while (selectedBots.Count > 0) {
+				Bot bot = selectedBots [0];
+				removeBotFromSelection (bot);
+				if (selectedSwarms.Contains (bot.swarm) == false) {
+					selectedSwarms.Add (bot.swarm);
+				}
+			}
+			while (selectedSwarms.Count > 0) {
+				SwarmCell cell = selectedSwarms [0].cell;
+				cell.gameObject.SetSelected (false);
+			}
+		}
+
+		private void selectBot (Bot bot)
+		{
+			if (IsBotSelected (bot)) {
 				removeBotFromSelection (bot);
 			} else {
+				clearSelection ();
 				addBotToSelection (bot);
 			}
-			BotCell cell = cellForEntity (bot);
-			cell.gameObject.SetSelected (!wasSelected);
-			cell.GetComponent<Button> ().onClick.AddListener (() => didSelectBot (bot));
 		}
-
-		private void didSelectBotGroup (BotGroup group)
-		{
-			foreach (Bot bot in group.bots) {
-				didSelectBot (bot);
-			}
-		}
-
-		/* 
-		 * 	selectedBots will contain either a single ungrouped bot or a list of bots belonging to the same group
-		 * 	A group should not get created until more than one bot has been selected.
-		 */
 
 		private void addBotToSelection (Bot bot)
 		{
 			selectedBots.Add (bot);
-
-			if (selectedBots.Count > 1 && isGroupingEnabled) {
-
-				BotGroup group = null;
-
-				foreach (Bot selectedBot in selectedBots) {
-					if (selectedBot.belongsToGroup) {
-						group = selectedBot.group;
-						break;
-					}
-				}
-
-				if (group == null) {
-					group = new BotGroup (selectedBots);
-					int index = availableEntities.IndexOf (selectedBots [0]);
-					availableEntities [index] = group;
-
-					foreach (Bot selectedBot in selectedBots) {
-						availableEntities.Remove (selectedBot);
-						BotCell cell = cellForEntity (selectedBot);
-						GameObject.Destroy (cell);
-					}
-
-					availableEntities.Add (group);
-
-					BotCell newGroupCell = BotCell.Instantiate (group);
-					newGroupCell.transform.SetParent (transform, false);
-					newGroupCell.GetComponent<Button> ().onClick.AddListener (() => didSelectBotGroup (group));
-				}
-
-				BotCell groupCell = cellForEntity (group);
-				groupCell.SetGroupCount (group.BotCount ());
-			}
-
+			BotCell cell = bot.cell;
+			cell.gameObject.SetSelected (true);
 			selectionDelegate.selectionControllerSelectedBot (bot);
+
+			Debug.Log ("Selected " + bot.name);
 		}
 
 		private void removeBotFromSelection (Bot bot)
 		{
 			selectedBots.Remove (bot);
-
-			if (isGroupingEnabled && bot.belongsToGroup) {
-				BotGroup group = bot.group;
-				if (group.BotCount () == 0) {
-					availableEntities.Remove (group);
-				} else {
-					group.RemoveBot (bot);
-				}
-			}
-
+			BotCell cell = bot.cell;
+			cell.gameObject.SetSelected (false);
 			selectionDelegate.selectionControllerDeselectedBot (bot);
+
+			Debug.Log ("Deselected " + bot.name);
 		}
 
-		internal BotCell cellForEntity (Entity entity)
+		private void addBotToCurrentSwarm (Bot bot)
 		{
-			int index = availableEntities.IndexOf (entity);
-			List<BotCell> cells = BotCell.AllObjects ();
-			BotCell cell = cells [index];
-			return cell;
+			if (currentSwarm == null) {
+				currentSwarm = new Swarm ();
+
+				SwarmCell cell = currentSwarm.cell;
+				cell.transform.SetParent (transform, false);
+				cell.GetComponent<Button> ().onClick.AddListener (() => didSelectCellForSwarm (currentSwarm));
+				cell.gameObject.SetSelected (true);
+			}
+
+			currentSwarm.AddBot (bot);
 		}
 
 		// Public Conveniences
