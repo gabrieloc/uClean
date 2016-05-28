@@ -60,29 +60,31 @@ namespace CleanKit
 
 		private void didSelectCellForSwarm (Swarm swarm)
 		{
-			foreach (Bot bot in swarm.bots) {
-				if (isSwarmingToggled) {
+			bool selected = currentSwarm != swarm;
+
+			clearSelection ();
+
+			if (selected) {
+				foreach (Bot bot in swarm.bots) {
 					addBotToSelection (bot);
-				} else {
-					removeBotFromSelection (bot);
 				}
+				currentSwarm = swarm;
 			}
-			swarm.cell.gameObject.SetSelected (isSwarmingToggled);
+
+			swarm.cell.gameObject.SetSelected (selected);
 		}
 
 		private void clearSelection ()
 		{
-			List<Swarm> selectedSwarms = new List<Swarm> ();
+			if (currentSwarm != null) {
+				SwarmCell cell = currentSwarm.cell;
+				cell.gameObject.SetSelected (false);
+				currentSwarm = null;
+			}
+
 			while (selectedBots.Count > 0) {
 				Bot bot = selectedBots [0];
 				removeBotFromSelection (bot);
-				if (selectedSwarms.Contains (bot.swarm) == false) {
-					selectedSwarms.Add (bot.swarm);
-				}
-			}
-			while (selectedSwarms.Count > 0) {
-				SwarmCell cell = selectedSwarms [0].cell;
-				cell.gameObject.SetSelected (false);
 			}
 		}
 
@@ -99,8 +101,9 @@ namespace CleanKit
 		private void addBotToSelection (Bot bot)
 		{
 			selectedBots.Add (bot);
-			BotCell cell = bot.cell;
-			cell.gameObject.SetSelected (true);
+			if (bot.cell) {
+				bot.cell.gameObject.SetSelected (true);
+			}
 			selectionDelegate.selectionControllerSelectedBot (bot);
 
 			Debug.Log ("Selected " + bot.name);
@@ -109,8 +112,9 @@ namespace CleanKit
 		private void removeBotFromSelection (Bot bot)
 		{
 			selectedBots.Remove (bot);
-			BotCell cell = bot.cell;
-			cell.gameObject.SetSelected (false);
+			if (bot.cell) {
+				bot.cell.gameObject.SetSelected (false);
+			}
 			selectionDelegate.selectionControllerDeselectedBot (bot);
 
 			Debug.Log ("Deselected " + bot.name);
@@ -119,12 +123,14 @@ namespace CleanKit
 		private void addBotToCurrentSwarm (Bot bot)
 		{
 			if (currentSwarm == null) {
-				currentSwarm = new Swarm ();
+				Swarm swarm = new Swarm ();
 
-				SwarmCell cell = currentSwarm.cell;
+				SwarmCell cell = swarm.cell;
 				cell.transform.SetParent (transform, false);
-				cell.GetComponent<Button> ().onClick.AddListener (() => didSelectCellForSwarm (currentSwarm));
+				cell.GetComponent<Button> ().onClick.AddListener (() => didSelectCellForSwarm (swarm));
 				cell.gameObject.SetSelected (true);
+
+				currentSwarm = swarm;
 			}
 
 			currentSwarm.AddBot (bot);
