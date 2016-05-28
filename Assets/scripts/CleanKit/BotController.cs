@@ -32,14 +32,13 @@ namespace CleanKit
 			}
 
 			updateContactPoint ();
-			if (contactPointSet ()) {
-				relocateToNewContactPoint ();
-			}
+			relocateToNewContactPoint ();
 		}
 
 		private bool canRelocateBot (Bot bot, Vector3 toPosition)
 		{
-			return Vector3.Distance (toPosition, bot.transform.position) > relocationRadus;
+			bool withinRelocatableRadius = Vector3.Distance (toPosition, bot.transform.position) > relocationRadus;
+			return contactPointSet () && withinRelocatableRadius;
 		}
 
 		private void clearContactPoint ()
@@ -130,6 +129,7 @@ namespace CleanKit
 		{
 			bot.gameObject.SetSelected (false);
 			clearContactPoint ();
+			clearInteractableForBot (bot);
 		}
 
 		// Interactables

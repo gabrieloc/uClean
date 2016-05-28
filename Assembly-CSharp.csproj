@@ -53,6 +53,7 @@
      <Compile Include="Assets\scripts\CleanKit\Controls.cs" />
      <Compile Include="Assets\scripts\CleanKit\GameObjectExtensions.cs" />
      <Compile Include="Assets\scripts\CleanKit\Interactable\Interactable.cs" />
+     <Compile Include="Assets\scripts\CleanKit\Interactable\InteractableIndicator.cs" />
      <Compile Include="Assets\scripts\CleanKit\Interactable\InteractableManager.cs" />
      <Compile Include="Assets\scripts\CleanKit\Interactable\InteractionController.cs" />
      <Compile Include="Assets\scripts\CleanKit\PropController.cs" />
