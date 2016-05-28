@@ -30,7 +30,30 @@ namespace CleanKit
 			} else {
 				timeSinceLastSpawn--;
 			}
-			
+
+			updateContactPoint ();
+			if (contactPointSet ()) {
+				relocateToNewContactPoint ();
+			}
+		}
+
+		private bool canRelocateBot (Bot bot, Vector3 toPosition)
+		{
+			return Vector3.Distance (toPosition, bot.transform.position) > relocationRadus;
+		}
+
+		private void clearContactPoint ()
+		{
+			contactPoint = Vector3.zero;
+		}
+
+		private bool contactPointSet ()
+		{
+			return contactPoint.x != 0.0f && contactPoint.z != 0.0f;
+		}
+
+		private void updateContactPoint ()
+		{
 			if (Controls.RelocationInputExists ()) {
 				Ray ray = Camera.main.ScreenPointToRay (Controls.RelocationInput ());
 				RaycastHit hit;
@@ -38,17 +61,19 @@ namespace CleanKit
 					contactPoint = hit.point;
 				}
 			}
-			Debug.DrawLine (contactPoint - new Vector3 (2, 0, 0), contactPoint + new Vector3 (2, 0, 0), Color.red);
-			Debug.DrawLine (contactPoint - new Vector3 (0, 0, 2), contactPoint + new Vector3 (0, 0, 2), Color.red);
 
+			if (contactPointSet ()) {
+				Debug.DrawLine (contactPoint - new Vector3 (2, 0, 0), contactPoint + new Vector3 (2, 0, 0), Color.red);
+				Debug.DrawLine (contactPoint - new Vector3 (0, 0, 2), contactPoint + new Vector3 (0, 0, 2), Color.red);
+			}
+		}
 
+		private void relocateToNewContactPoint ()
+		{
 			float distanceDelta = speed * Time.deltaTime;
 			foreach (Bot bot in selectionController.selectedBots) {
 				Vector3 newPosition = contactPoint;
-				newPosition.y = 0.5f;
-
-//				bool botBelongsToGroup = selectionController.BotBelongsToGroup(bot);
-				// If bot belongs to group, move
+				newPosition.y += 0.5f;
 
 				if (canRelocateBot (bot, newPosition)) {
 					bot.transform.position = Vector3.MoveTowards (bot.transform.position, newPosition, distanceDelta);
@@ -83,11 +108,6 @@ namespace CleanKit
 			}
 		}
 
-		private bool canRelocateBot (Bot bot, Vector3 toPosition)
-		{
-			return Vector3.Distance (toPosition, bot.transform.position) > relocationRadus;
-		}
-
 		// Selection
 
 		private SelectionController selectionController;
@@ -109,6 +129,7 @@ namespace CleanKit
 		public void selectionControllerDeselectedBot (Bot bot)
 		{
 			bot.gameObject.SetSelected (false);
+			clearContactPoint ();
 		}
 
 		// Interactables

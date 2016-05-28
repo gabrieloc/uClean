@@ -134,6 +134,7 @@ namespace CleanKit
 			}
 
 			currentSwarm.AddBot (bot);
+			addBotToSelection (bot);
 		}
 
 		// Public Conveniences
