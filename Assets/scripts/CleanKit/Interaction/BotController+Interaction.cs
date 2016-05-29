@@ -6,20 +6,27 @@ namespace CleanKit
 	public partial class BotController: InteractionDelegate
 	{
 		private Dictionary<Interactable, List<Bot>> availableInteractables = new Dictionary<Interactable, List<Bot>> ();
+		private InteractionController interactionController;
 
-		public void SetInteractableForBot (Interactable interactable, Bot bot)
+		private void setInteractableForBot (Interactable interactable, Bot bot)
 		{
+			if (interactableForBot (bot) == interactable) {
+				return;
+			}
+
+			clearInteractableForBot (bot);
+
 			if (availableInteractables.ContainsKey (interactable)) {
 				List<Bot> bots = availableInteractables [interactable];
 				bots.Add (bot);
+				interactionController.SetInteractableAvailable (interactable, true);
 			} else {
 				availableInteractables [interactable] = new List<Bot> ();
-				SetInteractableForBot (interactable, bot);
+				setInteractableForBot (interactable, bot);
 			}
-			interactionController.SetInteractableAvailable (interactable, true);
 		}
 
-		public Interactable InteractableForBot (Bot bot)
+		private Interactable interactableForBot (Bot bot)
 		{
 			foreach (Interactable interactable in availableInteractables.Keys) {
 				if (availableInteractables [interactable].Contains (bot)) {
@@ -29,8 +36,10 @@ namespace CleanKit
 			return null;
 		}
 
-		public Interactable ClearInteractableForBot (Bot bot)
+		private void clearInteractableForBot (Bot bot)
 		{
+			Interactable interactableForBot = null;
+
 			foreach (Interactable interactable in availableInteractables.Keys) {
 				List<Bot> botsForInteractable = availableInteractables [interactable];
 				if (botsForInteractable.Contains (bot)) {
@@ -38,41 +47,20 @@ namespace CleanKit
 					if (botsForInteractable.Count == 0) {
 						availableInteractables.Remove (interactable);
 					}
-					return interactable;
+					interactableForBot = interactable;
+					break;
 				}
 			}
-			return null;
+
+			if (interactableForBot != null) {
+				bool interactableAvailable = interactableIsAvailable (interactableForBot);
+				interactionController.SetInteractableAvailable (interactableForBot, interactableAvailable);
+			}
 		}
 
-		public bool InteractableIsAvailable (Interactable interactable)
+		private bool interactableIsAvailable (Interactable interactable)
 		{
 			return availableInteractables.ContainsKey (interactable);
-		}
-
-		// Interactables
-
-		private InteractionController interactionController;
-
-		private Interactable interactableForBot (Bot bot)
-		{
-			return InteractableForBot (bot);
-		}
-
-		private void setInteractableForBot (Interactable interactable, Bot bot)
-		{
-			if (InteractableForBot (bot) != interactable) {
-				clearInteractableForBot (bot);
-				SetInteractableForBot (interactable, bot);
-			}
-		}
-
-		private void clearInteractableForBot (Bot bot)
-		{
-			Interactable interactable = ClearInteractableForBot (bot);
-			if (interactable != null) {
-				bool interactableAvailable = InteractableIsAvailable (interactable);
-				interactionController.SetInteractableAvailable (interactable, interactableAvailable);
-			}
 		}
 
 		// InteractionDelegate
