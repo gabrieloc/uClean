@@ -22,11 +22,19 @@ namespace CleanKit
 	{
 		internal List<Bot> allBots = new List<Bot> ();
 		internal List<Swarm> allSwarms = new List<Swarm> ();
-		//		public List<Entity> availableEntities = new List<Entity> ();
-		public List<Bot> selectedBots = new List<Bot> ();
+		//		public List<Bot> selectedBots = new List<Bot> ();
 
 		private bool isSwarmingToggled;
-		private Swarm currentSwarm = null;
+
+		private Swarm selectedSwarm {
+			get { return currentInteractor as Swarm; }
+		}
+
+		private Bot selectedBot {
+			get { return currentInteractor as Bot; }
+		}
+
+		public Interactor currentInteractor { get; private set; }
 
 		public SelectionDelegate selectionDelegate;
 
@@ -36,6 +44,25 @@ namespace CleanKit
 		{
 			swarmButton = GameObject.Find ("SwarmButton").GetComponent<Button> ();
 			swarmButton.GetComponent<Button> ().onClick.AddListener (() => toggleSwarming ());
+		}
+
+		void Update ()
+		{
+			if (selectedSwarm != null) {
+				List<Bot> bots = selectedSwarm.bots;
+				foreach (Bot bot in bots) {
+					int index = bots.IndexOf (bot);
+					Vector3 p1 = bot.transform.position;
+					Vector3 p2;
+
+					if (index == (bots.Count - 1)) {
+						p2 = bots [0].transform.position;
+					} else {
+						p2 = bots [index + 1].transform.position;
+					}
+					Debug.DrawLine (p1, p2, Color.green);
+				}
+			}
 		}
 
 		private void toggleSwarming ()
@@ -66,7 +93,7 @@ namespace CleanKit
 
 		private void didSelectCellForSwarm (Swarm swarm)
 		{
-			bool selected = currentSwarm != swarm;
+			bool selected = selectedSwarm != swarm;
 
 			clearSelection ();
 
@@ -74,7 +101,7 @@ namespace CleanKit
 				foreach (Bot bot in swarm.bots) {
 					addBotToSelection (bot);
 				}
-				currentSwarm = swarm;
+				currentInteractor = swarm;
 			}
 
 			swarm.cell.gameObject.SetSelected (selected);
@@ -82,53 +109,40 @@ namespace CleanKit
 
 		private void clearSelection ()
 		{
-			if (currentSwarm != null) {
-				SwarmCell cell = currentSwarm.cell;
-				cell.gameObject.SetSelected (false);
-				currentSwarm = null;
+			if (selectedSwarm != null) {
+				Swarm swarm = currentInteractor as Swarm;
+				swarm.cell.gameObject.SetSelected (false);
+				foreach (Bot bot in swarm.bots) {
+					selectionDelegate.selectionControllerDeselectedBot (bot);
+				}
+			} else if (selectedBot != null) {
+				Bot bot = currentInteractor as Bot;
+				if (bot.cell) {
+					bot.cell.gameObject.SetSelected (false);
+				}
+				selectionDelegate.selectionControllerDeselectedBot (bot);
 			}
-
-			while (selectedBots.Count > 0) {
-				Bot bot = selectedBots [0];
-				removeBotFromSelection (bot);
-			}
+			currentInteractor = null;
 		}
 
 		private void selectBot (Bot bot)
 		{
-			if (IsBotSelected (bot)) {
-				removeBotFromSelection (bot);
-			} else {
-				clearSelection ();
-				addBotToSelection (bot);
-			}
+			clearSelection ();
+			currentInteractor = bot;
+			addBotToSelection (bot);
 		}
 
 		private void addBotToSelection (Bot bot)
 		{
-			selectedBots.Add (bot);
 			if (bot.cell) {
 				bot.cell.gameObject.SetSelected (true);
 			}
 			selectionDelegate.selectionControllerSelectedBot (bot);
-
-			Debug.Log ("Selected " + bot.name);
-		}
-
-		private void removeBotFromSelection (Bot bot)
-		{
-			selectedBots.Remove (bot);
-			if (bot.cell) {
-				bot.cell.gameObject.SetSelected (false);
-			}
-			selectionDelegate.selectionControllerDeselectedBot (bot);
-
-			Debug.Log ("Deselected " + bot.name);
 		}
 
 		private void addBotToCurrentSwarm (Bot bot)
 		{
-			if (currentSwarm == null) {
+			if (selectedSwarm == null) {
 				Swarm swarm = new Swarm ();
 
 				SwarmCell cell = swarm.cell;
@@ -136,18 +150,14 @@ namespace CleanKit
 				cell.GetComponent<Button> ().onClick.AddListener (() => didSelectCellForSwarm (swarm));
 				cell.gameObject.SetSelected (true);
 
-				currentSwarm = swarm;
+				currentInteractor = swarm;
 			}
 
-			currentSwarm.AddBot (bot);
-			addBotToSelection (bot);
+			selectedSwarm.AddBot (bot);
+			selectionDelegate.selectionControllerSelectedBot (bot);
+			Debug.Log ("Selected " + bot.name);
 		}
 
 		// Public Conveniences
-
-		public bool IsBotSelected (Bot bot)
-		{
-			return selectedBots.Contains (bot);
-		}
 	}
 }

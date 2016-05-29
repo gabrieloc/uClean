@@ -45,49 +45,5 @@ namespace CleanKit
 			return objects;
 		}
 	}
-
-	public class Swarm
-	{
-		public List<Bot> bots {
-			get {
-				List<Bot> bots = new List<Bot> ();
-				foreach (Bot bot in GameObject.FindObjectsOfType<Bot>()) {
-					if (bot.swarm == this) {
-						bots.Add (bot);
-					}
-				}
-				return bots;
-			}
-		}
-
-		readonly public SwarmCell cell;
-
-		public Swarm ()
-		{
-			cell = SwarmCell.Instantiate ();
-		}
-
-		public int BotCount ()
-		{
-			return bots.Count;	
-		}
-
-		public void AddBot (Bot bot)
-		{
-			cell.IncrementCount ();
-			bot.JoinSwarm (this);
-		}
-
-		public void RemoveBot (Bot bot)
-		{
-			cell.DecrementCount ();
-			bot.LeaveSwarm ();
-		}
-
-		public Bot BotAtIndex (int index)
-		{
-			return bots [index];
-		}
-	}
 }
 

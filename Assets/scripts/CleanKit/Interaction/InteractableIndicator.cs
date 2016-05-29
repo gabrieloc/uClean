@@ -10,7 +10,6 @@ namespace CleanKit
 		{
 			Button button = gameObject.GetComponent<Button> ();
 
-			// TODO figure out why this isn't working
 			button.onClick.AddListener (selection);
 		}
 

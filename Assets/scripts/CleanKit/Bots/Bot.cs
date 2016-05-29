@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CleanKit
 {
 
-	public class Bot : MonoBehaviour
+	public class Bot : MonoBehaviour, Interactor
 	{
 
 		public static Bot Instantiate ()
@@ -53,6 +53,18 @@ namespace CleanKit
 		{
 			createCell ();
 			this.swarm = null;
+		}
+
+		// Interactor
+
+		public void UseInteractable (Interactable interactable)
+		{
+			Debug.Log (name + " is interacting");
+		}
+
+		public Vector3 ContactPoint ()
+		{
+			return transform.position;
 		}
 	}
 }

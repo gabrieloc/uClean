@@ -34,7 +34,9 @@ namespace CleanKit
 			}
 
 			updateContactPoint ();
+
 			relocateToNewContactPoint ();
+			updateInteractables ();
 		}
 
 		private bool canRelocateBot (Bot bot, Vector3 toPosition)
@@ -71,40 +73,72 @@ namespace CleanKit
 
 		private void relocateToNewContactPoint ()
 		{
-			float distanceDelta = speed * Time.deltaTime;
-			foreach (Bot bot in selectionController.selectedBots) {
+			if (selectionController.currentInteractor != null) {
+				Interactor interactor = selectionController.currentInteractor;
 				Vector3 newPosition = contactPoint;
 				newPosition.y += 0.5f;
 
-				if (canRelocateBot (bot, newPosition)) {
-					bot.transform.position = Vector3.MoveTowards (bot.transform.position, newPosition, distanceDelta);
+				if (interactor is Swarm) {
+					relocateSwarmToPosition (interactor as Swarm, newPosition);
+				} else if (interactor is Bot) {
+					relocateBotToPosition (interactor as Bot, newPosition);
 				}
+			}
+		}
 
-				foreach (Interactable interactable in interactionController.allInteractables) {
-					float distance = Vector3.Distance (interactable.transform.position, bot.transform.position);
+		private void relocateSwarmToPosition (Swarm swarm, Vector3 position)
+		{
+			foreach (Bot bot in swarm.bots) {
+				// TODO make bots move in a group
+				if (canRelocateBot (bot, position)) {
+					float distanceDelta = speed * Time.deltaTime;
+					bot.transform.position = Vector3.MoveTowards (bot.transform.position, position, distanceDelta);
+				}
+			}
+		}
 
-					// A interactable was available, but select this one if it's closer
-					Interactable existingInteractable = interactableForBot (bot);
-					if (existingInteractable != null) {
-						float previousDistance = Vector3.Distance (bot.transform.position, existingInteractable.transform.position);
-						if (distance < previousDistance) {
-							setInteractableForBot (interactable, bot);
-						}
-					} 
-					// No interactable was available, select this one if it's close enough
-					else if (distance < interactableDetectionRadius) {
-						setInteractableForBot (interactable, bot);
+		private void relocateBotToPosition (Bot bot, Vector3 position)
+		{
+			if (canRelocateBot (bot, position)) {
+				float distanceDelta = speed * Time.deltaTime;
+				bot.transform.position = Vector3.MoveTowards (bot.transform.position, position, distanceDelta);
+			}
+		}
+
+		private void updateInteractables ()
+		{
+			Interactor interactor = selectionController.currentInteractor;
+			if (interactor == null) {
+				return;
+			}
+
+			Vector3 contactPoint = interactor.ContactPoint ();
+
+			foreach (Interactable interactable in interactionController.allInteractables) {
+				float distance = Vector3.Distance (interactable.transform.position, contactPoint);
+
+				// A interactable was available, but select this one if it's closer
+				Interactable existingInteractable = interactableForInteractor (interactor);
+				if (existingInteractable != null) {
+					float previousDistance = Vector3.Distance (contactPoint, existingInteractable.transform.position);
+					if (distance < previousDistance) {
+						setInteractableForInteractor (interactable, interactor);
 					}
+				} 
+				// No interactable was available, select this one if it's close enough
+				else if (distance < interactableDetectionRadius) {
+					setInteractableForInteractor (interactable, interactor);
 				}
+			}
 
+			Interactable i = interactableForInteractor (interactor);
+			if (i != null) {
 				// Clear existing interactable if bot is too far away
-				if (interactableForBot (bot) != null) {
-					float distance = Vector3.Distance (interactableForBot (bot).transform.position, bot.transform.position);
-					if (distance > interactableDetectionRadius) {
-						clearInteractableForBot (bot);
-					} else {
-						Debug.DrawLine (bot.transform.position, interactableForBot (bot).transform.position, Color.blue);
-					}
+				float distance = Vector3.Distance (i.transform.position, contactPoint);
+				if (distance > interactableDetectionRadius) {
+					clearInteractable (interactor);
+				} else {
+					Debug.DrawLine (contactPoint, i.transform.position, Color.blue);
 				}
 			}
 		}

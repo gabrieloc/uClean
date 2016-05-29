@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using System.Collections.Generic;
 
 /*
@@ -19,7 +20,7 @@ namespace CleanKit
 	{
 		public List<Interactable> allInteractables = new List<Interactable> ();
 		private List<Interactable> availableInteractables = new List<Interactable> ();
-
+		public Interactor currentInteractor;
 		public InteractionDelegate interactionDelegate;
 
 		void Update ()
@@ -31,11 +32,14 @@ namespace CleanKit
 			}	
 		}
 
-		public void SetInteractableAvailable (Interactable interactable, bool available)
+		public void SetInteractableAvailable (Interactable interactable, Interactor interactor, bool available)
 		{
 			if (availableInteractables.Contains (interactable) == false && available) {
 				availableInteractables.Add (interactable);
-				interactable.BecomeAvailable (() => didSelectIndicatorForInteractable (interactable));
+
+				currentInteractor = interactor;
+				UnityAction onSelection = () => didSelectIndicatorForInteractable (interactable);
+				interactable.BecomeAvailableForInteractor (interactor, onSelection);
 				interactable.indicator.transform.SetParent (transform);
 			} else if (availableInteractables.Contains (interactable) == true && !available) {
 				availableInteractables.Remove (interactable);

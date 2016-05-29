@@ -5,46 +5,46 @@ namespace CleanKit
 {
 	public partial class BotController: InteractionDelegate
 	{
-		private Dictionary<Interactable, List<Bot>> availableInteractables = new Dictionary<Interactable, List<Bot>> ();
+		private Dictionary<Interactable, List<Interactor>> availableInteractables = new Dictionary<Interactable, List<Interactor>> ();
 		private InteractionController interactionController;
 
-		private void setInteractableForBot (Interactable interactable, Bot bot)
+		private void setInteractableForInteractor (Interactable interactable, Interactor interactor)
 		{
-			if (interactableForBot (bot) == interactable) {
+			if (interactableForInteractor (interactor) == interactable) {
 				return;
 			}
 
-			clearInteractableForBot (bot);
+			clearInteractable (interactor);
 
 			if (availableInteractables.ContainsKey (interactable)) {
-				List<Bot> bots = availableInteractables [interactable];
-				bots.Add (bot);
-				interactionController.SetInteractableAvailable (interactable, true);
+				List<Interactor> interactors = availableInteractables [interactable];
+				interactors.Add (interactor);
+				interactionController.SetInteractableAvailable (interactable, interactor, true);
 			} else {
-				availableInteractables [interactable] = new List<Bot> ();
-				setInteractableForBot (interactable, bot);
+				availableInteractables [interactable] = new List<Interactor> ();
+				setInteractableForInteractor (interactable, interactor);
 			}
 		}
 
-		private Interactable interactableForBot (Bot bot)
+		private Interactable interactableForInteractor (Interactor interactor)
 		{
 			foreach (Interactable interactable in availableInteractables.Keys) {
-				if (availableInteractables [interactable].Contains (bot)) {
+				if (availableInteractables [interactable].Contains (interactor)) {
 					return interactable;
 				}
 			}
 			return null;
 		}
 
-		private void clearInteractableForBot (Bot bot)
+		private void clearInteractable (Interactor interactor)
 		{
 			Interactable interactableForBot = null;
 
 			foreach (Interactable interactable in availableInteractables.Keys) {
-				List<Bot> botsForInteractable = availableInteractables [interactable];
-				if (botsForInteractable.Contains (bot)) {
-					botsForInteractable.Remove (bot);
-					if (botsForInteractable.Count == 0) {
+				List<Interactor> interactors = availableInteractables [interactable];
+				if (interactors.Contains (interactor)) {
+					interactors.Remove (interactor);
+					if (interactors.Count == 0) {
 						availableInteractables.Remove (interactable);
 					}
 					interactableForBot = interactable;
@@ -54,7 +54,7 @@ namespace CleanKit
 
 			if (interactableForBot != null) {
 				bool interactableAvailable = interactableIsAvailable (interactableForBot);
-				interactionController.SetInteractableAvailable (interactableForBot, interactableAvailable);
+				interactionController.SetInteractableAvailable (interactableForBot, interactor, interactableAvailable);
 			}
 		}
 
@@ -67,7 +67,10 @@ namespace CleanKit
 
 		public void interactionControllerSelectedInteractable (Interactable interactable)
 		{
-			Debug.Log ("selected " + interactable.name);
+			Debug.Log ("Selected " + interactable.name);
+
+			Interactor currentInteractor = interactionController.currentInteractor;
+			currentInteractor.UseInteractable (interactable);
 		}
 	}
 }

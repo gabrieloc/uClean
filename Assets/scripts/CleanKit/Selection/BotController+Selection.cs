@@ -8,14 +8,16 @@ namespace CleanKit
 
 		public void selectionControllerSelectedBot (Bot bot)
 		{
+			Debug.Log ("Selected " + bot.name);
 			bot.gameObject.SetSelected (true);
 		}
 
 		public void selectionControllerDeselectedBot (Bot bot)
 		{
+			Debug.Log ("Deselected " + bot.name);
 			bot.gameObject.SetSelected (false);
 			clearContactPoint ();
-			clearInteractableForBot (bot);
+			clearInteractable (bot);
 		}
 	}
 }
