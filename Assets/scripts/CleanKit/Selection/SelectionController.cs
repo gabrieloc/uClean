@@ -11,6 +11,13 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
+	public interface SelectionDelegate
+	{
+		void selectionControllerSelectedBot (Bot bot);
+
+		void selectionControllerDeselectedBot (Bot bot);
+	}
+
 	public class SelectionController: MonoBehaviour
 	{
 		internal List<Bot> allBots = new List<Bot> ();
@@ -21,8 +28,7 @@ namespace CleanKit
 		private bool isSwarmingToggled;
 		private Swarm currentSwarm = null;
 
-		// TODO use proper delegation syntax
-		public BotController selectionDelegate;
+		public SelectionDelegate selectionDelegate;
 
 		private Button swarmButton;
 

@@ -10,12 +10,17 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
+	public interface InteractionDelegate
+	{
+		void interactionControllerSelectedInteractable (Interactable interactable);
+	}
+
 	public class InteractionController : MonoBehaviour
 	{
 		public List<Interactable> allInteractables = new List<Interactable> ();
 		private List<Interactable> availableInteractables = new List<Interactable> ();
 
-		public BotController interactionDelegate;
+		public InteractionDelegate interactionDelegate;
 
 		void Update ()
 		{

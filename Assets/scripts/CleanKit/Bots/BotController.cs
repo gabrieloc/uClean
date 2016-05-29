@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public class BotController: MonoBehaviour
+	public partial class BotController: MonoBehaviour, SelectionDelegate
 	{
 		public float speed = 15.0f;
 		public float relocationRadus = 5.0f;
@@ -109,64 +109,11 @@ namespace CleanKit
 			}
 		}
 
-		// Selection
-
-		private SelectionController selectionController;
-
 		public void AddBot ()
 		{
 			Bot bot = Bot.Instantiate ();
 			bot.transform.SetParent (transform);
 			selectionController.DidInsertBot (bot);
-		}
-
-		// TODO replace with proper delegate
-
-		public void selectionControllerSelectedBot (Bot bot)
-		{
-			bot.gameObject.SetSelected (true);
-		}
-
-		public void selectionControllerDeselectedBot (Bot bot)
-		{
-			bot.gameObject.SetSelected (false);
-			clearContactPoint ();
-			clearInteractableForBot (bot);
-		}
-
-		// Interactables
-
-		private InteractableManager interMan = new InteractableManager ();
-		private InteractionController interactionController;
-
-		private Interactable interactableForBot (Bot bot)
-		{
-			return interMan.InteractableForBot (bot);
-		}
-
-		private void setInteractableForBot (Interactable interactable, Bot bot)
-		{
-			if (interMan.InteractableForBot (bot) != interactable) {
-				clearInteractableForBot (bot);
-				interMan.SetInteractableForBot (interactable, bot);
-
-				// TODO Only update UI if bot is selected
-				interactionController.SetInteractableAvailable (interactable, true);
-			}
-		}
-
-		private void clearInteractableForBot (Bot bot)
-		{
-			Interactable interactable = interMan.ClearInteractableForBot (bot);
-			if (interactable != null) {
-				bool interactableAvailable = interMan.InteractableIsAvailable (interactable);
-				interactionController.SetInteractableAvailable (interactable, interactableAvailable);
-			}
-		}
-
-		public void interactionControllerSelectedInteractable (Interactable interactable)
-		{
-			Debug.Log ("selected " + interactable.name);
 		}
 	}
 }
