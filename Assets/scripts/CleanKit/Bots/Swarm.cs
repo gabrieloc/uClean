@@ -63,26 +63,10 @@ namespace CleanKit
 			return bots [0].transform.position;
 		}
 
-		public bool CanRelocateInteractable (Interactable interactable)
-		{
-			// TODO: see if each bot is in position
-			return false;
-		}
-
-		public void RelocateInteractable (Interactable interactable, Vector3 position, float distanceDelta)
-		{
-			// TODO: move interactable
-		}
-
-		public void PrepareForInteractable (Interactable interactable)
-		{
-			// TODO: move each bot into position
-		}
-
-		public void RelocateToPosition (Vector3 position, float distanceDelta)
+		public void RelocateToPosition (Vector3 position)
 		{
 			foreach (Bot bot in bots) {
-				bot.transform.position = Vector3.MoveTowards (bot.transform.position, position, distanceDelta);
+				bot.RelocateToPosition (position);
 			}
 		}
 	}

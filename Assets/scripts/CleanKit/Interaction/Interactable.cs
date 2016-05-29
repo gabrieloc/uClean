@@ -6,19 +6,11 @@ namespace CleanKit
 {
 	public interface Interactor
 	{
-		//		void UseInteractable (Interactable interactable);
 		Vector3 PrimaryContactPoint ();
 
 		void BeginUsingInteractable (Interactable interactable);
 
-		bool CanRelocateInteractable (Interactable interactable);
-
-
-		void RelocateInteractable (Interactable interactable, Vector3 position, float distanceDelta);
-
-		void RelocateToPosition (Vector3 position, float distanceDelta);
-
-		void PrepareForInteractable (Interactable interactable);
+		void RelocateToPosition (Vector3 position);
 	}
 
 	public class Interactable : MonoBehaviour

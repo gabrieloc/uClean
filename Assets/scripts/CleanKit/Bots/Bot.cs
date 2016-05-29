@@ -6,6 +6,18 @@ namespace CleanKit
 
 	public class Bot : MonoBehaviour, Interactor
 	{
+		public Vector3 relocationPoint = Vector3.zero;
+
+		public bool selected {
+			get { return selected; }
+			set { 
+				this.selected = selected; 
+				gameObject.SetSelected (selected);
+			}
+		}
+
+		public float kRelocatableRadius = 5.0f;
+		public float kRelocationSpeed = 2.0f;
 
 		public static Bot Instantiate ()
 		{
@@ -16,6 +28,31 @@ namespace CleanKit
 			Bot bot = gameObject.GetComponent<Bot> ();
 			bot.createCell ();
 			return bot;
+		}
+
+		void Update ()
+		{
+			bool relocationPointSet = relocationPoint.x != 0.0f && relocationPoint.z != 0.0f;
+			bool withinRelocatableRadius = Vector3.Distance (relocationPoint, transform.position) > kRelocatableRadius;
+			if (relocationPointSet && withinRelocatableRadius) {
+				moveTowardsRelocationPoint ();
+			}
+
+			if (relocationPointSet) {
+				Color color = selected ? Color.blue : Color.gray;
+				Debug.DrawLine (relocationPoint - new Vector3 (2, 0, 0), relocationPoint + new Vector3 (2, 0, 0), color);
+				Debug.DrawLine (relocationPoint - new Vector3 (0, 0, 2), relocationPoint + new Vector3 (0, 0, 2), color);
+			}
+		}
+
+		private void moveTowardsRelocationPoint ()
+		{
+			if (interactable != null && canRelocateWithInteractable () == false) {
+				prepareForInteractable ();
+			}
+
+			float distanceDelta = kRelocationSpeed * Time.deltaTime;
+			transform.position = Vector3.MoveTowards (transform.position, relocationPoint, distanceDelta);
 		}
 
 		// Cells
@@ -55,48 +92,38 @@ namespace CleanKit
 			this.swarm = null;
 		}
 
-		public float relocationRadus = 5.0f;
-
-		private bool canRelocateToPosition (Vector3 position)
-		{
-			bool positionValid = position.x != 0.0f && position.z != 0.0f;
-			bool withinRelocatableRadius = Vector3.Distance (position, transform.position) > relocationRadus;
-			return positionValid && withinRelocatableRadius;
-		}
-
 		// Interactor
 
-		public void BeginUsingInteractable (Interactable interactable)
-		{
-			Debug.Log (name + " is interacting");
-		}
+		private Interactable interactable = null;
 
 		public Vector3 PrimaryContactPoint ()
 		{
 			return transform.position;
 		}
 
-		public bool CanRelocateInteractable (Interactable interactable)
+		public void BeginUsingInteractable (Interactable interactable)
 		{
-			// TODO: see if bot is in position
+			Debug.Log (name + " is interacting");
+
+			this.interactable = interactable;
+			// relocate to interactable
+		}
+
+		public void RelocateToPosition (Vector3 position)
+		{
+			relocationPoint = position;
+			relocationPoint.y += 0.5f;
+		}
+
+		private bool canRelocateWithInteractable ()
+		{
+			// TODO determine if bot is in position and attached to liftable object
 			return false;
 		}
 
-		public void RelocateInteractable (Interactable interactable, Vector3 position, float distanceDelta)
+		private void prepareForInteractable ()
 		{
-			// TODO: move interactable
-		}
-
-		public void PrepareForInteractable (Interactable interactable)
-		{
-			// TODO: move into position
-		}
-
-		public void RelocateToPosition (Vector3 position, float distanceDelta)
-		{
-			if (canRelocateToPosition (position)) {
-				transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
-			}
+			
 		}
 	}
 }

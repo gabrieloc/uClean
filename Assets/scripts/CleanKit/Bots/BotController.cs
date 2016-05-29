@@ -32,9 +32,7 @@ namespace CleanKit
 				timeSinceLastSpawn--;
 			}
 
-			updateContactPoint ();
-
-			relocateToNewContactPoint ();
+			updateInput ();
 			updateInteractables ();
 		}
 
@@ -48,44 +46,25 @@ namespace CleanKit
 			return contactPoint.x != 0.0f && contactPoint.z != 0.0f;
 		}
 
-		private void updateContactPoint ()
+		private void updateInput ()
 		{
 			if (Controls.RelocationInputExists ()) {
 				Ray ray = Camera.main.ScreenPointToRay (Controls.RelocationInput ());
 				RaycastHit hit;
 				if (Physics.Raycast (ray, out hit, 1000)) {
-					contactPoint = hit.point;
+					relocateSelectedToNewContactPoint (hit.point);
 				}
-			}
-
-			if (contactPointSet ()) {
-				Debug.DrawLine (contactPoint - new Vector3 (2, 0, 0), contactPoint + new Vector3 (2, 0, 0), Color.red);
-				Debug.DrawLine (contactPoint - new Vector3 (0, 0, 2), contactPoint + new Vector3 (0, 0, 2), Color.red);
 			}
 		}
 
-		private void relocateToNewContactPoint ()
+		private void relocateSelectedToNewContactPoint (Vector3 newContactPoint)
 		{
-			// Check if a bot or swarm has been selected
-			if (selectionController.currentInteractor == null) {
-				return;
-			}
-
-			Interactor interactor = selectionController.currentInteractor;
-			Vector3 newPosition = contactPoint;
-			newPosition.y += 0.5f;
-
-			Interactable interactable = activeInteractableForInteractor (interactor);
-			float distanceDelta = speed * Time.deltaTime;
-
-			if (interactable != null) {
-				if (interactor.CanRelocateInteractable (interactable)) {
-					interactor.RelocateInteractable (interactable, newPosition, distanceDelta);
-				} else {
-					interactor.PrepareForInteractable (interactable);
+			if (newContactPoint.Equals (contactPoint) == false) {
+				Interactor interactor = selectionController.currentInteractor;
+				if (interactor != null) {
+					interactor.RelocateToPosition (contactPoint);
 				}
-			} else {
-				interactor.RelocateToPosition (newPosition, distanceDelta);
+				contactPoint = newContactPoint;
 			}
 		}
 

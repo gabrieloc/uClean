@@ -9,6 +9,7 @@ namespace CleanKit
 		public void selectionControllerSelectedBot (Bot bot)
 		{
 			Debug.Log ("Selected " + bot.name);
+			bot.selected = true;
 			bot.gameObject.SetSelected (true);
 		}
 
