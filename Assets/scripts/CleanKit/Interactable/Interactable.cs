@@ -11,7 +11,7 @@ namespace CleanKit
 		public void BecomeAvailable (UnityAction onSelection)
 		{
 			if (indicator == null) {
-				string identifier = gameObject.GetInstanceID ().ToString ();
+				string identifier = this.name + " (Indicator)";
 				indicator = InteractableIndicator.Instantiate (identifier);
 			}
 			indicator.OnSelection (onSelection);

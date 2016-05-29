@@ -15,6 +15,8 @@ namespace CleanKit
 		public List<Interactable> allInteractables = new List<Interactable> ();
 		private List<Interactable> availableInteractables = new List<Interactable> ();
 
+		public BotController interactionDelegate;
+
 		void Update ()
 		{
 			foreach (Interactable interactable in availableInteractables) {
@@ -38,7 +40,7 @@ namespace CleanKit
 
 		private void didSelectIndicatorForInteractable (Interactable interactable)
 		{
-			Debug.Log ("selected " + interactable.name);
+			interactionDelegate.interactionControllerSelectedInteractable (interactable);
 		}
 	}
 }

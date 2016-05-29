@@ -9,6 +9,8 @@ namespace CleanKit
 		public void OnSelection (UnityAction selection)
 		{
 			Button button = gameObject.GetComponent<Button> ();
+
+			// TODO figure out why this isn't working
 			button.onClick.AddListener (selection);
 		}
 

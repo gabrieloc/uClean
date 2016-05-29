@@ -17,6 +17,8 @@ namespace CleanKit
 		void Awake ()
 		{
 			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
+			interactionController.interactionDelegate = this;
+
 			selectionController = GameObject.Find ("SelectionController").GetComponent<SelectionController> ();
 			selectionController.selectionDelegate = this;
 		}
@@ -160,6 +162,11 @@ namespace CleanKit
 				bool interactableAvailable = interMan.InteractableIsAvailable (interactable);
 				interactionController.SetInteractableAvailable (interactable, interactableAvailable);
 			}
+		}
+
+		public void interactionControllerSelectedInteractable (Interactable interactable)
+		{
+			Debug.Log ("selected " + interactable.name);
 		}
 	}
 }

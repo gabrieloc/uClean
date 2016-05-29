@@ -14,6 +14,7 @@ namespace CleanKit
 
 			for (int index = 0; index < initialSpawn; index++) {
 				GameObject prop = PropLoader.CreateTestProp ();
+				prop.name = "Prop " + index;
 				prop.transform.SetParent (transform, false);
 				prop.transform.position = new Vector3 ((Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1), 10, (Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1));
 
