@@ -6,14 +6,33 @@ namespace CleanKit
 {
 	public interface Interactor
 	{
-		void UseInteractable (Interactable interactable);
+		//		void UseInteractable (Interactable interactable);
+		Vector3 PrimaryContactPoint ();
 
-		Vector3 ContactPoint ();
+		void BeginUsingInteractable (Interactable interactable);
+
+		bool CanRelocateInteractable (Interactable interactable);
+
+
+		void RelocateInteractable (Interactable interactable, Vector3 position, float distanceDelta);
+
+		void RelocateToPosition (Vector3 position, float distanceDelta);
+
+		void PrepareForInteractable (Interactable interactable);
 	}
 
 	public class Interactable : MonoBehaviour
 	{
 		public InteractableIndicator indicator { get; private set; }
+
+		public Bounds undersideBounds {
+			get {
+				BoxCollider collidor = GetComponent<BoxCollider> ();
+				Bounds bounds = collidor.bounds;
+//				Bounds underside = 
+				return bounds;
+			}
+		}
 
 		public void BecomeAvailableForInteractor (Interactor interactor, UnityAction onSelection)
 		{

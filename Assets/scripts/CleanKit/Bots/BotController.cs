@@ -6,7 +6,6 @@ namespace CleanKit
 	public partial class BotController: MonoBehaviour, SelectionDelegate
 	{
 		public float speed = 15.0f;
-		public float relocationRadus = 5.0f;
 		public float interactableDetectionRadius = 10.0f;
 
 		Vector3 contactPoint = Vector3.zero;
@@ -39,12 +38,6 @@ namespace CleanKit
 			updateInteractables ();
 		}
 
-		private bool canRelocateBot (Bot bot, Vector3 toPosition)
-		{
-			bool withinRelocatableRadius = Vector3.Distance (toPosition, bot.transform.position) > relocationRadus;
-			return contactPointSet () && withinRelocatableRadius;
-		}
-
 		private void clearContactPoint ()
 		{
 			contactPoint = Vector3.zero;
@@ -73,35 +66,26 @@ namespace CleanKit
 
 		private void relocateToNewContactPoint ()
 		{
-			if (selectionController.currentInteractor != null) {
-				Interactor interactor = selectionController.currentInteractor;
-				Vector3 newPosition = contactPoint;
-				newPosition.y += 0.5f;
-
-				if (interactor is Swarm) {
-					relocateSwarmToPosition (interactor as Swarm, newPosition);
-				} else if (interactor is Bot) {
-					relocateBotToPosition (interactor as Bot, newPosition);
-				}
+			// Check if a bot or swarm has been selected
+			if (selectionController.currentInteractor == null) {
+				return;
 			}
-		}
 
-		private void relocateSwarmToPosition (Swarm swarm, Vector3 position)
-		{
-			foreach (Bot bot in swarm.bots) {
-				// TODO make bots move in a group
-				if (canRelocateBot (bot, position)) {
-					float distanceDelta = speed * Time.deltaTime;
-					bot.transform.position = Vector3.MoveTowards (bot.transform.position, position, distanceDelta);
+			Interactor interactor = selectionController.currentInteractor;
+			Vector3 newPosition = contactPoint;
+			newPosition.y += 0.5f;
+
+			Interactable interactable = activeInteractableForInteractor (interactor);
+			float distanceDelta = speed * Time.deltaTime;
+
+			if (interactable != null) {
+				if (interactor.CanRelocateInteractable (interactable)) {
+					interactor.RelocateInteractable (interactable, newPosition, distanceDelta);
+				} else {
+					interactor.PrepareForInteractable (interactable);
 				}
-			}
-		}
-
-		private void relocateBotToPosition (Bot bot, Vector3 position)
-		{
-			if (canRelocateBot (bot, position)) {
-				float distanceDelta = speed * Time.deltaTime;
-				bot.transform.position = Vector3.MoveTowards (bot.transform.position, position, distanceDelta);
+			} else {
+				interactor.RelocateToPosition (newPosition, distanceDelta);
 			}
 		}
 
@@ -112,7 +96,7 @@ namespace CleanKit
 				return;
 			}
 
-			Vector3 contactPoint = interactor.ContactPoint ();
+			Vector3 contactPoint = interactor.PrimaryContactPoint ();
 
 			foreach (Interactable interactable in interactionController.allInteractables) {
 				float distance = Vector3.Distance (interactable.transform.position, contactPoint);

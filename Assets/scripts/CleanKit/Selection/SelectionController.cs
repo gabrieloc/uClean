@@ -157,7 +157,5 @@ namespace CleanKit
 			selectionDelegate.selectionControllerSelectedBot (bot);
 			Debug.Log ("Selected " + bot.name);
 		}
-
-		// Public Conveniences
 	}
 }

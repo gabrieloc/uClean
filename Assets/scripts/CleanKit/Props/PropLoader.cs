@@ -7,12 +7,7 @@ namespace CleanKit
 	{
 		public static GameObject CreateTestProp ()
 		{
-			GameObject testProp = GameObject.CreatePrimitive (PrimitiveType.Cube);
-			testProp.AddComponent<Rigidbody> ();
-			testProp.GetComponent<Renderer> ().material.color = Color.cyan;
-			testProp.transform.localScale = new Vector3 (2, 5, 2);
-			testProp.tag = "interactable";
-			testProp.AddComponent<Interactable> ();
+			GameObject testProp = GameObject.Instantiate (Resources.Load ("TestProp"), new Vector3 (), new Quaternion ()) as GameObject;
 			return testProp;
 		}
 	}

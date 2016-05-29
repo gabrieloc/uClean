@@ -48,16 +48,42 @@ namespace CleanKit
 
 		// Interactor
 
-		public void UseInteractable (Interactable interactable)
-		{ 
+		private Interactable interacting;
+
+		public void BeginUsingInteractable (Interactable interactable)
+		{
 			string name = "Swarm (" + bots.Count + ")";
 			Debug.Log (name + " is using " + interactable.name);
+			interacting = interactable;
 		}
 
-		public Vector3 ContactPoint ()
+		public Vector3 PrimaryContactPoint ()
 		{
 			// TODO Assign a proper leader and use it's center
 			return bots [0].transform.position;
+		}
+
+		public bool CanRelocateInteractable (Interactable interactable)
+		{
+			// TODO: see if each bot is in position
+			return false;
+		}
+
+		public void RelocateInteractable (Interactable interactable, Vector3 position, float distanceDelta)
+		{
+			// TODO: move interactable
+		}
+
+		public void PrepareForInteractable (Interactable interactable)
+		{
+			// TODO: move each bot into position
+		}
+
+		public void RelocateToPosition (Vector3 position, float distanceDelta)
+		{
+			foreach (Bot bot in bots) {
+				bot.transform.position = Vector3.MoveTowards (bot.transform.position, position, distanceDelta);
+			}
 		}
 	}
 }

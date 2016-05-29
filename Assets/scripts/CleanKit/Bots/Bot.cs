@@ -55,16 +55,48 @@ namespace CleanKit
 			this.swarm = null;
 		}
 
+		public float relocationRadus = 5.0f;
+
+		private bool canRelocateToPosition (Vector3 position)
+		{
+			bool positionValid = position.x != 0.0f && position.z != 0.0f;
+			bool withinRelocatableRadius = Vector3.Distance (position, transform.position) > relocationRadus;
+			return positionValid && withinRelocatableRadius;
+		}
+
 		// Interactor
 
-		public void UseInteractable (Interactable interactable)
+		public void BeginUsingInteractable (Interactable interactable)
 		{
 			Debug.Log (name + " is interacting");
 		}
 
-		public Vector3 ContactPoint ()
+		public Vector3 PrimaryContactPoint ()
 		{
 			return transform.position;
+		}
+
+		public bool CanRelocateInteractable (Interactable interactable)
+		{
+			// TODO: see if bot is in position
+			return false;
+		}
+
+		public void RelocateInteractable (Interactable interactable, Vector3 position, float distanceDelta)
+		{
+			// TODO: move interactable
+		}
+
+		public void PrepareForInteractable (Interactable interactable)
+		{
+			// TODO: move into position
+		}
+
+		public void RelocateToPosition (Vector3 position, float distanceDelta)
+		{
+			if (canRelocateToPosition (position)) {
+				transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+			}
 		}
 	}
 }
