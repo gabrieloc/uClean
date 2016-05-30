@@ -7,16 +7,19 @@ namespace CleanKit
 	{
 		public Vector3 relocationPoint = Vector3.zero;
 
-		private bool selected;
+		public bool selected { get; private set; }
 
 		public void SetSelected (bool selected)
 		{
 			this.selected = selected;
 			gameObject.SetSelected (selected);
+			if (cell) {
+				cell.gameObject.SetSelected (selected);
+			}
 		}
 
-		public float kRelocatableRadius = 5.0f;
-		public float kRelocationSpeed = 2.0f;
+		public float kRelocatableRadius = 2.0f;
+		public float kRelocationSpeed = 20.0f;
 
 		public static Bot Instantiate ()
 		{
@@ -51,7 +54,9 @@ namespace CleanKit
 			}
 
 			float distanceDelta = kRelocationSpeed * Time.deltaTime;
-			transform.position = Vector3.MoveTowards (transform.position, relocationPoint, distanceDelta);
+			Vector3 position = relocationPoint;
+			position.y += 0.5f;
+			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
 		}
 
 		// Cells
@@ -111,7 +116,6 @@ namespace CleanKit
 		public void RelocateToPosition (Vector3 position)
 		{
 			relocationPoint = position;
-			relocationPoint.y += 0.5f;
 		}
 
 		private bool canRelocateWithInteractable ()

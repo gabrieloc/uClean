@@ -8,7 +8,7 @@ namespace CleanKit
 		public float speed = 15.0f;
 		public float interactableDetectionRadius = 10.0f;
 
-		Vector3 contactPoint = Vector3.zero;
+		private Vector3 storedContactPoint = Vector3.zero;
 
 		private int botSpawnCount = 5;
 		private int timeSinceLastSpawn = 0;
@@ -36,16 +36,6 @@ namespace CleanKit
 			updateInteractables ();
 		}
 
-		private void clearContactPoint ()
-		{
-			contactPoint = Vector3.zero;
-		}
-
-		private bool contactPointSet ()
-		{
-			return contactPoint.x != 0.0f && contactPoint.z != 0.0f;
-		}
-
 		private void updateInput ()
 		{
 			if (Controls.RelocationInputExists ()) {
@@ -57,14 +47,12 @@ namespace CleanKit
 			}
 		}
 
-		private void relocateSelectedToNewContactPoint (Vector3 newContactPoint)
+		private void relocateSelectedToNewContactPoint (Vector3 contactPoint)
 		{
-			if (newContactPoint.Equals (contactPoint) == false) {
-				Interactor interactor = selectionController.currentInteractor;
-				if (interactor != null) {
-					interactor.RelocateToPosition (contactPoint);
-				}
-				contactPoint = newContactPoint;
+			Interactor interactor = selectionController.currentInteractor;
+			if (contactPoint.Equals (storedContactPoint) == false && interactor != null) {
+				interactor.RelocateToPosition (contactPoint);
+				storedContactPoint = contactPoint;
 			}
 		}
 

@@ -22,7 +22,6 @@ namespace CleanKit
 	{
 		internal List<Bot> allBots = new List<Bot> ();
 		internal List<Swarm> allSwarms = new List<Swarm> ();
-		//		public List<Bot> selectedBots = new List<Bot> ();
 
 		private bool isSwarmingToggled;
 
@@ -87,7 +86,12 @@ namespace CleanKit
 			if (isSwarmingToggled) {
 				addBotToCurrentSwarm (bot);
 			} else {
-				selectBot (bot);
+				bool wasSelected = bot.Equals (selectedBot);
+				clearSelection ();
+				if (!wasSelected) {
+					currentInteractor = bot;
+					addBotToSelection (bot);
+				}
 			}
 		}
 
@@ -117,26 +121,13 @@ namespace CleanKit
 				}
 			} else if (selectedBot != null) {
 				Bot bot = currentInteractor as Bot;
-				if (bot.cell) {
-					bot.cell.gameObject.SetSelected (false);
-				}
 				selectionDelegate.selectionControllerDeselectedBot (bot);
 			}
 			currentInteractor = null;
 		}
 
-		private void selectBot (Bot bot)
-		{
-			clearSelection ();
-			currentInteractor = bot;
-			addBotToSelection (bot);
-		}
-
 		private void addBotToSelection (Bot bot)
 		{
-			if (bot.cell) {
-				bot.cell.gameObject.SetSelected (true);
-			}
 			selectionDelegate.selectionControllerSelectedBot (bot);
 		}
 

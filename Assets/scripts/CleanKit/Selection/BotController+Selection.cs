@@ -15,8 +15,8 @@ namespace CleanKit
 		public void selectionControllerDeselectedBot (Bot bot)
 		{
 			Debug.Log ("Deselected " + bot.name);
-			bot.gameObject.SetSelected (false);
-			clearContactPoint ();
+			bot.SetSelected (false);
+			storedContactPoint = Vector3.zero;
 			clearInteractable (bot);
 		}
 	}
