@@ -105,13 +105,12 @@ namespace CleanKit
 			return transform.position;
 		}
 
-		public void BeginUsingInteractable (Interactable interactable)
+		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
 		{
-			Debug.Log (name + " is interacting");
-
+			Debug.Log (name + " is " + interactionType.identifier + "ing " + interactable.name);
 			this.interactable = interactable;
-			// relocate to interactable
 		}
+
 
 		public void RelocateToPosition (Vector3 position)
 		{

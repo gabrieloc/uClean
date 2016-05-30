@@ -13,10 +13,14 @@ namespace CleanKit
 			button.onClick.AddListener (selection);
 		}
 
-		public static InteractableIndicator Instantiate (string identifier)
+		public static InteractableIndicator Instantiate (string interactableName, string interaction)
 		{
 			GameObject gameObject = GameObject.Instantiate (Resources.Load ("InteractableIndicator")) as GameObject;
+			string identifier = interactableName + " (" + interaction + " indicator)";
 			gameObject.name = identifier;
+
+			Text titleLabel = gameObject.GetComponentInChildren<Text> ();
+			titleLabel.text = interaction;
 
 			InteractableIndicator indicator = gameObject.GetComponent<InteractableIndicator> ();
 			return indicator;

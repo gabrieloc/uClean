@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using System;
+using System.Collections.Generic;
 
 namespace CleanKit
 {
@@ -8,37 +10,32 @@ namespace CleanKit
 	{
 		Vector3 PrimaryContactPoint ();
 
-		void BeginUsingInteractable (Interactable interactable);
+		void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType);
+
 
 		void RelocateToPosition (Vector3 position);
 	}
 
-	public class Interactable : MonoBehaviour
+	public partial class Interactable : MonoBehaviour
 	{
-		public InteractableIndicator indicator { get; private set; }
+		readonly public List<InteractableIndicator> indicators = new List<InteractableIndicator> ();
 
-		public Bounds undersideBounds {
-			get {
-				BoxCollider collidor = GetComponent<BoxCollider> ();
-				Bounds bounds = collidor.bounds;
-//				Bounds underside = 
-				return bounds;
-			}
-		}
-
-		public void BecomeAvailableForInteractor (Interactor interactor, UnityAction onSelection)
+		public void BecomeAvailableForInteractor (Interactor interactor)
 		{
-			if (indicator == null) {
-				string identifier = this.name + " (Indicator)";
-				indicator = InteractableIndicator.Instantiate (identifier);
+			foreach (InteractionType interactionType in interactionTypes) {
+				InteractableIndicator indicator = InteractableIndicator.Instantiate (name, interactionType.identifier);
+				indicators.Add (indicator);
+				indicator.OnSelection (() => interactor.IndicatorForInteractableSelected (this, interactionType));
 			}
-			indicator.OnSelection (onSelection);
 		}
 
 		public void BecomeUnavailable ()
 		{
-			Destroy (indicator.gameObject);
-			indicator = null;
+			while (indicators.Count > 0) {
+				InteractableIndicator indicator = indicators [0];
+				Destroy (indicator.gameObject);
+				indicators.Remove (indicator);
+			}
 		}
 	}
 }

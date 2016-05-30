@@ -73,15 +73,6 @@ namespace CleanKit
 		{
 			return availableInteractables.ContainsKey (interactable);
 		}
-
-		// InteractionDelegate
-
-		public void interactionControllerSelectedInteractable (Interactable interactable)
-		{
-			Interactor currentInteractor = selectionController.currentInteractor;
-			currentInteractor.BeginUsingInteractable (interactable);
-			activeInteractables [interactable] = currentInteractor; 
-		}
 	}
 }
 

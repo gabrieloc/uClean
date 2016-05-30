@@ -13,7 +13,6 @@ namespace CleanKit
 {
 	public interface InteractionDelegate
 	{
-		void interactionControllerSelectedInteractable (Interactable interactable);
 	}
 
 	public class InteractionController : MonoBehaviour
@@ -25,11 +24,14 @@ namespace CleanKit
 
 		void Update ()
 		{
-			foreach (Interactable interactable in availableInteractables) {
-				GameObject indicator = interactable.indicator.gameObject;
-				Vector3 position = RectTransformUtility.WorldToScreenPoint (Camera.main, interactable.transform.position);
-				indicator.transform.position = position;
-			}	
+			if (availableInteractables.Count > 0) {
+				foreach (Interactable interactable in availableInteractables) {
+					foreach (InteractableIndicator indicator in interactable.indicators) {
+						Vector3 position = RectTransformUtility.WorldToScreenPoint (Camera.main, interactable.gameObject.transform.position);
+						indicator.gameObject.transform.position = position;
+					}
+				}	
+			}
 		}
 
 		public void SetInteractableAvailable (Interactable interactable, Interactor interactor, bool available)
@@ -38,18 +40,17 @@ namespace CleanKit
 				availableInteractables.Add (interactable);
 
 				currentInteractor = interactor;
-				UnityAction onSelection = () => didSelectIndicatorForInteractable (interactable);
-				interactable.BecomeAvailableForInteractor (interactor, onSelection);
-				interactable.indicator.transform.SetParent (transform);
+				interactable.BecomeAvailableForInteractor (interactor);
+				foreach (InteractableIndicator indicator in interactable.indicators) {
+					indicator.gameObject.transform.SetParent (transform);
+
+					// TODO figure out why scale is being affected
+					indicator.gameObject.transform.localScale = new Vector3 (1, 1, 1);
+				}
 			} else if (availableInteractables.Contains (interactable) == true && !available) {
 				availableInteractables.Remove (interactable);
 				interactable.BecomeUnavailable ();
 			}
-		}
-
-		private void didSelectIndicatorForInteractable (Interactable interactable)
-		{
-			interactionDelegate.interactionControllerSelectedInteractable (interactable);
 		}
 	}
 }

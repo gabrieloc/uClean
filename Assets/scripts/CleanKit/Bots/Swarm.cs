@@ -17,6 +17,12 @@ namespace CleanKit
 			}
 		}
 
+		public string name {
+			get {
+				return "Swarm (" + bots.Count + ")";
+			}
+		}
+
 		readonly public SwarmCell cell;
 
 		public Swarm ()
@@ -48,13 +54,12 @@ namespace CleanKit
 
 		// Interactor
 
-		private Interactable interacting;
+		private Interactable interactable;
 
-		public void BeginUsingInteractable (Interactable interactable)
+		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
 		{
-			string name = "Swarm (" + bots.Count + ")";
-			Debug.Log (name + " is using " + interactable.name);
-			interacting = interactable;
+			Debug.Log (name + " is " + interactionType.identifier + "ing " + interactable.name);
+			this.interactable = interactable;
 		}
 
 		public Vector3 PrimaryContactPoint ()
