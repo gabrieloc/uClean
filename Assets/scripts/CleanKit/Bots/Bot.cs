@@ -3,17 +3,16 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-
 	public class Bot : MonoBehaviour, Interactor
 	{
 		public Vector3 relocationPoint = Vector3.zero;
 
-		public bool selected {
-			get { return selected; }
-			set { 
-				this.selected = selected; 
-				gameObject.SetSelected (selected);
-			}
+		private bool selected;
+
+		public void SetSelected (bool selected)
+		{
+			this.selected = selected;
+			gameObject.SetSelected (selected);
 		}
 
 		public float kRelocatableRadius = 5.0f;
