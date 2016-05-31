@@ -99,6 +99,7 @@ namespace CleanKit
 		// Interactor
 
 		private Interactable interactable = null;
+		public InteractionType interaction;
 
 		public Vector3 PrimaryContactPoint ()
 		{
@@ -107,14 +108,26 @@ namespace CleanKit
 
 		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
 		{
-			Debug.Log (name + " is " + interactionType.identifier + "ing " + interactable.name);
 			this.interactable = interactable;
+			interaction = interactionType;
+			Debug.Log (name + " is " + interaction.Description () + "ing " + interactable.name);
 		}
-
 
 		public void RelocateToPosition (Vector3 position)
 		{
 			relocationPoint = position;
+		}
+
+		private void prepareForInteractable ()
+		{
+			Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
+			switch (interaction) {
+			case InteractionType.Lift:
+				prepareForLifting ();
+				break;
+			case InteractionType.Clean:
+				break;
+			}
 		}
 
 		private bool canRelocateWithInteractable ()
@@ -123,9 +136,10 @@ namespace CleanKit
 			return false;
 		}
 
-		private void prepareForInteractable ()
+		private void prepareForLifting ()
 		{
-			
+			// TODO move bot into position and attach to liftable object somehow
+			Debug.Log ("Preparing for lift interaction");
 		}
 	}
 }

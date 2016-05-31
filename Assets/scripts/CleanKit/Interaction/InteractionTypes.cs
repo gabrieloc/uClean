@@ -2,23 +2,23 @@
 
 namespace CleanKit
 {
-	public class InteractionType
+	public enum InteractionType
 	{
-		public string identifier { get; private set; }
+		Lift,
+		Clean
+	}
 
-		public static InteractionType Liftable ()
+	static class InteractionTypeConveniences
+	{
+		public static string Description (this InteractionType type)
 		{
-			return new InteractionType ("lift");
-		}
-
-		public static InteractionType Cleanable ()
-		{
-			return new InteractionType ("clean");
-		}
-
-		private InteractionType (string identifier)
-		{
-			this.identifier = identifier;
+			switch (type) {
+			case InteractionType.Lift:
+				return "lift";
+			case InteractionType.Clean:
+				return "clean";
+			}
+			return null;
 		}
 	}
 
@@ -30,7 +30,6 @@ namespace CleanKit
 		{
 			interactionTypes.Add (interactionType);
 		}
-
 	}
 }
 

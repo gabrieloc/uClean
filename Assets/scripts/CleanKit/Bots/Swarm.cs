@@ -58,7 +58,7 @@ namespace CleanKit
 
 		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
 		{
-			Debug.Log (name + " is " + interactionType.identifier + "ing " + interactable.name);
+			Debug.Log (name + " is " + interactionType.Description () + "ing " + interactable.name);
 			this.interactable = interactable;
 		}
 

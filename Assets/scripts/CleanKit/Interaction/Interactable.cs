@@ -12,7 +12,6 @@ namespace CleanKit
 
 		void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType);
 
-
 		void RelocateToPosition (Vector3 position);
 	}
 
@@ -23,7 +22,7 @@ namespace CleanKit
 		public void BecomeAvailableForInteractor (Interactor interactor)
 		{
 			foreach (InteractionType interactionType in interactionTypes) {
-				InteractableIndicator indicator = InteractableIndicator.Instantiate (name, interactionType.identifier);
+				InteractableIndicator indicator = InteractableIndicator.Instantiate (name, interactionType.Description ());
 				indicators.Add (indicator);
 				indicator.OnSelection (() => interactor.IndicatorForInteractableSelected (this, interactionType));
 			}
