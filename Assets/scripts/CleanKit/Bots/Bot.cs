@@ -36,7 +36,9 @@ namespace CleanKit
 		{
 			bool relocationPointSet = relocationPoint.x != 0.0f && relocationPoint.z != 0.0f;
 			bool withinRelocatableRadius = Vector3.Distance (relocationPoint, transform.position) > kRelocatableRadius;
-			if (relocationPointSet && withinRelocatableRadius) {
+			if (interactable != null) {// && canRelocateWithInteractable () == false) {
+				prepareForInteractable ();
+			} else if (relocationPointSet) {// && withinRelocatableRadius) {
 				moveTowardsRelocationPoint ();
 			}
 
@@ -49,14 +51,19 @@ namespace CleanKit
 
 		private void moveTowardsRelocationPoint ()
 		{
-			if (interactable != null && canRelocateWithInteractable () == false) {
-				prepareForInteractable ();
+			if (relocationPoint.Equals (Vector3.zero)) {
+				return;
 			}
 
 			float distanceDelta = kRelocationSpeed * Time.deltaTime;
 			Vector3 position = relocationPoint;
 			position.y += 0.5f;
-			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+
+			if (canRelocateWithInteractable ()) {
+				print ("Can relocate " + interactable);
+			} else {
+				transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+			}
 		}
 
 		// Cells
@@ -108,6 +115,10 @@ namespace CleanKit
 
 		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
 		{
+			if (this.interactable != null && this.interactable.Equals (interactable) && interaction == interactionType) {
+				return;
+			}
+
 			this.interactable = interactable;
 			interaction = interactionType;
 			Debug.Log (name + " is " + interaction.Description () + "ing " + interactable.name);
@@ -120,7 +131,6 @@ namespace CleanKit
 
 		private void prepareForInteractable ()
 		{
-			Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
 			switch (interaction) {
 			case InteractionType.Lift:
 				prepareForLifting ();
@@ -132,15 +142,54 @@ namespace CleanKit
 
 		private bool canRelocateWithInteractable ()
 		{
-			// TODO determine if bot is in position and attached to liftable object
+			if (interactable != null) {
+				Vector3 direction = transform.TransformDirection (Vector3.up);
+				RaycastHit hit;
+				if (Physics.Raycast (transform.position, direction, out hit, 10.0f)) {
+					GameObject hitObject = hit.transform.gameObject;
+					return hitObject.Equals (interactable);
+				}
+			}
 			return false;
 		}
 
+		public float kLiftStrength = 50.0f;
+		public float kLiftAttemptInterval = 20.0f;
+		private float lastLiftedInterval = 0.0f;
+		private Vector3 interactableContactPoint;
+
 		private void prepareForLifting ()
 		{
-			// TODO move bot into position and attach to liftable object somehow
-			Debug.Log ("Preparing for lift interaction");
+			if (lastLiftedInterval < 0.0f && interactableContactPoint != Vector3.zero) {
+
+				ForceMode forceMode = ForceMode.Impulse;
+				Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
+				rigidBody.AddForceAtPosition (new Vector3 (0.0f, kLiftStrength, 0.0f), interactableContactPoint, forceMode);
+
+				lastLiftedInterval = kLiftAttemptInterval;
+				interactableContactPoint = Vector3.zero;
+			} else {
+				// Attempt to go under
+				Vector3 newPosition = interactable.transform.position;
+				newPosition.y = 0.5f;
+				RelocateToPosition (newPosition);
+				moveTowardsRelocationPoint ();
+			} 
+
+			Vector3 c = interactableContactPoint;
+			Debug.DrawLine (new Vector3 (c.x, c.y, c.z), new Vector3 (c.x, c.y + 4, c.z), Color.red);
+			Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x - 1, c.y + 3, c.z), Color.red);
+			Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x + 1, c.y + 3, c.z), Color.red);
+
+			lastLiftedInterval--;
+		}
+
+		void OnCollisionEnter (Collision other)
+		{
+			if (interactable != null && other.gameObject.Equals (interactable.gameObject)) {
+				interactableContactPoint = other.contacts [0].point;
+				print (interactableContactPoint);
+			}
 		}
 	}
 }
-	
