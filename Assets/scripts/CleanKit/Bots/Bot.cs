@@ -57,12 +57,15 @@ namespace CleanKit
 
 			float distanceDelta = kRelocationSpeed * Time.deltaTime;
 			Vector3 position = relocationPoint;
-			position.y += 0.5f;
+			position.y = 0.5f;
 
-			if (canRelocateWithInteractable ()) {
-				print ("Can relocate " + interactable);
+			if (isLiftingInteractable ()) {
+				// TODO
 			} else {
 				transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+				if (Vector3.Distance (transform.position, position) > 1) {
+					transform.LookAt (position);
+				}
 			}
 		}
 
@@ -140,33 +143,61 @@ namespace CleanKit
 			}
 		}
 
-		private bool canRelocateWithInteractable ()
+		private bool isLiftingInteractable ()
 		{
-			if (interactable != null) {
-				Vector3 direction = transform.TransformDirection (Vector3.up);
-				RaycastHit hit;
-				if (Physics.Raycast (transform.position, direction, out hit, 10.0f)) {
-					GameObject hitObject = hit.transform.gameObject;
-					return hitObject.Equals (interactable);
-				}
-			}
-			return false;
+			Vector3 hitPoint;
+			bool looking = rayCastAtInteractable (transform.TransformDirection (Vector3.up), out hitPoint, 1.0f);
+			Debug.DrawLine (transform.position, hitPoint, looking ? Color.green : Color.red);
+			return looking;
 		}
 
-		public float kLiftStrength = 50.0f;
-		public float kLiftAttemptInterval = 20.0f;
-		private float lastLiftedInterval = 0.0f;
+		private bool isLookingAtInteractable ()
+		{
+			Vector3 contactPoint;
+			bool looking = rayCastAtInteractable (transform.TransformDirection (Vector3.forward), out contactPoint, 1.0f);
+			Debug.DrawLine (transform.position, contactPoint, looking ? Color.green : Color.red);
+			interactableContactPoint = contactPoint;
+			return looking;
+		}
+
+		private bool rayCastAtInteractable (Vector3 direction, out Vector3 contactPoint, float distance)
+		{
+			contactPoint = new Vector3 ();
+
+			if (interactable == null) {
+				return false;
+			}
+
+			Ray ray = new Ray ();
+			ray.direction = direction;
+			ray.origin = transform.position;
+
+			RaycastHit hit;
+			Collider interactableCollider = interactable.gameObject.GetComponent<Collider> ();
+
+			bool cast = interactableCollider.Raycast (ray, out hit, distance);
+
+			contactPoint = ray.GetPoint (distance);
+			return cast;
+		}
+
+		public float kLiftStrength = 1.5f;
 		private Vector3 interactableContactPoint;
 
 		private void prepareForLifting ()
 		{
-			if (lastLiftedInterval < 0.0f && interactableContactPoint != Vector3.zero) {
-
+			if (isLookingAtInteractable () && interactableContactPoint != Vector3.zero) {
+				// Lift object
 				ForceMode forceMode = ForceMode.Impulse;
 				Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
-				rigidBody.AddForceAtPosition (new Vector3 (0.0f, kLiftStrength, 0.0f), interactableContactPoint, forceMode);
+				float force = kLiftStrength * rigidBody.mass;
+				rigidBody.AddForceAtPosition (new Vector3 (0.0f, force, 0.0f), interactableContactPoint, forceMode);
 
-				lastLiftedInterval = kLiftAttemptInterval;
+				Vector3 c = interactableContactPoint;
+				Debug.DrawLine (new Vector3 (c.x, c.y, c.z), new Vector3 (c.x, c.y + 4, c.z), Color.red);
+				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x - 1, c.y + 3, c.z), Color.red);
+				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x + 1, c.y + 3, c.z), Color.red);
+
 				interactableContactPoint = Vector3.zero;
 			} else {
 				// Attempt to go under
@@ -174,21 +205,6 @@ namespace CleanKit
 				newPosition.y = 0.5f;
 				RelocateToPosition (newPosition);
 				moveTowardsRelocationPoint ();
-			} 
-
-			Vector3 c = interactableContactPoint;
-			Debug.DrawLine (new Vector3 (c.x, c.y, c.z), new Vector3 (c.x, c.y + 4, c.z), Color.red);
-			Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x - 1, c.y + 3, c.z), Color.red);
-			Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x + 1, c.y + 3, c.z), Color.red);
-
-			lastLiftedInterval--;
-		}
-
-		void OnCollisionEnter (Collision other)
-		{
-			if (interactable != null && other.gameObject.Equals (interactable.gameObject)) {
-				interactableContactPoint = other.contacts [0].point;
-				print (interactableContactPoint);
 			}
 		}
 	}
