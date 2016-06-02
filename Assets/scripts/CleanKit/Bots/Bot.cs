@@ -138,7 +138,8 @@ namespace CleanKit
 			case InteractionType.Lift:
 				prepareForLifting ();
 				break;
-			case InteractionType.Clean:
+			case InteractionType.Push:
+				prepareForPushing ();
 				break;
 			}
 		}
@@ -206,6 +207,11 @@ namespace CleanKit
 				RelocateToPosition (newPosition);
 				moveTowardsRelocationPoint ();
 			}
+		}
+
+		private void prepareForPushing ()
+		{
+			// TODO
 		}
 	}
 }

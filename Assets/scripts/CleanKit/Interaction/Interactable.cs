@@ -17,7 +17,28 @@ namespace CleanKit
 
 	public partial class Interactable : MonoBehaviour
 	{
+		public float kIndicatorSpacing = 2.0f;
 		readonly public List<InteractableIndicator> indicators = new List<InteractableIndicator> ();
+
+		public void LayoutIndicators ()
+		{
+			Vector3 center = RectTransformUtility.WorldToScreenPoint (Camera.main, transform.position);
+			int indicatorCount = indicators.Count;
+
+			for (int index = 0; index < indicators.Count; index++) {
+				Vector3 position = center;
+				InteractableIndicator indicator = indicators [index];
+				Rect rect = indicator.GetComponent<RectTransform> ().rect;
+
+				float y = position.y;
+				y -= (index * rect.height) + (index * (kIndicatorSpacing * (indicatorCount - 1)));
+				y += (rect.height + kIndicatorSpacing) * 0.5f;
+					
+				position.y = y;
+
+				indicator.gameObject.transform.position = position;
+			}
+		}
 
 		public void BecomeAvailableForInteractor (Interactor interactor)
 		{

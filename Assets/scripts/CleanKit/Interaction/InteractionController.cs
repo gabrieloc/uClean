@@ -26,10 +26,7 @@ namespace CleanKit
 		{
 			if (availableInteractables.Count > 0) {
 				foreach (Interactable interactable in availableInteractables) {
-					foreach (InteractableIndicator indicator in interactable.indicators) {
-						Vector3 position = RectTransformUtility.WorldToScreenPoint (Camera.main, interactable.gameObject.transform.position);
-						indicator.gameObject.transform.position = position;
-					}
+					interactable.LayoutIndicators ();
 				}	
 			}
 		}
@@ -43,9 +40,6 @@ namespace CleanKit
 				interactable.BecomeAvailableForInteractor (interactor);
 				foreach (InteractableIndicator indicator in interactable.indicators) {
 					indicator.gameObject.transform.SetParent (transform);
-
-					// TODO figure out why scale is being affected
-					indicator.gameObject.transform.localScale = new Vector3 (1, 1, 1);
 				}
 			} else if (availableInteractables.Contains (interactable) == true && !available) {
 				availableInteractables.Remove (interactable);

@@ -20,6 +20,7 @@ namespace CleanKit
 
 				Interactable interactable = prop.GetComponent<Interactable> ();
 				interactable.AddInteractionType (InteractionType.Lift);
+				interactable.AddInteractionType (InteractionType.Push);
 				interactionController.allInteractables.Add (interactable);
 			}
 		}
