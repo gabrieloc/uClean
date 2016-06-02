@@ -19,8 +19,7 @@ namespace CleanKit
 				prop.transform.position = new Vector3 ((Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1), 10, (Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1));
 
 				Interactable interactable = prop.GetComponent<Interactable> ();
-				interactable.AddInteractionType (InteractionType.Lift);
-				interactable.AddInteractionType (InteractionType.Push);
+				interactable.AddInteractionType (InteractionType.Move);
 				interactionController.allInteractables.Add (interactable);
 			}
 		}

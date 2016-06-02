@@ -4,8 +4,8 @@ namespace CleanKit
 {
 	public enum InteractionType
 	{
-		Lift,
-		Push
+		Move,
+		Clean
 	}
 
 	static class InteractionTypeConveniences
@@ -13,10 +13,10 @@ namespace CleanKit
 		public static string Description (this InteractionType type)
 		{
 			switch (type) {
-			case InteractionType.Lift:
-				return "lift";
-			case InteractionType.Push:
-				return "push";
+			case InteractionType.Move:
+				return "move";
+			case InteractionType.Clean:
+				return "clean";
 			}
 			return null;
 		}

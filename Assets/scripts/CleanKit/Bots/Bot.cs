@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public class Bot : MonoBehaviour, Interactor
+	public partial class Bot : MonoBehaviour, Interactor
 	{
 		public Vector3 relocationPoint = Vector3.zero;
 
@@ -35,10 +35,14 @@ namespace CleanKit
 		void Update ()
 		{
 			bool relocationPointSet = relocationPoint.x != 0.0f && relocationPoint.z != 0.0f;
-			bool withinRelocatableRadius = Vector3.Distance (relocationPoint, transform.position) > kRelocatableRadius;
-			if (interactable != null) {// && canRelocateWithInteractable () == false) {
-				prepareForInteractable ();
-			} else if (relocationPointSet) {// && withinRelocatableRadius) {
+
+			if (interactable != null) {
+				if (canPerformInteraction ()) {
+					performInteraction ();
+				} else {
+					prepareForInteraction ();
+				}
+			} else if (relocationPointSet) {
 				moveTowardsRelocationPoint ();
 			}
 
@@ -59,13 +63,9 @@ namespace CleanKit
 			Vector3 position = relocationPoint;
 			position.y = 0.5f;
 
-			if (isLiftingInteractable ()) {
-				// TODO
-			} else {
-				transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
-				if (Vector3.Distance (transform.position, position) > 1) {
-					transform.LookAt (position);
-				}
+			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+			if (Vector3.Distance (transform.position, position) > 1) {
+				transform.LookAt (position);
 			}
 		}
 
@@ -108,9 +108,6 @@ namespace CleanKit
 
 		// Interactor
 
-		private Interactable interactable = null;
-		public InteractionType interaction;
-
 		public Vector3 PrimaryContactPoint ()
 		{
 			return transform.position;
@@ -130,88 +127,6 @@ namespace CleanKit
 		public void RelocateToPosition (Vector3 position)
 		{
 			relocationPoint = position;
-		}
-
-		private void prepareForInteractable ()
-		{
-			switch (interaction) {
-			case InteractionType.Lift:
-				prepareForLifting ();
-				break;
-			case InteractionType.Push:
-				prepareForPushing ();
-				break;
-			}
-		}
-
-		private bool isLiftingInteractable ()
-		{
-			Vector3 hitPoint;
-			bool looking = rayCastAtInteractable (transform.TransformDirection (Vector3.up), out hitPoint, 1.0f);
-			Debug.DrawLine (transform.position, hitPoint, looking ? Color.green : Color.red);
-			return looking;
-		}
-
-		private bool isLookingAtInteractable ()
-		{
-			Vector3 contactPoint;
-			bool looking = rayCastAtInteractable (transform.TransformDirection (Vector3.forward), out contactPoint, 1.0f);
-			Debug.DrawLine (transform.position, contactPoint, looking ? Color.green : Color.red);
-			interactableContactPoint = contactPoint;
-			return looking;
-		}
-
-		private bool rayCastAtInteractable (Vector3 direction, out Vector3 contactPoint, float distance)
-		{
-			contactPoint = new Vector3 ();
-
-			if (interactable == null) {
-				return false;
-			}
-
-			Ray ray = new Ray ();
-			ray.direction = direction;
-			ray.origin = transform.position;
-
-			RaycastHit hit;
-			Collider interactableCollider = interactable.gameObject.GetComponent<Collider> ();
-
-			bool cast = interactableCollider.Raycast (ray, out hit, distance);
-
-			contactPoint = ray.GetPoint (distance);
-			return cast;
-		}
-
-		public float kLiftStrength = 1.5f;
-		private Vector3 interactableContactPoint;
-
-		private void prepareForLifting ()
-		{
-			if (isLookingAtInteractable () && interactableContactPoint != Vector3.zero) {
-				// Lift object
-				ForceMode forceMode = ForceMode.Impulse;
-				Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
-				float force = kLiftStrength * rigidBody.mass;
-				rigidBody.AddForceAtPosition (new Vector3 (0.0f, force, 0.0f), interactableContactPoint, forceMode);
-
-				Vector3 c = interactableContactPoint;
-				Debug.DrawLine (new Vector3 (c.x, c.y, c.z), new Vector3 (c.x, c.y + 4, c.z), Color.red);
-				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x - 1, c.y + 3, c.z), Color.red);
-				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x + 1, c.y + 3, c.z), Color.red);
-
-				interactableContactPoint = Vector3.zero;
-			} else {
-				// Attempt to go under
-				Vector3 newPosition = interactable.transform.position;
-				newPosition.y = 0.5f;
-				RelocateToPosition (newPosition);
-				moveTowardsRelocationPoint ();
-			}
-		}
-
-		private void prepareForPushing ()
-		{
-			// TODO
 		}
 	}
 }
