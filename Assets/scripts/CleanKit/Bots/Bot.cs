@@ -121,7 +121,7 @@ namespace CleanKit
 			}
 
 			this.interactable = interactable;
-			interaction = interactionType;
+			SetInteraction (interactionType);
 			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
 		}
 
