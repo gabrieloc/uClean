@@ -29,7 +29,7 @@ namespace CleanKit
 
 			Bot bot = gameObject.GetComponent<Bot> ();
 			bot.createCell ();
-			bot.interaction = InteractionType.None;
+			bot.SetInteraction (InteractionType.None);
 			return bot;
 		}
 

@@ -6,14 +6,13 @@ namespace CleanKit
 	{
 		private Interactable interactable = null;
 
-		public InteractionType interaction {
-			get {
-				return interaction;
-			}
-			private set {
-				this.interaction = interaction;
-				this.cell.SetInteractionName (interaction.Description ());
-			}
+		private InteractionType interaction;
+
+		public void SetInteraction (InteractionType interaction)
+		{
+			this.interaction = interaction;
+			cell.SetInteractionName (interaction.Description ());
+
 		}
 
 		public float kLiftStrength = 1.5f;
