@@ -71,6 +71,7 @@ namespace CleanKit
 			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
 			if (Vector3.Distance (transform.position, position) > 1.0f) {
 				transform.LookAt (new Vector3 (position.x, transform.position.y, position.y));
+				Debug.DrawLine (transform.position, position, Color.blue);
 			}
 		}
 
@@ -87,7 +88,8 @@ namespace CleanKit
 			Vector3 position = hit.point;
 			Debug.DrawLine (origin, hit.point, Color.green);
 
-			bool canInteract = Vector3.Distance (transform.position, position) < kMinimumInteractableDistance;
+			float magnitude = Vector3.Distance (transform.position, position);
+			bool canInteract = magnitude < kMinimumInteractableDistance;
 			ignoreRelocationPoint = !canInteract;
 
 			if (canInteract) {
@@ -152,6 +154,9 @@ namespace CleanKit
 			this.interactable = interactable;
 			SetInteraction (interactionType);
 			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
+
+			interactable.BecomeUnavailable ();
+			RelocateToPosition (Vector3.zero);
 		}
 
 		public void RelocateToPosition (Vector3 position)

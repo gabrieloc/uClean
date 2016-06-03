@@ -97,6 +97,10 @@ namespace CleanKit
 
 		private void prepareForLiftingInteractable ()
 		{
+			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
+			if (holdJoint) {
+				Destroy (holdJoint);
+			}
 			if (isLookingAtInteractable () && interactableContactPoint != Vector3.zero) {
 				// Lift object
 				ForceMode forceMode = ForceMode.Impulse;
@@ -118,11 +122,14 @@ namespace CleanKit
 
 		private void liftInteractableToRelocationPoint ()
 		{
-			Vector3 interactablePosition = relocationPoint;
-			interactablePosition.y = 5.5f; // TODO offset properly
-			float distanceDelta = kRelocationSpeed * 0.75f * Time.deltaTime;
-			interactable.transform.position = Vector3.MoveTowards (interactable.transform.position, interactablePosition, distanceDelta);
-//			moveTowardsRelocationPoint (distanceDelta);
+			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
+			if (holdJoint == null) {
+				holdJoint = gameObject.AddComponent<FixedJoint> ();
+				holdJoint.connectedBody = interactable.GetComponent<Rigidbody> ();
+			}
+
+			float distanceDelta = kRelocationSpeed * 0.5f * Time.deltaTime;
+			moveTowardsRelocationPoint (distanceDelta);
 		}
 
 		// Pushing
