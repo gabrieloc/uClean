@@ -5,7 +5,16 @@ namespace CleanKit
 	public partial class Bot
 	{
 		private Interactable interactable = null;
-		public InteractionType interaction;
+
+		public InteractionType interaction {
+			get {
+				return interaction;
+			}
+			private set {
+				this.interaction = interaction;
+				this.cell.SetInteractionName (interaction.Description ());
+			}
+		}
 
 		public float kLiftStrength = 1.5f;
 		private float kMaximumLiftableSize = 10.0f;
@@ -45,7 +54,6 @@ namespace CleanKit
 			}
 		}
 
-
 		// Moving
 
 		private bool canMoveInteractable ()
@@ -55,10 +63,10 @@ namespace CleanKit
 				bool isBelowObject = rayCastAtInteractable (transform.TransformDirection (Vector3.up), out hitPoint, 1.0f);
 				Debug.DrawLine (transform.position, hitPoint, isBelowObject ? Color.green : Color.red);
 				return isBelowObject;
+			} else {
+				bool canPushInteractable = isLookingAtInteractable ();
+				return canPushInteractable;
 			}
-
-			bool canPushInteractable = isLookingAtInteractable ();
-			return canPushInteractable;
 		}
 
 		private void prepareForMovingInteractable ()
@@ -72,9 +80,12 @@ namespace CleanKit
 
 		private void moveInteractable ()
 		{
-			// TODO
+			if (interactableIsLiftable ()) {
+//				liftInteractableToRelocationPoint ();
+			} else {
+				pushInteractableToRelocationPoint ();
+			}
 		}
-
 
 		// Lifting
 
@@ -109,12 +120,25 @@ namespace CleanKit
 			}
 		}
 
+		private void liftInteractableToRelocationPoint ()
+		{
+			Vector3 interactablePosition = relocationPoint;
+			interactablePosition.y = 5.5f; // TODO offset properly
+			float distanceDelta = kRelocationSpeed * Time.deltaTime;
+			interactable.transform.position = Vector3.MoveTowards (transform.position, interactablePosition, distanceDelta);
+			moveTowardsRelocationPoint ();
+		}
 
 		// Pushing
 
 		private void prepareForPushingInteractable ()
 		{
 			moveTowardsRelocationPoint ();
+		}
+
+		private void pushInteractableToRelocationPoint ()
+		{
+			// TODO
 		}
 
 

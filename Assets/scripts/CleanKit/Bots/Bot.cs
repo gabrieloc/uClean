@@ -29,6 +29,7 @@ namespace CleanKit
 
 			Bot bot = gameObject.GetComponent<Bot> ();
 			bot.createCell ();
+			bot.interaction = InteractionType.None;
 			return bot;
 		}
 
@@ -121,7 +122,7 @@ namespace CleanKit
 
 			this.interactable = interactable;
 			interaction = interactionType;
-			Debug.Log (name + " is " + interaction.Description () + "ing " + interactable.name);
+			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
 		}
 
 		public void RelocateToPosition (Vector3 position)

@@ -31,6 +31,14 @@ namespace CleanKit
 		{
 			gameObject.name = botName + "-cell";
 		}
+
+		public void SetInteractionName (string interactionName)
+		{
+			GameObject interactionIndicator = transform.Find ("Interaction").gameObject;
+			Text label = interactionIndicator.GetComponentInChildren<Text> ();
+			label.text = interactionName;
+			interactionIndicator.SetActive (interactionName.Length > 0);
+		}
 	}
 }
 
