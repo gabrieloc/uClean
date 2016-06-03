@@ -80,7 +80,7 @@ namespace CleanKit
 		private void moveInteractable ()
 		{
 			if (interactableIsLiftable ()) {
-//				liftInteractableToRelocationPoint ();
+				liftInteractableToRelocationPoint ();
 			} else {
 				pushInteractableToRelocationPoint ();
 			}
@@ -112,10 +112,7 @@ namespace CleanKit
 				interactableContactPoint = Vector3.zero;
 			} else {
 				// Attempt to go under
-				Vector3 newPosition = interactable.transform.position;
-				newPosition.y = 0.5f;
-				RelocateToPosition (newPosition);
-				moveTowardsRelocationPoint ();
+				moveTowardsInteractable ();
 			}
 		}
 
@@ -123,16 +120,16 @@ namespace CleanKit
 		{
 			Vector3 interactablePosition = relocationPoint;
 			interactablePosition.y = 5.5f; // TODO offset properly
-			float distanceDelta = kRelocationSpeed * Time.deltaTime;
-			interactable.transform.position = Vector3.MoveTowards (transform.position, interactablePosition, distanceDelta);
-			moveTowardsRelocationPoint ();
+			float distanceDelta = kRelocationSpeed * 0.75f * Time.deltaTime;
+			interactable.transform.position = Vector3.MoveTowards (interactable.transform.position, interactablePosition, distanceDelta);
+//			moveTowardsRelocationPoint (distanceDelta);
 		}
 
 		// Pushing
 
 		private void prepareForPushingInteractable ()
 		{
-			moveTowardsRelocationPoint ();
+			moveTowardsInteractable ();
 		}
 
 		private void pushInteractableToRelocationPoint ()
@@ -152,6 +149,7 @@ namespace CleanKit
 		private void prepareForCleaningInteractable ()
 		{
 			// TODO
+			moveTowardsInteractable ();
 		}
 
 		// Conveniences

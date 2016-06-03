@@ -56,18 +56,47 @@ namespace CleanKit
 
 		private void moveTowardsRelocationPoint ()
 		{
-			if (relocationPoint.Equals (Vector3.zero)) {
+			moveTowardsRelocationPoint (kRelocationSpeed * Time.deltaTime);
+		}
+
+		private void moveTowardsRelocationPoint (float distanceDelta)
+		{
+			if (relocationPoint.Equals (Vector3.zero) || ignoreRelocationPoint) {
 				return;
 			}
 
-			float distanceDelta = kRelocationSpeed * Time.deltaTime;
 			Vector3 position = relocationPoint;
 			position.y = 0.5f;
 
 			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
-			if (Vector3.Distance (transform.position, position) > 1) {
-				transform.LookAt (position);
+			if (Vector3.Distance (transform.position, position) > 1.0f) {
+				transform.LookAt (new Vector3 (position.x, transform.position.y, position.y));
 			}
+		}
+
+		private bool ignoreRelocationPoint;
+		private float kMinimumInteractableDistance = 1.0f;
+
+		private void moveTowardsInteractable ()
+		{
+			RaycastHit hit;
+			Vector3 origin = interactable.transform.position;
+			int layerMask = 1 << LayerMask.NameToLayer ("Surface");
+			Physics.Raycast (origin, Vector3.down, out hit, 100, layerMask);
+
+			Vector3 position = hit.point;
+			Debug.DrawLine (origin, hit.point, Color.green);
+
+			bool canInteract = Vector3.Distance (transform.position, position) < kMinimumInteractableDistance;
+			ignoreRelocationPoint = !canInteract;
+
+			if (canInteract) {
+				return;
+			}
+
+			float distanceDelta = kRelocationSpeed * Time.deltaTime;
+			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+			transform.LookAt (new Vector3 (position.x, transform.position.y, position.y));
 		}
 
 		// Cells
