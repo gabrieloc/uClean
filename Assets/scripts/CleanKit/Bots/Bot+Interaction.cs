@@ -79,6 +79,8 @@ namespace CleanKit
 
 		private void moveInteractable ()
 		{
+			ignoreRelocationPoint = false;
+
 			if (interactableIsLiftable ()) {
 				liftInteractableToRelocationPoint ();
 			} else {
