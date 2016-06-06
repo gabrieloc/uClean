@@ -26,14 +26,14 @@ namespace CleanKit
 		private bool isSwarmingToggled;
 
 		private Swarm selectedSwarm {
-			get { return currentInteractor as Swarm; }
+			get { return currentActor as Swarm; }
 		}
 
 		private Bot selectedBot {
-			get { return currentInteractor as Bot; }
+			get { return currentActor as Bot; }
 		}
 
-		public Interactor currentInteractor { get; private set; }
+		public Actor currentActor { get; private set; }
 
 		public SelectionDelegate selectionDelegate;
 
@@ -89,7 +89,7 @@ namespace CleanKit
 				bool wasSelected = bot.Equals (selectedBot);
 				clearSelection ();
 				if (!wasSelected) {
-					currentInteractor = bot;
+					currentActor = bot;
 					addBotToSelection (bot);
 				}
 			}
@@ -105,7 +105,7 @@ namespace CleanKit
 				foreach (Bot bot in swarm.bots) {
 					addBotToSelection (bot);
 				}
-				currentInteractor = swarm;
+				currentActor = swarm;
 			}
 
 			swarm.cell.gameObject.SetSelected (selected);
@@ -114,16 +114,16 @@ namespace CleanKit
 		private void clearSelection ()
 		{
 			if (selectedSwarm != null) {
-				Swarm swarm = currentInteractor as Swarm;
+				Swarm swarm = currentActor as Swarm;
 				swarm.cell.gameObject.SetSelected (false);
 				foreach (Bot bot in swarm.bots) {
 					selectionDelegate.selectionControllerDeselectedBot (bot);
 				}
 			} else if (selectedBot != null) {
-				Bot bot = currentInteractor as Bot;
+				Bot bot = currentActor as Bot;
 				selectionDelegate.selectionControllerDeselectedBot (bot);
 			}
-			currentInteractor = null;
+			currentActor = null;
 		}
 
 		private void addBotToSelection (Bot bot)
@@ -141,7 +141,7 @@ namespace CleanKit
 				cell.GetComponent<Button> ().onClick.AddListener (() => didSelectCellForSwarm (swarm));
 				cell.gameObject.SetSelected (true);
 
-				currentInteractor = swarm;
+				currentActor = swarm;
 			}
 
 			selectedSwarm.AddBot (bot);

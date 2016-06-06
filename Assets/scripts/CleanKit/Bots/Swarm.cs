@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public class Swarm: Interactor
+	public class Swarm: Actor
 	{
 		public List<Bot> bots {
 			get {
@@ -58,7 +58,7 @@ namespace CleanKit
 
 		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
 		{
-			Debug.Log (name + " is " + interactionType.Description () + "ing " + interactable.name);
+			Debug.Log (name + " will " + interactionType.Description () + " " + interactable.name);
 			this.interactable = interactable;
 		}
 
@@ -71,6 +71,7 @@ namespace CleanKit
 		public void RelocateToPosition (Vector3 position)
 		{
 			foreach (Bot bot in bots) {
+				// TODO follow a leader instead
 				bot.RelocateToPosition (position);
 			}
 		}

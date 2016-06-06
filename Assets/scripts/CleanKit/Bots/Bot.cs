@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public partial class Bot : MonoBehaviour, Interactor
+	public partial class Bot : MonoBehaviour, Actor
 	{
 		public Vector3 relocationPoint = Vector3.zero;
 

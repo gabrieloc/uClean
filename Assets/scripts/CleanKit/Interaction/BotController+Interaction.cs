@@ -5,29 +5,29 @@ namespace CleanKit
 {
 	public partial class BotController: InteractionDelegate
 	{
-		private Dictionary<Interactable, List<Interactor>> availableInteractables = new Dictionary<Interactable, List<Interactor>> ();
-		private Dictionary<Interactable, Interactor> activeInteractables = new Dictionary<Interactable, Interactor> ();
+		private Dictionary<Interactable, List<Actor>> availableInteractables = new Dictionary<Interactable, List<Actor>> ();
+		private Dictionary<Interactable, Actor> activeInteractables = new Dictionary<Interactable, Actor> ();
 		private InteractionController interactionController;
 
-		private void setInteractableForInteractor (Interactable interactable, Interactor interactor)
+		private void setInteractableForActor (Interactable interactable, Actor interactor)
 		{
-			if (interactableForInteractor (interactor) == interactable) {
+			if (interactableForActor (interactor) == interactable) {
 				return;
 			}
 
 			clearInteractable (interactor);
 
 			if (availableInteractables.ContainsKey (interactable)) {
-				List<Interactor> interactors = availableInteractables [interactable];
+				List<Actor> interactors = availableInteractables [interactable];
 				interactors.Add (interactor);
 				interactionController.SetInteractableAvailable (interactable, interactor, true);
 			} else {
-				availableInteractables [interactable] = new List<Interactor> ();
-				setInteractableForInteractor (interactable, interactor);
+				availableInteractables [interactable] = new List<Actor> ();
+				setInteractableForActor (interactable, interactor);
 			}
 		}
 
-		private Interactable interactableForInteractor (Interactor interactor)
+		private Interactable interactableForActor (Actor interactor)
 		{
 			foreach (Interactable interactable in availableInteractables.Keys) {
 				if (availableInteractables [interactable].Contains (interactor)) {
@@ -37,7 +37,7 @@ namespace CleanKit
 			return null;
 		}
 
-		private Interactable activeInteractableForInteractor (Interactor interactor)
+		private Interactable activeInteractableForActor (Actor interactor)
 		{
 			foreach (Interactable interactable in activeInteractables.Keys) {
 				if (activeInteractables [interactable].Equals (interactor)) {
@@ -47,12 +47,12 @@ namespace CleanKit
 			return null;
 		}
 
-		private void clearInteractable (Interactor interactor)
+		private void clearInteractable (Actor interactor)
 		{
 			Interactable interactableForBot = null;
 
 			foreach (Interactable interactable in availableInteractables.Keys) {
-				List<Interactor> interactors = availableInteractables [interactable];
+				List<Actor> interactors = availableInteractables [interactable];
 				if (interactors.Contains (interactor)) {
 					interactors.Remove (interactor);
 					if (interactors.Count == 0) {

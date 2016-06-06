@@ -55,6 +55,7 @@
      <Compile Include="Assets\scripts\CleanKit\Bots\SwarmCell.cs" />
      <Compile Include="Assets\scripts\CleanKit\Controls\CameraController.cs" />
      <Compile Include="Assets\scripts\CleanKit\Controls\Controls.cs" />
+     <Compile Include="Assets\scripts\CleanKit\Interaction\Actor.cs" />
      <Compile Include="Assets\scripts\CleanKit\Interaction\BotController+Interaction.cs" />
      <Compile Include="Assets\scripts\CleanKit\Interaction\Interactable.cs" />
      <Compile Include="Assets\scripts\CleanKit\Interaction\InteractableIndicator.cs" />

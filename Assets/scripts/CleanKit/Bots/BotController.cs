@@ -49,45 +49,45 @@ namespace CleanKit
 
 		private void relocateSelectedToNewContactPoint (Vector3 contactPoint)
 		{
-			Interactor interactor = selectionController.currentInteractor;
-			if (contactPoint.Equals (storedContactPoint) == false && interactor != null) {
-				interactor.RelocateToPosition (contactPoint);
+			Actor actor = selectionController.currentActor;
+			if (contactPoint.Equals (storedContactPoint) == false && actor != null) {
+				actor.RelocateToPosition (contactPoint);
 				storedContactPoint = contactPoint;
 			}
 		}
 
 		private void updateInteractables ()
 		{
-			Interactor interactor = selectionController.currentInteractor;
-			if (interactor == null) {
+			Actor actor = selectionController.currentActor;
+			if (actor == null) {
 				return;
 			}
 
-			Vector3 contactPoint = interactor.PrimaryContactPoint ();
+			Vector3 contactPoint = actor.PrimaryContactPoint ();
 
 			foreach (Interactable interactable in interactionController.allInteractables) {
 				float distance = Vector3.Distance (interactable.transform.position, contactPoint);
 
 				// A interactable was available, but select this one if it's closer
-				Interactable existingInteractable = interactableForInteractor (interactor);
+				Interactable existingInteractable = interactableForActor (actor);
 				if (existingInteractable != null) {
 					float previousDistance = Vector3.Distance (contactPoint, existingInteractable.transform.position);
 					if (distance < previousDistance) {
-						setInteractableForInteractor (interactable, interactor);
+						setInteractableForActor (interactable, actor);
 					}
 				} 
 				// No interactable was available, select this one if it's close enough
 				else if (distance < interactableDetectionRadius) {
-					setInteractableForInteractor (interactable, interactor);
+					setInteractableForActor (interactable, actor);
 				}
 			}
 
-			Interactable i = interactableForInteractor (interactor);
+			Interactable i = interactableForActor (actor);
 			if (i != null) {
 				// Clear existing interactable if bot is too far away
 				float distance = Vector3.Distance (i.transform.position, contactPoint);
 				if (distance > interactableDetectionRadius) {
-					clearInteractable (interactor);
+					clearInteractable (actor);
 				} else {
 					Debug.DrawLine (contactPoint, i.transform.position, Color.blue);
 				}

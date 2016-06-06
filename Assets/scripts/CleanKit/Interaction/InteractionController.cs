@@ -19,7 +19,7 @@ namespace CleanKit
 	{
 		public List<Interactable> allInteractables = new List<Interactable> ();
 		private List<Interactable> availableInteractables = new List<Interactable> ();
-		public Interactor currentInteractor;
+		public Actor currentActor;
 		public InteractionDelegate interactionDelegate;
 
 		void Update ()
@@ -31,13 +31,13 @@ namespace CleanKit
 			}
 		}
 
-		public void SetInteractableAvailable (Interactable interactable, Interactor interactor, bool available)
+		public void SetInteractableAvailable (Interactable interactable, Actor actor, bool available)
 		{
 			if (availableInteractables.Contains (interactable) == false && available) {
 				availableInteractables.Add (interactable);
 
-				currentInteractor = interactor;
-				interactable.BecomeAvailableForInteractor (interactor);
+				currentActor = actor;
+				interactable.BecomeAvailableForActor (actor);
 				foreach (InteractableIndicator indicator in interactable.indicators) {
 					indicator.gameObject.transform.SetParent (transform);
 				}
