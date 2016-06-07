@@ -6,16 +6,10 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public interface InteractableDelegate
-	{
-		
-	}
-
 	public partial class Interactable : MonoBehaviour
 	{
 		public float kIndicatorSpacing = 2.0f;
 		readonly public List<InteractableIndicator> indicators = new List<InteractableIndicator> ();
-		public InteractableDelegate interactableDelegate;
 
 		public void LayoutIndicators ()
 		{
@@ -42,7 +36,6 @@ namespace CleanKit
 			foreach (InteractionType interactionType in interactionTypes) {
 				InteractableIndicator indicator = InteractableIndicator.Instantiate (name, interactionType.Description ());
 				indicators.Add (indicator);
-//				interactableDelegate.IndicatorForInteractableSelected(this, interactionType, actor)
 				indicator.OnSelection (() => actor.IndicatorForInteractableSelected (this, interactionType));
 			}
 		}

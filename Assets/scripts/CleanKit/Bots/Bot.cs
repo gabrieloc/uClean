@@ -102,12 +102,12 @@ namespace CleanKit
 		}
 
 		// Cells
-		public BotCell cell { get; private set; }
+		public ActorCell cell { get; private set; }
 
 		private void createCell ()
 		{
-			cell = BotCell.Instantiate ();
-			cell.SetBotName (gameObject.name);
+			cell = ActorCell.Instantiate ();
+			cell.SetName (gameObject.name);
 		}
 
 		private void destroyCell ()
@@ -136,32 +136,6 @@ namespace CleanKit
 		{
 			createCell ();
 			this.swarm = null;
-		}
-
-		// Interactor
-
-		public Vector3 PrimaryContactPoint ()
-		{
-			return transform.position;
-		}
-
-		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
-		{
-			if (this.interactable != null && this.interactable.Equals (interactable) && interaction == interactionType) {
-				return;
-			}
-
-			this.interactable = interactable;
-			SetInteraction (interactionType);
-			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
-
-			interactable.BecomeUnavailable ();
-			RelocateToPosition (Vector3.zero);
-		}
-
-		public void RelocateToPosition (Vector3 position)
-		{
-			relocationPoint = position;
 		}
 	}
 }

@@ -8,11 +8,36 @@ namespace CleanKit
 
 		private InteractionType interaction;
 
+		// Actor
+
+		public Vector3 PrimaryContactPoint ()
+		{
+			return transform.position;
+		}
+
+		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
+		{
+			if (this.interactable != null && this.interactable.Equals (interactable) && interaction == interactionType) {
+				return;
+			}
+
+			this.interactable = interactable;
+			SetInteraction (interactionType);
+			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
+
+			interactable.BecomeUnavailable ();
+			RelocateToPosition (Vector3.zero);
+		}
+
+		public void RelocateToPosition (Vector3 position)
+		{
+			relocationPoint = position;
+		}
+
 		public void SetInteraction (InteractionType interaction)
 		{
 			this.interaction = interaction;
-			cell.SetInteractionName (interaction.Description ());
-
+			cell.SetInteraction (interaction);
 		}
 
 		public float kLiftStrength = 1.5f;

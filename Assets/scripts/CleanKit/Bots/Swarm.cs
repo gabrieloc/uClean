@@ -23,11 +23,11 @@ namespace CleanKit
 			}
 		}
 
-		readonly public SwarmCell cell;
+		readonly public ActorCell cell;
 
 		public Swarm ()
 		{
-			cell = SwarmCell.Instantiate ();
+			cell = ActorCell.Instantiate ();
 		}
 
 		public int BotCount ()
@@ -55,11 +55,21 @@ namespace CleanKit
 		// Interactor
 
 		private Interactable interactable;
+		private InteractionType interaction;
 
 		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
 		{
-			Debug.Log (name + " will " + interactionType.Description () + " " + interactable.name);
-			this.interactable = interactable;
+			if (this.interactable != null && this.interactable.Equals (interactable) && interaction == interactionType) {
+				return;
+			}
+
+			this.interaction = interaction;
+			SetInteraction (interactionType);
+
+			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
+
+			interactable.BecomeUnavailable ();
+			RelocateToPosition (Vector3.zero);
 		}
 
 		public Vector3 PrimaryContactPoint ()
@@ -75,6 +85,12 @@ namespace CleanKit
 				bot.RelocateToPosition (position);
 			}
 		}
+
+		public void SetInteraction (InteractionType interaction)
+		{
+			this.interaction = interaction;
+			cell.SetInteraction (interaction);
+		}
 	}
 }
-
+	

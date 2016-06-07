@@ -76,7 +76,7 @@ namespace CleanKit
 		{
 			allBots.Add (bot);
 
-			BotCell cell = bot.cell;
+			ActorCell cell = bot.cell;
 			cell.transform.SetParent (transform, false);
 			cell.GetComponent<Button> ().onClick.AddListener (() => didSelectCellForBot (bot));
 		}
@@ -136,7 +136,7 @@ namespace CleanKit
 			if (selectedSwarm == null) {
 				Swarm swarm = new Swarm ();
 
-				SwarmCell cell = swarm.cell;
+				ActorCell cell = swarm.cell;
 				cell.transform.SetParent (transform, false);
 				cell.GetComponent<Button> ().onClick.AddListener (() => didSelectCellForSwarm (swarm));
 				cell.gameObject.SetSelected (true);
