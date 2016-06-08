@@ -52,7 +52,7 @@ namespace CleanKit
 			return bots [index];
 		}
 
-		// Interactor
+		// Interactables
 
 		private Interactable interactable;
 		private InteractionType interaction;
@@ -63,13 +63,14 @@ namespace CleanKit
 				return;
 			}
 
-			this.interaction = interaction;
+			this.interactable = interactable;
+				
 			SetInteraction (interactionType);
 
 			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
 
 			interactable.BecomeUnavailable ();
-			RelocateToPosition (Vector3.zero);
+			cancelRelocation ();
 		}
 
 		public Vector3 PrimaryContactPoint ()
@@ -84,6 +85,11 @@ namespace CleanKit
 				// TODO follow a leader instead
 				bot.RelocateToPosition (position);
 			}
+		}
+
+		private void cancelRelocation ()
+		{
+			RelocateToPosition (Vector3.zero);
 		}
 
 		public void SetInteraction (InteractionType interaction)
