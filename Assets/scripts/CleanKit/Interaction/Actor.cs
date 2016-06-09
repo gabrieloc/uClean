@@ -10,5 +10,7 @@ namespace CleanKit
 		void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType);
 
 		void RelocateToPosition (Vector3 position);
+
+		float DistanceFromRelocationPoint ();
 	}
 }

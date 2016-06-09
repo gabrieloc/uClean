@@ -21,7 +21,7 @@ namespace CleanKit
 
 		public float kRelocatableRadius = 2.0f;
 		public float kRelocationSpeed = 20.0f;
-		public float kRelocationAwarenessRadius = 5.0f;
+		public float kPersonalSpaceRadius = 2.0f;
 
 		public static Bot Instantiate ()
 		{
@@ -69,26 +69,39 @@ namespace CleanKit
 
 			Vector3 position = relocationPoint;
 			int layerMask = 1 << LayerMask.NameToLayer ("Actor");
-			Collider[] hitColliders = Physics.OverlapSphere (transform.position, kRelocationAwarenessRadius, layerMask);
+			Collider[] hitColliders = Physics.OverlapSphere (transform.position, kPersonalSpaceRadius, layerMask);
 			if (hitColliders.Length > 0) {
 
-				List<Vector3> opposingVectors = new List<Vector3> ();
+				List<Actor> opposingActors = new List<Actor> ();
+				Vector3 opposingVector = new Vector3 ();
+
 				int index = 0;
 				while (index < hitColliders.Length) {
 					Collider hitCollider = hitColliders [index];
+					Actor actor = hitCollider.gameObject.GetComponent<Actor> ();
+
 					Vector3 hitPos = hitCollider.transform.position;
+					opposingActors.Add (actor);
 					if (hitPos.Equals (transform.position) == false) {
-						opposingVectors.Add (hitPos * 1.0f);
+						opposingVector += hitPos;
 					}
 					index++;
 				}
 
-				float numItems = opposingVectors.Count;
-				if (numItems > 0) {
-					Vector3 opposingVector = opposingVectors.Aggregate (new Vector3 (), (s, v) => s + v) / numItems;
+				// Subtract 1 since this contains "me"
+				int actorCount = opposingActors.Count - 1;
+					
+				if (actorCount > 0) {
+					opposingVector /= actorCount;
+
 					Vector3 heading = opposingVector - transform.position;
 					float distance = heading.magnitude;
 					Vector3 direction = heading / distance * -2.0f;
+
+
+					int rank = movementPriorityAmoungActors (opposingActors);
+					float priority = rank / (float)opposingActors.Count;
+					direction *= priority * 4.0f;
 
 					Vector3 directionLocal = transform.TransformPoint (direction);
 					Debug.DrawLine (transform.position, directionLocal, Color.red);
@@ -99,6 +112,7 @@ namespace CleanKit
 
 			position.y = 0.5f;
 			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+
 			if (Vector3.Distance (transform.position, position) > 1.0f) {
 				transform.LookAt (new Vector3 (position.x, transform.position.y, position.y));
 				Debug.DrawLine (transform.position, position, Color.grey);
@@ -108,7 +122,19 @@ namespace CleanKit
 		void OnDrawGizmos ()
 		{
 			Gizmos.color = Color.magenta;
-			Gizmos.DrawWireSphere (transform.position, kRelocationAwarenessRadius);
+			Gizmos.DrawWireSphere (transform.position, kPersonalSpaceRadius);
+		}
+
+		private int movementPriorityAmoungActors (List<Actor> actors)
+		{
+			List<Actor> sortedActors = actors.ToList ();
+			sortedActors.Sort ((a1, a2) => a1.DistanceFromRelocationPoint ().CompareTo (a2.DistanceFromRelocationPoint ()));
+			return sortedActors.IndexOf (GetComponent<Actor> ());
+		}
+
+		public float DistanceFromRelocationPoint ()
+		{
+			return Vector3.Distance (relocationPoint, transform.position);
 		}
 
 		private bool ignoreRelocationPoint;

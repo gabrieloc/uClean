@@ -57,6 +57,8 @@ namespace CleanKit
 		private Interactable interactable;
 		private InteractionType interaction;
 
+		private Vector3 relocationPoint;
+
 		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
 		{
 			if (this.interactable != null && this.interactable.Equals (interactable) && interaction == interactionType) {
@@ -81,10 +83,17 @@ namespace CleanKit
 
 		public void RelocateToPosition (Vector3 position)
 		{
+			relocationPoint = position;
 			foreach (Bot bot in bots) {
 				// TODO follow a leader instead
 				bot.RelocateToPosition (position);
 			}
+		}
+
+		public float DistanceFromRelocationPoint ()
+		{			
+			// TODO use a weighted average or consider making this specific to bots
+			return 0;
 		}
 
 		private void cancelRelocation ()
