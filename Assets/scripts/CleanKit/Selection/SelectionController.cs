@@ -81,7 +81,7 @@ namespace CleanKit
 			cell.GetComponent<Button> ().onClick.AddListener (() => didSelectCellForBot (bot));
 		}
 
-		private void didSelectCellForBot (Bot bot)
+		public void didSelectCellForBot (Bot bot)
 		{
 			if (isSwarmingToggled) {
 				addBotToCurrentSwarm (bot);

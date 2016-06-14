@@ -12,5 +12,9 @@ namespace CleanKit
 		void RelocateToDestination (Destination destination);
 
 		float DistanceFromDestination ();
+
+		void SetSelected (bool selected);
+
+		string Name ();
 	}
 }

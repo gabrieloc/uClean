@@ -50,6 +50,11 @@ namespace CleanKit
 			}
 		}
 
+		public string Name ()
+		{
+			return gameObject.name;
+		}
+
 		private void moveTowardsRelocationPoint ()
 		{
 			moveTowardsRelocationPoint (kRelocationSpeed * Time.deltaTime);
@@ -122,10 +127,9 @@ namespace CleanKit
 					float distance = heading.magnitude;
 					Vector3 direction = heading / distance * -2.0f;
 			
-			
-					int rank = movementPriorityAmoungActors (opposingActors);
-					float priority = rank / (float)opposingActors.Count;
-					direction *= priority * 4.0f;
+//					int rank = movementPriorityAmoungActors (opposingActors);
+//					float priority = rank / (float)opposingActors.Count;
+//					direction *= priority * 4.0f;
 			
 					Vector3 directionLocal = transform.TransformPoint (direction);
 					Debug.DrawLine (transform.position, directionLocal, Color.red);

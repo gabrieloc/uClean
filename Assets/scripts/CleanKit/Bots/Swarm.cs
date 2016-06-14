@@ -17,12 +17,6 @@ namespace CleanKit
 			}
 		}
 
-		public string name {
-			get {
-				return "Swarm (" + bots.Count + ")";
-			}
-		}
-
 		readonly public ActorCell cell;
 
 		public Swarm ()
@@ -52,6 +46,18 @@ namespace CleanKit
 			return bots [index];
 		}
 
+		// Actor Conformance
+
+		public void SetSelected (bool selected)
+		{
+			// TODO
+		}
+
+		public string Name ()
+		{
+			return "Swarm (" + bots.Count + ")";
+		}
+
 		// Interactables
 
 		private Interactable interactable;
@@ -69,7 +75,7 @@ namespace CleanKit
 				
 			SetInteraction (interactionType);
 
-			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
+			Debug.Log (Name () + " will " + interaction.Description () + " " + interactable.name);
 
 			interactable.BecomeUnavailable ();
 			cancelRelocation ();

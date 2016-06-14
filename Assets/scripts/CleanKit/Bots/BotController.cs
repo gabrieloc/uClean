@@ -38,12 +38,22 @@ namespace CleanKit
 
 		private void updateInput ()
 		{
-			if (Controls.RelocationInputExists ()) {
-				Ray ray = Camera.main.ScreenPointToRay (Controls.RelocationInput ());
-				RaycastHit hit;
-				if (Physics.Raycast (ray, out hit, 1000)) {
-					relocateSelected (hit.point, hit.normal);
-				}
+			if (Controls.RelocationInputExists () == false) {
+				return;
+			}
+			
+			Ray ray = Camera.main.ScreenPointToRay (Controls.RelocationInput ());
+			RaycastHit hit;
+			if (!Physics.Raycast (ray, out hit, 1000)) {
+				return;
+			}
+
+			Collider collider = hit.collider;
+			Actor actor = collider.GetComponentInParent<Actor> ();
+			if (actor != null) {
+				selectionController.didSelectCellForBot (actor as Bot);
+			} else {
+				relocateSelected (hit.point, hit.normal);
 			}
 		}
 
