@@ -42,16 +42,17 @@ namespace CleanKit
 				Ray ray = Camera.main.ScreenPointToRay (Controls.RelocationInput ());
 				RaycastHit hit;
 				if (Physics.Raycast (ray, out hit, 1000)) {
-					relocateSelectedToNewContactPoint (hit.point);
+					relocateSelected (hit.point, hit.normal);
 				}
 			}
 		}
 
-		private void relocateSelectedToNewContactPoint (Vector3 contactPoint)
+		private void relocateSelected (Vector3 contactPoint, Vector3 contactNormal)
 		{
 			Actor actor = selectionController.currentActor;
 			if (contactPoint.Equals (storedContactPoint) == false && actor != null) {
-				actor.RelocateToPosition (contactPoint);
+				Destination destination = Destination.Instantiate (contactPoint, contactNormal);
+				actor.RelocateToDestination (destination);
 				storedContactPoint = contactPoint;
 			}
 		}

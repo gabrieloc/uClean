@@ -8,13 +8,21 @@ namespace CleanKit
 	{
 		public static void SetSelected (this GameObject gameObject, bool selected)
 		{
-			Color color = selected ? Color.blue : Color.gray;
-			Renderer renderer = gameObject.GetComponent<Renderer> ();
+			Color color = colorForSelected (selected);
+			Renderer renderer = gameObject.GetComponentInChildren<Renderer> ();
 			if (renderer) {
 				renderer.material.color = color;
 			} else if (gameObject.GetComponent<Image> ()) {
 				gameObject.GetComponent<Image> ().color = color;
+				if (gameObject.GetComponentInChildren<Text> ()) {
+					gameObject.GetComponentInChildren<Text> ().color = colorForSelected (!selected);
+				}
 			}
+		}
+
+		static Color colorForSelected (bool selected)
+		{
+			return selected ? Color.red : Color.white;
 		}
 
 		public static GameObject HUDCanvas ()

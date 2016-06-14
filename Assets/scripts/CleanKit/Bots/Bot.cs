@@ -6,7 +6,7 @@ namespace CleanKit
 {
 	public partial class Bot : MonoBehaviour, Actor
 	{
-		public Vector3 relocationPoint = Vector3.zero;
+		public Destination destination;
 
 		public bool selected { get; private set; }
 
@@ -23,6 +23,7 @@ namespace CleanKit
 		public float kRelocationSpeed = 20.0f;
 		public float kPersonalSpaceRadius = 2.0f;
 
+
 		public static Bot Instantiate ()
 		{
 			GameObject gameObject = Instantiate (Resources.Load ("Bot"), new Vector3 (0, 10, 0), new Quaternion ()) as GameObject;
@@ -37,22 +38,15 @@ namespace CleanKit
 
 		void Update ()
 		{
-			bool relocationPointSet = relocationPoint.x != 0.0f && relocationPoint.z != 0.0f;
-
 			if (interactable != null) {
 				if (canPerformInteraction ()) {
 					performInteraction ();
 				} else {
 					prepareForInteraction ();
 				}
-			} else if (relocationPointSet) {
+			} else if (shouldRelocate ()) {
+				destination.Live = true;
 				moveTowardsRelocationPoint ();
-			}
-
-			if (relocationPointSet) {
-				Color color = selected ? Color.blue : Color.gray;
-				Debug.DrawLine (relocationPoint - new Vector3 (2, 0, 0), relocationPoint + new Vector3 (2, 0, 0), color);
-				Debug.DrawLine (relocationPoint - new Vector3 (0, 0, 2), relocationPoint + new Vector3 (0, 0, 2), color);
 			}
 		}
 
@@ -63,23 +57,53 @@ namespace CleanKit
 
 		private void moveTowardsRelocationPoint (float distanceDelta)
 		{
-			if (relocationPoint.Equals (Vector3.zero) || ignoreRelocationPoint) {
+			if (shouldRelocate () == false || ignoreRelocationPoint) {
 				return;
 			}
 
-			Vector3 position = relocationPoint;
+			Vector3 position = destination.transform.position;
+			position = CalculatePersonalSpace (position);
+			Debug.DrawLine (transform.position, position, Color.grey);
+
+			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+
+			Vector3 arrowHead = transform.TransformPoint (new Vector3 (0, 0, 2.0f));
+			Debug.DrawLine (transform.position, arrowHead, Color.green);
+			Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (-0.5f, 0, 1.5f)), Color.green);
+			Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (0.5f, 0, 1.5f)), Color.green);
+
+			if (shouldRelocate ()) {
+				Quaternion rotation = new Quaternion ();
+
+				// aligns bot with surface normals. buggy.
+//				RaycastHit hit;
+//				int layerMask = 1 << LayerMask.NameToLayer ("Surface");
+//				Physics.Raycast (transform.position, Vector3.down, out hit, 100, layerMask);
+//				rotation = Quaternion.FromToRotation (Vector3.up, hit.normal);
+
+				Vector3 lookPosition = position - transform.position;
+				rotation = Quaternion.LookRotation (lookPosition);
+				rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * 20);
+				transform.rotation = rotation;
+			} else {
+				CancelRelocation ();
+			}
+		}
+
+		Vector3 CalculatePersonalSpace (Vector3 position)
+		{
 			int layerMask = 1 << LayerMask.NameToLayer ("Actor");
 			Collider[] hitColliders = Physics.OverlapSphere (transform.position, kPersonalSpaceRadius, layerMask);
 			if (hitColliders.Length > 0) {
-
+			
 				List<Actor> opposingActors = new List<Actor> ();
 				Vector3 opposingVector = new Vector3 ();
-
+			
 				int index = 0;
 				while (index < hitColliders.Length) {
 					Collider hitCollider = hitColliders [index];
-					Actor actor = hitCollider.gameObject.GetComponent<Actor> ();
-
+					Actor actor = hitCollider.gameObject.GetComponentInParent<Actor> ();
+			
 					Vector3 hitPos = hitCollider.transform.position;
 					opposingActors.Add (actor);
 					if (hitPos.Equals (transform.position) == false) {
@@ -87,36 +111,30 @@ namespace CleanKit
 					}
 					index++;
 				}
-
+			
 				// Subtract 1 since this contains "me"
 				int actorCount = opposingActors.Count - 1;
-					
+								
 				if (actorCount > 0) {
 					opposingVector /= actorCount;
-
+			
 					Vector3 heading = opposingVector - transform.position;
 					float distance = heading.magnitude;
 					Vector3 direction = heading / distance * -2.0f;
-
-
+			
+			
 					int rank = movementPriorityAmoungActors (opposingActors);
 					float priority = rank / (float)opposingActors.Count;
 					direction *= priority * 4.0f;
-
+			
 					Vector3 directionLocal = transform.TransformPoint (direction);
 					Debug.DrawLine (transform.position, directionLocal, Color.red);
-
-					position = (relocationPoint + directionLocal) / 2.0f;
+			
+					return (position + directionLocal) / 2.0f;
 				}
 			}
 
-			position.y = 0.5f;
-			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
-
-			if (Vector3.Distance (transform.position, position) > 1.0f) {
-				transform.LookAt (new Vector3 (position.x, transform.position.y, position.y));
-				Debug.DrawLine (transform.position, position, Color.grey);
-			}
+			return position;
 		}
 
 		void OnDrawGizmos ()
@@ -128,13 +146,13 @@ namespace CleanKit
 		private int movementPriorityAmoungActors (List<Actor> actors)
 		{
 			List<Actor> sortedActors = actors.ToList ();
-			sortedActors.Sort ((a1, a2) => a1.DistanceFromRelocationPoint ().CompareTo (a2.DistanceFromRelocationPoint ()));
-			return sortedActors.IndexOf (GetComponent<Actor> ());
+			sortedActors.Sort ((a1, a2) => a1.DistanceFromDestination ().CompareTo (a2.DistanceFromDestination ()));
+			return sortedActors.IndexOf (GetComponentInParent<Actor> ());
 		}
 
-		public float DistanceFromRelocationPoint ()
+		public float DistanceFromDestination ()
 		{
-			return Vector3.Distance (relocationPoint, transform.position);
+			return destination.Distance (transform.position);
 		}
 
 		private bool ignoreRelocationPoint;

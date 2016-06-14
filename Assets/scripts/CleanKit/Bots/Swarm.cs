@@ -81,24 +81,25 @@ namespace CleanKit
 			return bots [0].transform.position;
 		}
 
-		public void RelocateToPosition (Vector3 position)
+		public void RelocateToDestination (Destination newDestination)
 		{
-			relocationPoint = position;
 			foreach (Bot bot in bots) {
 				// TODO follow a leader instead
-				bot.RelocateToPosition (position);
+				bot.RelocateToDestination (newDestination);
 			}
 		}
 
-		public float DistanceFromRelocationPoint ()
+		public float DistanceFromDestination ()
 		{			
 			// TODO use a weighted average or consider making this specific to bots
-			return 0;
+			return bots [0].DistanceFromDestination ();
 		}
 
 		private void cancelRelocation ()
 		{
-			RelocateToPosition (Vector3.zero);
+			foreach (Bot bot in bots) {
+				bot.CancelRelocation ();
+			}
 		}
 
 		public void SetInteraction (InteractionType interaction)

@@ -26,12 +26,27 @@ namespace CleanKit
 			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
 
 			interactable.BecomeUnavailable ();
-			RelocateToPosition (Vector3.zero);
+
+			CancelRelocation ();
 		}
 
-		public void RelocateToPosition (Vector3 position)
+		bool shouldRelocate ()
 		{
-			relocationPoint = position;
+			return destination != null && destination.ShouldRelocate (transform);
+		}
+
+		public void RelocateToDestination (Destination newDestination)
+		{
+			if (destination != null) {
+				CancelRelocation ();
+			}
+			destination = newDestination;
+		}
+
+		public void CancelRelocation ()
+		{
+			Destroy (destination.gameObject);
+			destination = null;
 		}
 
 		public void SetInteraction (InteractionType interaction)
