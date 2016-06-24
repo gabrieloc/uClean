@@ -22,7 +22,7 @@ namespace CleanKit
 		public float kRelocatableRadius = 2.0f;
 		public float kRelocationSpeed = 20.0f;
 		public float kPersonalSpaceRadius = 2.0f;
-
+		public float kRelocationDamping = 20.0f;
 
 		public static Bot Instantiate ()
 		{
@@ -57,25 +57,39 @@ namespace CleanKit
 
 		private void moveTowardsRelocationPoint ()
 		{
-			moveTowardsRelocationPoint (kRelocationSpeed * Time.deltaTime);
+			moveTowardsRelocationPoint (kRelocationSpeed);
 		}
 
-		private void moveTowardsRelocationPoint (float distanceDelta)
+		private Vector3 velocity = Vector3.zero;
+		public bool debugDirection = false;
+		float distanceFromTarget;
+		float speedMultiplier;
+
+		private void moveTowardsRelocationPoint (float speed)
 		{
 			if (shouldRelocate () == false || ignoreRelocationPoint) {
 				return;
 			}
 
 			Vector3 position = destination.transform.position;
-			position = CalculatePersonalSpace (position);
 			Debug.DrawLine (transform.position, position, Color.grey);
+			position = CalculatePersonalSpace (position);
+			position.y = Mathf.Max (0.0f, position.y);
 
+			distanceFromTarget = Vector3.Distance (destination.transform.position, transform.position);
+			float distanceMultiplier = distanceFromTarget / kRelocatableRadius;
+			distanceMultiplier = Mathf.Min (1.0f, distanceMultiplier);
+			speedMultiplier = Mathf.Pow (distanceMultiplier, 2.0f);
+			float distanceDelta = speedMultiplier * speed * Time.deltaTime;
+				
 			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
 
-			Vector3 arrowHead = transform.TransformPoint (new Vector3 (0, 0, 2.0f));
-			Debug.DrawLine (transform.position, arrowHead, Color.green);
-			Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (-0.5f, 0, 1.5f)), Color.green);
-			Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (0.5f, 0, 1.5f)), Color.green);
+			if (debugDirection) {
+				Vector3 arrowHead = transform.TransformPoint (new Vector3 (0, 0, 2.0f));
+				Debug.DrawLine (transform.position, arrowHead, Color.green);
+				Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (-0.5f, 0, 1.5f)), Color.green);
+				Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (0.5f, 0, 1.5f)), Color.green);	
+			}
 
 			if (shouldRelocate ()) {
 				Quaternion rotation = new Quaternion ();
@@ -89,7 +103,7 @@ namespace CleanKit
 				Vector3 lookPosition = position - transform.position;
 				rotation = Quaternion.LookRotation (lookPosition);
 				rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * 20);
-				transform.rotation = rotation;
+//				transform.rotation = rotation;
 			} else {
 				CancelRelocation ();
 			}
@@ -107,34 +121,38 @@ namespace CleanKit
 				int index = 0;
 				while (index < hitColliders.Length) {
 					Collider hitCollider = hitColliders [index];
-					Actor actor = hitCollider.gameObject.GetComponentInParent<Actor> ();
+					Bot actor = hitCollider.gameObject.GetComponentInParent<Bot> ();
 			
-					Vector3 hitPos = hitCollider.transform.position;
+					Vector3 hitPos = actor.gameObject.transform.position;
 					opposingActors.Add (actor);
-					if (hitPos.Equals (transform.position) == false) {
+					if (actor.Equals (this) == false) {
 						opposingVector += hitPos;
 					}
 					index++;
 				}
 			
-				// Subtract 1 since this contains "me"
+				// Subtract 1 since this contains the current instance
 				int actorCount = opposingActors.Count - 1;
 								
 				if (actorCount > 0) {
 					opposingVector /= actorCount;
 			
-					Vector3 heading = opposingVector - transform.position;
-					float distance = heading.magnitude;
-					Vector3 direction = heading / distance * -2.0f;
-			
-//					int rank = movementPriorityAmoungActors (opposingActors);
-//					float priority = rank / (float)opposingActors.Count;
-//					direction *= priority * 4.0f;
-			
-					Vector3 directionLocal = transform.TransformPoint (direction);
-					Debug.DrawLine (transform.position, directionLocal, Color.red);
-			
-					return (position + directionLocal) / 2.0f;
+					Vector3 h1 = opposingVector - transform.position;
+					float dis1 = h1.magnitude;
+					Vector3 d1 = h1 / dis1 * -2.0f;
+					d1 = transform.TransformPoint (d1.normalized);
+					Debug.DrawLine (transform.position, d1, Color.red);
+
+					Vector3 d2 = position - transform.position;
+					d2 = transform.TransformPoint (d2.normalized);
+					Debug.DrawLine (transform.position, d2, Color.black);
+
+					Vector3 d3 = (d1 + d2) / 2.0f;
+					d3 = transform.InverseTransformPoint (d3);
+					d3 = transform.TransformPoint (d3.normalized);
+					Debug.DrawLine (transform.position, d3, Color.green);
+
+					return d3;
 				}
 			}
 

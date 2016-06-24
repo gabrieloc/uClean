@@ -100,7 +100,7 @@ namespace CleanKit
 				if (distance > interactableDetectionRadius) {
 					clearInteractable (actor);
 				} else {
-					Debug.DrawLine (contactPoint, i.transform.position, Color.blue);
+					Debug.DrawLine (contactPoint, i.transform.position, Color.gray);
 				}
 			}
 		}
