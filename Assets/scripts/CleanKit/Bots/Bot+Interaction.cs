@@ -32,7 +32,7 @@ namespace CleanKit
 
 		bool shouldRelocate ()
 		{
-			return destination != null && destination.ShouldRelocate (transform);
+			return ignoreRelocationPoint == false && (destination != null && destination.ShouldRelocate (transform));
 		}
 
 		public void RelocateToDestination (Destination newDestination)
@@ -45,8 +45,10 @@ namespace CleanKit
 
 		public void CancelRelocation ()
 		{
-			Destroy (destination.gameObject);
-			destination = null;
+			if (destination != null) {
+				Destroy (destination.gameObject);
+				destination = null;
+			}
 		}
 
 		public void SetInteraction (InteractionType interaction)

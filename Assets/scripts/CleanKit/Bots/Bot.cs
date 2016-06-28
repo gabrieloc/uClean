@@ -44,9 +44,13 @@ namespace CleanKit
 				} else {
 					prepareForInteraction ();
 				}
-			} else if (shouldRelocate ()) {
-				destination.Live = true;
-				moveTowardsRelocationPoint ();
+			} else {
+				if (shouldRelocate ()) {
+					destination.Live = true;
+					moveTowardsRelocationPoint ();
+				} else {
+					CancelRelocation ();
+				}
 			}
 		}
 
@@ -60,17 +64,12 @@ namespace CleanKit
 			moveTowardsRelocationPoint (kRelocationSpeed);
 		}
 
-		private Vector3 velocity = Vector3.zero;
 		public bool debugDirection = false;
 		float distanceFromTarget;
 		float speedMultiplier;
 
 		private void moveTowardsRelocationPoint (float speed)
 		{
-			if (shouldRelocate () == false || ignoreRelocationPoint) {
-				return;
-			}
-
 			Vector3 position = destination.transform.position;
 			Debug.DrawLine (transform.position, position, Color.grey);
 			position = CalculatePersonalSpace (position);
@@ -79,7 +78,7 @@ namespace CleanKit
 			distanceFromTarget = Vector3.Distance (destination.transform.position, transform.position);
 			float distanceMultiplier = distanceFromTarget / kRelocatableRadius;
 			distanceMultiplier = Mathf.Min (1.0f, distanceMultiplier);
-			speedMultiplier = Mathf.Pow (distanceMultiplier, 2.0f);
+			speedMultiplier = Mathf.Pow (distanceMultiplier, 1.5f);
 			float distanceDelta = speedMultiplier * speed * Time.deltaTime;
 				
 			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
@@ -91,21 +90,19 @@ namespace CleanKit
 				Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (0.5f, 0, 1.5f)), Color.green);	
 			}
 
-			if (shouldRelocate ()) {
+			if (Vector3.Distance (transform.position, position) > kRelocatableRadius) {
 				Quaternion rotation = new Quaternion ();
 
 				// aligns bot with surface normals. buggy.
-//				RaycastHit hit;
-//				int layerMask = 1 << LayerMask.NameToLayer ("Surface");
-//				Physics.Raycast (transform.position, Vector3.down, out hit, 100, layerMask);
-//				rotation = Quaternion.FromToRotation (Vector3.up, hit.normal);
+				RaycastHit hit;
+				int layerMask = 1 << LayerMask.NameToLayer ("Surface");
+				Physics.Raycast (transform.position, Vector3.down, out hit, 100, layerMask);
+				rotation = Quaternion.FromToRotation (Vector3.up, hit.normal);
 
 				Vector3 lookPosition = position - transform.position;
 				rotation = Quaternion.LookRotation (lookPosition);
 				rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * 20);
-//				transform.rotation = rotation;
-			} else {
-				CancelRelocation ();
+				transform.rotation = rotation;
 			}
 		}
 
@@ -115,48 +112,61 @@ namespace CleanKit
 			Collider[] hitColliders = Physics.OverlapSphere (transform.position, kPersonalSpaceRadius, layerMask);
 			if (hitColliders.Length > 0) {
 			
-				List<Actor> opposingActors = new List<Actor> ();
-				Vector3 opposingVector = new Vector3 ();
-			
+				List<Bot> opposingBots = new List<Bot> ();
 				int index = 0;
 				while (index < hitColliders.Length) {
 					Collider hitCollider = hitColliders [index];
-					Bot actor = hitCollider.gameObject.GetComponentInParent<Bot> ();
-			
-					Vector3 hitPos = actor.gameObject.transform.position;
-					opposingActors.Add (actor);
-					if (actor.Equals (this) == false) {
-						opposingVector += hitPos;
+					Bot bot = hitCollider.gameObject.GetComponentInParent<Bot> ();
+					if (bot.Equals (this) == false) {
+						opposingBots.Add (bot);
 					}
 					index++;
 				}
-			
-				// Subtract 1 since this contains the current instance
-				int actorCount = opposingActors.Count - 1;
 								
-				if (actorCount > 0) {
-					opposingVector /= actorCount;
+				if (opposingBots.Count > 0) {
+
+					Vector3 opposingVector = new Vector3 ();
 			
-					Vector3 h1 = opposingVector - transform.position;
-					float dis1 = h1.magnitude;
-					Vector3 d1 = h1 / dis1 * -2.0f;
-					d1 = transform.TransformPoint (d1.normalized);
-					Debug.DrawLine (transform.position, d1, Color.red);
+					foreach (Bot bot in opposingBots) {
+//						Vector3 direction = Normalize (bot.PrimaryContactPoint ());
+						Vector3 b = transform.InverseTransformPoint (bot.PrimaryContactPoint ());
+						b = transform.TransformPoint (b);
+						Debug.DrawLine (transform.position, b, Color.yellow);
+						opposingVector += b;
+					}
+					opposingVector /= opposingBots.Count;
 
-					Vector3 d2 = position - transform.position;
-					d2 = transform.TransformPoint (d2.normalized);
-					Debug.DrawLine (transform.position, d2, Color.black);
+					Vector3 o = Normalize (opposingVector, -1.0f);
+					Debug.DrawLine (transform.position, o, Color.red);
 
-					Vector3 d3 = (d1 + d2) / 2.0f;
-					d3 = transform.InverseTransformPoint (d3);
-					d3 = transform.TransformPoint (d3.normalized);
-					Debug.DrawLine (transform.position, d3, Color.green);
+					Vector3 d = Normalize (position);
+					Debug.DrawLine (transform.position, d, Color.blue);
 
-					return d3;
+					float opposingInfluence = 0.5f;
+					Vector3 f = Vector3.Lerp (o, d, opposingInfluence); 
+					f = Normalize (f, -1.0f);		
+					Debug.DrawLine (transform.position, f, Color.cyan);
+
+					// TODO: 	Have special logic for when opposing vector is
+					// 			parallel to destination direction vector.
+					//			Otherwise d3 is perpendicular and gets confused.
+					
+					// TODO: 	Prevent bots from being able to push their way through
+					//			other bots, have them instead trace parameter until 
+					//			within acceptable distance from destination
+
+//					return f;
 				}
 			}
 
 			return position;
+		}
+
+		Vector3 Normalize (Vector3 point, float multiplier = 1.0f)
+		{
+			Vector3 p = transform.InverseTransformPoint (point) * multiplier;
+			p = transform.TransformPoint (p.normalized);
+			return p;
 		}
 
 		void OnDrawGizmos ()

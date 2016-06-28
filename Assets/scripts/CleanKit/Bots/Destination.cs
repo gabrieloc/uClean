@@ -25,7 +25,7 @@ namespace CleanKit
 		public bool ShouldRelocate (Transform compareTransform)
 		{
 			// TODO consider comparing rotation too
-			bool d = Distance (compareTransform.position) > 0.0f;
+			bool d = Distance (compareTransform.position) > 0.1f;
 			return d;
 		}
 
