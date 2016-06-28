@@ -128,23 +128,21 @@ namespace CleanKit
 					Vector3 opposingVector = new Vector3 ();
 			
 					foreach (Bot bot in opposingBots) {
-//						Vector3 direction = Normalize (bot.PrimaryContactPoint ());
-						Vector3 b = transform.InverseTransformPoint (bot.PrimaryContactPoint ());
-						b = transform.TransformPoint (b);
-						Debug.DrawLine (transform.position, b, Color.yellow);
+						Vector3 b = Prioritize (bot.PrimaryContactPoint ());
 						opposingVector += b;
+						Debug.DrawLine (transform.position, b, Color.yellow);
 					}
 					opposingVector /= opposingBots.Count;
 
-					Vector3 o = Normalize (opposingVector, -1.0f);
+					Vector3 o = Normalize (opposingVector, true);
 					Debug.DrawLine (transform.position, o, Color.red);
 
-					Vector3 d = Normalize (position);
+					Vector3 d = Prioritize (destination.transform.position, 10.0f);
 					Debug.DrawLine (transform.position, d, Color.blue);
 
 					float opposingInfluence = 0.5f;
 					Vector3 f = Vector3.Lerp (o, d, opposingInfluence); 
-					f = Normalize (f, -1.0f);		
+					f = Normalize (f);	
 					Debug.DrawLine (transform.position, f, Color.cyan);
 
 					// TODO: 	Have special logic for when opposing vector is
@@ -155,15 +153,25 @@ namespace CleanKit
 					//			other bots, have them instead trace parameter until 
 					//			within acceptable distance from destination
 
-//					return f;
+					return f;
 				}
 			}
 
 			return position;
 		}
 
-		Vector3 Normalize (Vector3 point, float multiplier = 1.0f)
+		Vector3 Prioritize (Vector3 point, float radius = 2.0f)
 		{
+			Vector3 p = transform.InverseTransformPoint (point);
+			float distance = Vector3.Distance (point, transform.position);
+			float multiplier = Mathf.Pow (radius / distance * 0.2f, 4.0f);
+			p = transform.TransformPoint (p * multiplier);
+			return p;
+		}
+
+		Vector3 Normalize (Vector3 point, bool invert = false)
+		{
+			float multiplier = invert ? -1.0f : 1.0f;
 			Vector3 p = transform.InverseTransformPoint (point) * multiplier;
 			p = transform.TransformPoint (p.normalized);
 			return p;
