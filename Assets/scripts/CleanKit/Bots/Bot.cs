@@ -122,11 +122,11 @@ namespace CleanKit
 					}
 					index++;
 				}
-								
+
 				if (opposingBots.Count > 0) {
 
 					Vector3 opposingVector = new Vector3 ();
-			
+
 					foreach (Bot bot in opposingBots) {
 						Vector3 b = Prioritize (bot.PrimaryContactPoint ());
 						opposingVector += b;
@@ -134,26 +134,34 @@ namespace CleanKit
 					}
 					opposingVector /= opposingBots.Count;
 
-					Vector3 o = Normalize (opposingVector, true);
-					Debug.DrawLine (transform.position, o, Color.red);
-
-					Vector3 d = Prioritize (destination.transform.position, 10.0f);
+					Vector3 d = Prioritize (destination.transform.position, 3.0f);
+					Vector3 dl = transform.InverseTransformPoint (d);
 					Debug.DrawLine (transform.position, d, Color.blue);
 
-					float opposingInfluence = 0.5f;
-					Vector3 f = Vector3.Lerp (o, d, opposingInfluence); 
-					f = Normalize (f);	
-					Debug.DrawLine (transform.position, f, Color.cyan);
+					Vector3 o = transform.InverseTransformPoint (opposingVector);
+					o *= -1.0f;
+					Vector3 ol = o;
+					o = transform.TransformPoint (o);
+					Debug.DrawLine (transform.position, o, Color.red);
 
-					// TODO: 	Have special logic for when opposing vector is
-					// 			parallel to destination direction vector.
-					//			Otherwise d3 is perpendicular and gets confused.
-					
-					// TODO: 	Prevent bots from being able to push their way through
-					//			other bots, have them instead trace parameter until 
-					//			within acceptable distance from destination
+					float bd = Vector3.Distance (destination.transform.position, transform.position);
+					float od = Vector3.Distance (destination.transform.position, o);
 
-					return f;
+					if (dl.magnitude > ol.magnitude) { // We're close enough!
+						return transform.position;
+					} else if (ol.magnitude < (kRelocatableRadius / 2.0f) && bd < od) { // Let's go around the obstruction
+						Vector3 f = new Vector3 (ol.z, ol.y, -ol.x);
+						f = transform.TransformPoint (f);
+						Debug.DrawLine (transform.position, f, Color.green);
+						return f;
+					} else if (ol.magnitude >= (kRelocatableRadius / 2.0f)) { // We're too close to someone else
+						float opposingInfluence = 0.5f;
+						Vector3 f = Vector3.Lerp (o, d, opposingInfluence); 
+						Debug.DrawLine (transform.position, f, Color.cyan);
+						return f;
+					}
+				} else {
+					Debug.DrawLine (transform.position, Normalize (destination.transform.position), Color.green);
 				}
 			}
 
@@ -164,7 +172,7 @@ namespace CleanKit
 		{
 			Vector3 p = transform.InverseTransformPoint (point);
 			float distance = Vector3.Distance (point, transform.position);
-			float multiplier = Mathf.Pow (radius / distance * 0.2f, 4.0f);
+			float multiplier = Mathf.Pow (radius / distance/* * 0.2f*/, 4.0f);
 			p = transform.TransformPoint (p * multiplier);
 			return p;
 		}
@@ -177,10 +185,14 @@ namespace CleanKit
 			return p;
 		}
 
+		public bool kDebugPersonalSpace = false;
+
 		void OnDrawGizmos ()
 		{
-			Gizmos.color = Color.magenta;
-			Gizmos.DrawWireSphere (transform.position, kPersonalSpaceRadius);
+			if (kDebugPersonalSpace) {
+				Gizmos.color = Color.magenta;
+				Gizmos.DrawWireSphere (transform.position, kPersonalSpaceRadius);
+			}
 		}
 
 		private int movementPriorityAmoungActors (List<Actor> actors)
