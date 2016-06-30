@@ -49,6 +49,7 @@
      <Compile Include="Assets\scripts\CleanKit\Bots\Bot+Interaction.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\Bot.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\BotController.cs" />
+     <Compile Include="Assets\scripts\CleanKit\Bots\BotControllerEditor.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\BotNamer.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\Destination.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\Swarm.cs" />
