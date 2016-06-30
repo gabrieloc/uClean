@@ -128,7 +128,7 @@ namespace CleanKit
 					Vector3 opposingVector = new Vector3 ();
 
 					foreach (Bot bot in opposingBots) {
-						Vector3 b = Prioritize (bot.PrimaryContactPoint ());
+						Vector3 b = Prioritize (bot.PrimaryContactPoint (), 1.8f);
 						opposingVector += b;
 						Debug.DrawLine (transform.position, b, Color.yellow);
 					}
@@ -149,15 +149,19 @@ namespace CleanKit
 
 					if (dl.magnitude > ol.magnitude) { // We're close enough!
 						return transform.position;
-					} else if (ol.magnitude < (kRelocatableRadius / 2.0f) && bd < od) { // Let's go around the obstruction
-						Vector3 f = new Vector3 (ol.z, ol.y, -ol.x);
-						f = transform.TransformPoint (f);
-						Debug.DrawLine (transform.position, f, Color.green);
-						return f;
-					} else if (ol.magnitude >= (kRelocatableRadius / 2.0f)) { // We're too close to someone else
+					} else if (bd < od) { // Let's go around the obstruction
+						Vector3 p1 = Normalize (destination.transform.position);
+
+						Debug.DrawLine (transform.position, p1, Color.green);
+
 						float opposingInfluence = 0.5f;
-						Vector3 f = Vector3.Lerp (o, d, opposingInfluence); 
-						Debug.DrawLine (transform.position, f, Color.cyan);
+						Vector3 p2 = Vector3.Lerp (o, d, opposingInfluence); 
+						Debug.DrawLine (transform.position, p2, Color.cyan);
+
+						float perpInfluence = 0.5f;
+						Vector3 f = Vector3.Lerp (p1, p2, perpInfluence);
+						Debug.DrawLine (transform.position, f, Color.magenta);
+
 						return f;
 					}
 				} else {
