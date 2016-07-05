@@ -8,6 +8,30 @@ namespace CleanKit
 
 		private InteractionType interaction;
 
+		private void moveTowardsInteractable ()
+		{
+			Vector3 position = interactable.transform.position;
+
+			int layerMask = 1 << LayerMask.NameToLayer ("Interactable");
+			RaycastHit hit;
+			Vector3 d = transform.TransformDirection (Vector3.forward);
+			if (Physics.SphereCast (transform.position, kMinimumInteractableDistance, d, out hit, kPersonalSpaceRadius, layerMask)) {
+				position = hit.point;
+			}
+			position.y = transform.position.y;
+			lookAtPoint (position);
+
+			bool canInteract = canPerformInteraction ();
+			ignoreRelocationPoint = !canInteract;
+
+			if (!canInteract) {
+				float distanceDelta = kRelocationSpeed * Time.deltaTime;
+				transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+			}
+
+			Debug.DrawLine (transform.position, position, Color.blue);
+		}
+
 		// Actor
 
 		public Vector3 PrimaryContactPoint ()
@@ -102,7 +126,7 @@ namespace CleanKit
 			if (interactableIsLiftable ()) {
 				Vector3 hitPoint;
 				bool isBelowObject = rayCastAtInteractable (transform.TransformDirection (Vector3.up), out hitPoint, 1.0f);
-				Debug.DrawLine (transform.position, hitPoint, isBelowObject ? Color.green : Color.red);
+//				Debug.DrawLine (transform.position, hitPoint, isBelowObject ? Color.green : Color.red);
 				return isBelowObject;
 			} else {
 				bool canPushInteractable = isLookingAtInteractable ();
@@ -147,17 +171,36 @@ namespace CleanKit
 			}
 			if (isLookingAtInteractable () && interactableContactPoint != Vector3.zero) {
 				// Lift object
-				ForceMode forceMode = ForceMode.Impulse;
-				Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
-				float force = kLiftStrength * rigidBody.mass;
-				rigidBody.AddForceAtPosition (new Vector3 (0.0f, force, 0.0f), interactableContactPoint, forceMode);
+
+				// TODO: 	Don't rely on physics engine for lifting, considering applying
+				//			additive transform to interactable instead.
+				//			Transform should be a quaternion transformation which lerps 
+				//			between current quaternion and a desired quaternion
+
+//				ForceMode forceMode = ForceMode.Impulse;
+//				Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
+//				float force = kLiftStrength * rigidBody.mass;
+//				rigidBody.AddForceAtPosition (new Vector3 (0.0f, force, 0.0f), interactableContactPoint, forceMode);
 
 				Vector3 c = interactableContactPoint;
-				Debug.DrawLine (new Vector3 (c.x, c.y, c.z), new Vector3 (c.x, c.y + 4, c.z), Color.red);
-				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x - 1, c.y + 3, c.z), Color.red);
-				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x + 1, c.y + 3, c.z), Color.red);
 
-				interactableContactPoint = Vector3.zero;
+
+				float step = kLiftStrength * Time.deltaTime;
+				Quaternion r0 = interactable.transform.rotation;
+				Quaternion r1 = Quaternion.AngleAxis (30.0f, Vector3.back);
+				Quaternion r = Quaternion.RotateTowards (r0, r1, step);
+
+//				interactable.transform.rotation = Quaternion.Lerp (r0, r, 0.5f);
+				interactable.transform.rotation = r;
+
+
+				Debug.DrawRay (c, Vector3.up, Color.yellow);
+
+//				Debug.DrawLine (new Vector3 (c.x, c.y, c.z), new Vector3 (c.x, c.y + 4, c.z), Color.red);
+//				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x - 1, c.y + 3, c.z), Color.red);
+//				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x + 1, c.y + 3, c.z), Color.red);
+
+//				interactableContactPoint = Vector3.zero;
 			} else {
 				// Attempt to go under
 				moveTowardsInteractable ();
@@ -188,7 +231,6 @@ namespace CleanKit
 			// TODO
 		}
 
-
 		// Cleaning
 
 		private bool canCleanInteractable ()
@@ -208,7 +250,9 @@ namespace CleanKit
 		private bool isLookingAtInteractable ()
 		{
 			Vector3 contactPoint;
-			bool looking = rayCastAtInteractable (transform.TransformDirection (Vector3.forward), out contactPoint, 1.0f);
+			Vector3 p = transform.TransformDirection (Vector3.forward);
+			p.y += 0.01f;
+			bool looking = rayCastAtInteractable (p, out contactPoint, 1.0f);
 			Debug.DrawLine (transform.position, contactPoint, looking ? Color.green : Color.red);
 			interactableContactPoint = contactPoint;
 			return looking;

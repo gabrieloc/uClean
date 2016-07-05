@@ -90,20 +90,27 @@ namespace CleanKit
 				Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (0.5f, 0, 1.5f)), Color.green);	
 			}
 
-			if (Vector3.Distance (transform.position, position) > kRelocatableRadius) {
-				Quaternion rotation = new Quaternion ();
+			lookAtPoint (position);
+		}
 
-				// aligns bot with surface normals. buggy.
-				RaycastHit hit;
-				int layerMask = 1 << LayerMask.NameToLayer ("Surface");
-				Physics.Raycast (transform.position, Vector3.down, out hit, 100, layerMask);
-				rotation = Quaternion.FromToRotation (Vector3.up, hit.normal);
-
-				Vector3 lookPosition = position - transform.position;
-				rotation = Quaternion.LookRotation (lookPosition);
-				rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * 20);
-				transform.rotation = rotation;
+		void lookAtPoint (Vector3 point)
+		{
+			if (Vector3.Distance (transform.position, point) < 1.0f) {
+				return;
 			}
+
+			Quaternion rotation = new Quaternion ();
+
+			// aligns bot with surface normals. buggy.
+			RaycastHit hit;
+			int layerMask = 1 << LayerMask.NameToLayer ("Interactable");
+			Physics.Raycast (transform.position, Vector3.down, out hit, 100, layerMask);
+			rotation = Quaternion.FromToRotation (Vector3.up, hit.normal);
+
+			Vector3 lookPosition = point - transform.position;
+			rotation = Quaternion.LookRotation (lookPosition);
+			rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * 20);
+			transform.rotation = rotation;
 		}
 
 		Vector3 CalculatePersonalSpace (Vector3 position)
@@ -213,29 +220,6 @@ namespace CleanKit
 
 		private bool ignoreRelocationPoint;
 		private float kMinimumInteractableDistance = 1.0f;
-
-		private void moveTowardsInteractable ()
-		{
-			RaycastHit hit;
-			Vector3 origin = interactable.transform.position;
-			int layerMask = 1 << LayerMask.NameToLayer ("Surface");
-			Physics.Raycast (origin, Vector3.down, out hit, 100, layerMask);
-
-			Vector3 position = hit.point;
-			Debug.DrawLine (origin, hit.point, Color.green);
-
-			float magnitude = Vector3.Distance (transform.position, position);
-			bool canInteract = magnitude < kMinimumInteractableDistance;
-			ignoreRelocationPoint = !canInteract;
-
-			if (canInteract) {
-				return;
-			}
-
-			float distanceDelta = kRelocationSpeed * Time.deltaTime;
-			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
-			transform.LookAt (new Vector3 (position.x, transform.position.y, position.y));
-		}
 
 		// Cells
 		public ActorCell cell { get; private set; }
