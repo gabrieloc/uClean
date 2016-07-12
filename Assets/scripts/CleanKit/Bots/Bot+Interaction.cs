@@ -10,26 +10,31 @@ namespace CleanKit
 
 		private void moveTowardsInteractable ()
 		{
-			Vector3 position = interactable.transform.position;
+			moveTowardsInteractable (interactable.transform.position);
+		}
 
+		private void moveTowardsInteractable (Vector3 desired)
+		{
 			int layerMask = 1 << LayerMask.NameToLayer ("Interactable");
 			RaycastHit hit;
 			Vector3 d = transform.TransformDirection (Vector3.forward);
 			if (Physics.SphereCast (transform.position, kMinimumInteractableDistance, d, out hit, kPersonalSpaceRadius, layerMask)) {
-				position = hit.point;
+				desired = hit.point;
 			}
-			position.y = transform.position.y;
-			lookAtPoint (position);
+			// TODO make this work
+			desired = CalculatePersonalSpace (transform.position, desired);
+			desired.y = transform.position.y;
+			lookInDirection (desired);
 
 			bool canInteract = canPerformInteraction ();
 			ignoreRelocationPoint = !canInteract;
 
 			if (!canInteract) {
 				float distanceDelta = kRelocationSpeed * Time.deltaTime;
-				transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+				transform.position = Vector3.MoveTowards (transform.position, desired, distanceDelta);
 			}
 
-			Debug.DrawLine (transform.position, position, Color.blue);
+			Debug.DrawLine (transform.position, desired, Color.blue);
 		}
 
 		// Actor
@@ -128,10 +133,11 @@ namespace CleanKit
 				bool isBelowObject = rayCastAtInteractable (transform.TransformDirection (Vector3.up), out hitPoint, 1.0f);
 //				Debug.DrawLine (transform.position, hitPoint, isBelowObject ? Color.green : Color.red);
 				return isBelowObject;
-			} else {
-				bool canPushInteractable = isLookingAtInteractable ();
-				return canPushInteractable;
+			} else if (destination != null) {
+				float d = Vector3.Distance (transform.position, pushPosition ());
+				return d < kMinimumInteractableDistance;
 			}
+			return false;
 		}
 
 		private void prepareForMovingInteractable ()
@@ -156,14 +162,14 @@ namespace CleanKit
 
 		// Lifting
 
-		private bool interactableIsLiftable ()
+		bool interactableIsLiftable ()
 		{
 			Bounds bounds = interactable.GetComponent<Collider> ().bounds;
 			Vector3 size = bounds.size;
 			return size.magnitude < kMaximumLiftableSize;
 		}
 
-		private void prepareForLiftingInteractable ()
+		void prepareForLiftingInteractable ()
 		{
 			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
 			if (holdJoint) {
@@ -207,7 +213,7 @@ namespace CleanKit
 			}
 		}
 
-		private void liftInteractableToRelocationPoint ()
+		void liftInteractableToRelocationPoint ()
 		{
 			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
 			if (holdJoint == null) {
@@ -221,25 +227,57 @@ namespace CleanKit
 
 		// Pushing
 
-		private void prepareForPushingInteractable ()
+		void prepareForPushingInteractable ()
 		{
-			moveTowardsInteractable ();
+			// move to push point
+
+			if (destination != null) {
+				Vector3 p = pushPosition ();
+				moveTowardsInteractable (p);
+				Debug.DrawLine (transform.position, p, Color.yellow);
+			} else {
+				moveTowardsInteractable ();
+			}
 		}
 
-		private void pushInteractableToRelocationPoint ()
+		public float PushSpeed = 5.0f;
+
+		void pushInteractableToRelocationPoint ()
 		{
-			// TODO
+			Vector3 p = pushPosition ();
+			Vector3 f = Vector3.Lerp (p, destination.transform.position, 0.5f);
+			float s = PushSpeed * Time.deltaTime;
+			Vector3 t = Vector3.MoveTowards (transform.position, f, s);
+				
+			transform.position = t;
+
+			Debug.DrawLine (transform.position, p, Color.cyan);
+		}
+
+		Vector3 pushPosition ()
+		{
+			Vector3 d = destination.transform.position;
+			Vector3 d2 = interactable.transform.InverseTransformPoint (d);
+			d2 *= -1.0f;
+			d2 = interactable.transform.TransformPoint (d2);
+
+			Collider col = interactable.GetComponent<Collider> ();
+			Vector3 c = col.ClosestPointOnBounds (d2);
+
+			c.y = 0.0f;
+
+			return c;
 		}
 
 		// Cleaning
 
-		private bool canCleanInteractable ()
+		bool canCleanInteractable ()
 		{
 			// TODO
 			return false;
 		}
 
-		private void prepareForCleaningInteractable ()
+		void prepareForCleaningInteractable ()
 		{
 			// TODO
 			moveTowardsInteractable ();
@@ -247,7 +285,7 @@ namespace CleanKit
 
 		// Conveniences
 
-		private bool isLookingAtInteractable ()
+		bool isLookingAtInteractable ()
 		{
 			Vector3 contactPoint;
 			Vector3 p = transform.TransformDirection (Vector3.forward);
