@@ -24,7 +24,7 @@ namespace CleanKit
 			// TODO make this work
 			desired = CalculatePersonalSpace (transform.position, desired);
 			desired.y = transform.position.y;
-			lookInDirection (desired);
+			lookAtPoint (desired);
 
 			bool canInteract = canPerformInteraction ();
 			ignoreRelocationPoint = !canInteract;

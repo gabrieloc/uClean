@@ -70,10 +70,10 @@ namespace CleanKit
 
 		private void moveTowardsRelocationPoint (float speed)
 		{
-			Vector3 position = destination.transform.position;
-			Debug.DrawLine (transform.position, position, Color.grey);
-			position = CalculatePersonalSpace (position);
-			position.y = Mathf.Max (0.0f, position.y);
+			Debug.DrawLine (transform.position, destination.transform.position, Color.grey);
+			Vector3 point = CalculatePersonalSpace (transform.position, destination.transform.position);
+			point.y = Mathf.Max (0.0f, point.y);
+			lookAtPoint (point);
 
 			distanceFromTarget = Vector3.Distance (destination.transform.position, transform.position);
 			float distanceMultiplier = distanceFromTarget / kRelocatableRadius;
@@ -81,7 +81,24 @@ namespace CleanKit
 			speedMultiplier = Mathf.Pow (distanceMultiplier, 1.5f);
 			float distanceDelta = speedMultiplier * speed * Time.deltaTime;
 				
-			transform.position = Vector3.MoveTowards (transform.position, position, distanceDelta);
+			transform.position = Vector3.MoveTowards (transform.position, point, distanceDelta);
+		}
+
+
+		void lookAtPoint (Vector3 point)
+		{
+			Quaternion rotation = new Quaternion ();
+
+			RaycastHit hit;
+			Physics.Raycast (transform.position, Vector3.down, out hit, 1.0f);
+//			Debug.DrawRay (hit.point, hit.normal, Color.cyan);
+
+			// TODO: figure out how to align with surface normal
+			Vector3 lookPosition = point - transform.position;
+			lookPosition.y = 0.0f;
+			rotation = Quaternion.LookRotation (lookPosition, hit.normal);
+			rotation = Quaternion.Slerp (rotation, transform.rotation, Time.deltaTime * 20.0f);
+			transform.rotation = rotation;
 
 			if (debugDirection) {
 				Vector3 arrowHead = transform.TransformPoint (new Vector3 (0, 0, 2.0f));
@@ -89,94 +106,88 @@ namespace CleanKit
 				Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (-0.5f, 0, 1.5f)), Color.green);
 				Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (0.5f, 0, 1.5f)), Color.green);	
 			}
-
-			lookAtPoint (position);
 		}
 
-		void lookAtPoint (Vector3 point)
+		Vector3 CalculatePersonalSpace (Vector3 current, Vector3 desired)
 		{
-			if (Vector3.Distance (transform.position, point) < 1.0f) {
-				return;
-			}
+			int actorLayer = 1 << LayerMask.NameToLayer ("Actor");
+			int interactableLayer = 1 << LayerMask.NameToLayer ("Interactable");
+			int layerMask = actorLayer | interactableLayer;
 
-			Quaternion rotation = new Quaternion ();
-
-			// aligns bot with surface normals. buggy.
-			RaycastHit hit;
-			int layerMask = 1 << LayerMask.NameToLayer ("Interactable");
-			Physics.Raycast (transform.position, Vector3.down, out hit, 100, layerMask);
-			rotation = Quaternion.FromToRotation (Vector3.up, hit.normal);
-
-			Vector3 lookPosition = point - transform.position;
-			rotation = Quaternion.LookRotation (lookPosition);
-			rotation = Quaternion.Slerp (transform.rotation, rotation, Time.deltaTime * 20);
-			transform.rotation = rotation;
-		}
-
-		Vector3 CalculatePersonalSpace (Vector3 position)
-		{
-			int layerMask = 1 << LayerMask.NameToLayer ("Actor");
-			Collider[] hitColliders = Physics.OverlapSphere (transform.position, kPersonalSpaceRadius, layerMask);
-			if (hitColliders.Length > 0) {
-			
-				List<Bot> opposingBots = new List<Bot> ();
+			Collider[] hits = Physics.OverlapSphere (current, kPersonalSpaceRadius, layerMask);
+			if (hits.Length > 0) {
+				List<Vector3> opposers = new List<Vector3> ();
 				int index = 0;
-				while (index < hitColliders.Length) {
-					Collider hitCollider = hitColliders [index];
-					Bot bot = hitCollider.gameObject.GetComponentInParent<Bot> ();
-					if (bot.Equals (this) == false) {
-						opposingBots.Add (bot);
+				while (index < hits.Length) {
+					Collider collider = hits [index];
+					if (collider.transform.parent.gameObject != gameObject) {
+						Vector3 cloPos = Prioritize (collider.ClosestPointOnBounds (current), 1.2f);
+						Vector3 cenPos = current + Direction (current, collider.transform.position) * 2.0f;
+
+//						Debug.DrawLine (current, cenPos, Color.cyan);
+//						Debug.DrawLine (current, cloPos, Color.cyan);
+
+						Vector3 dDir = Vector3.Lerp (cenPos, cloPos, 0.5f);
+						opposers.Add (dDir);
+						Debug.DrawLine (current, dDir, Color.blue);
 					}
 					index++;
 				}
 
-				if (opposingBots.Count > 0) {
+				if (opposers.Count > 0) {
 
 					Vector3 opposingVector = new Vector3 ();
-
-					foreach (Bot bot in opposingBots) {
-						Vector3 b = Prioritize (bot.PrimaryContactPoint (), 1.8f);
-						opposingVector += b;
-						Debug.DrawLine (transform.position, b, Color.yellow);
+					foreach (Vector3 hit in opposers) {
+//						Vector3 b = Prioritize (hit, 1.6f);
+//						opposingVector += b;
+						opposingVector += hit;
 					}
-					opposingVector /= opposingBots.Count;
+					opposingVector /= opposers.Count;
+					opposingVector.y = 0.0f; // TODO fuck everything about this
 
-					Vector3 d = Prioritize (destination.transform.position, 3.0f);
+					Vector3 d = Prioritize (desired, 3.0f);
 					Vector3 dl = transform.InverseTransformPoint (d);
-					Debug.DrawLine (transform.position, d, Color.blue);
 
 					Vector3 o = transform.InverseTransformPoint (opposingVector);
 					o *= -1.0f;
 					Vector3 ol = o;
 					o = transform.TransformPoint (o);
-					Debug.DrawLine (transform.position, o, Color.red);
+					Debug.DrawLine (current, o, Color.red);
 
-					float bd = Vector3.Distance (destination.transform.position, transform.position);
-					float od = Vector3.Distance (destination.transform.position, o);
+					float bd = Vector3.Distance (desired, current);
+					float od = Vector3.Distance (desired, o);
+
 
 					if (dl.magnitude > ol.magnitude) { // We're close enough!
-						return transform.position;
+						return current;
 					} else if (bd < od) { // Let's go around the obstruction
-						Vector3 p1 = Normalize (destination.transform.position);
-
-						Debug.DrawLine (transform.position, p1, Color.green);
+						Vector3 p1 = Normalize (desired);
 
 						float opposingInfluence = 0.5f;
 						Vector3 p2 = Vector3.Lerp (o, d, opposingInfluence); 
-						Debug.DrawLine (transform.position, p2, Color.cyan);
+						Debug.DrawLine (current, p2, Color.yellow);
 
-						float perpInfluence = 0.5f;
-						Vector3 f = Vector3.Lerp (p1, p2, perpInfluence);
-						Debug.DrawLine (transform.position, f, Color.magenta);
+						// TODO carve out case for reversing if stuck in a corner
+//						Vector3 d1i = Normalize (p1, true);
+//						float d1im = Vector3.Distance (d1i, p2);
+//						if (d1im < 0.5f) {
+//							print (d1im);
+//							Vector3 f2 = Vector3.Lerp (transform.TransformPoint (Vector3.back), p2, 0.0f);
+//							Debug.DrawLine (current, f2, Color.green);
+////							return f2;
+//						}
 
+						Vector3 f = Vector3.Lerp (p1, p2, 0.5f);
+						f = Normalize (f);
+						Debug.DrawLine (current, f, Color.green);
 						return f;
 					}
 				} else {
-					Debug.DrawLine (transform.position, Normalize (destination.transform.position), Color.green);
+					Debug.DrawLine (current, Normalize (desired), Color.green);
 				}
 			}
 
-			return position;
+			return Normalize (desired);
 		}
 
 		Vector3 Prioritize (Vector3 point, float radius = 2.0f)
@@ -194,6 +205,11 @@ namespace CleanKit
 			Vector3 p = transform.InverseTransformPoint (point) * multiplier;
 			p = transform.TransformPoint (p.normalized);
 			return p;
+		}
+
+		Vector3 Direction (Vector3 origin, Vector3 destination)
+		{
+			return	(destination - origin).normalized;	
 		}
 
 		public bool kDebugPersonalSpace = false;
