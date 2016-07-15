@@ -22,7 +22,6 @@ namespace CleanKit
 				desired = hit.point;
 			}
 			// TODO make this work
-			desired = CalculatePersonalSpace (transform.position, desired);
 			desired.y = transform.position.y;
 			lookAtPoint (desired);
 
@@ -221,8 +220,7 @@ namespace CleanKit
 				holdJoint.connectedBody = interactable.GetComponent<Rigidbody> ();
 			}
 
-			float distanceDelta = kRelocationSpeed * 0.5f * Time.deltaTime;
-			moveTowardsRelocationPoint (distanceDelta);
+			moveTowardsRelocationPoint ();
 		}
 
 		// Pushing

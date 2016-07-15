@@ -10,8 +10,10 @@ namespace CleanKit
 
 		private Vector3 storedContactPoint = Vector3.zero;
 
-		private int botSpawnCount = 5;
-		private int timeSinceLastSpawn = 0;
+		public int BotSpawnCount = 5;
+		int spawned;
+		int timeSinceLastSpawn = 0;
+		int botSpawnInterval = 5;
 
 		void Awake ()
 		{
@@ -22,13 +24,18 @@ namespace CleanKit
 			selectionController.selectionDelegate = this;
 		}
 
+		void Start ()
+		{
+			spawned = BotSpawnCount;
+		}
+
 		void Update ()
 		{
-			if (botSpawnCount > 0 && timeSinceLastSpawn == 0) {
+			if (spawned > 0 && timeSinceLastSpawn == 0) {
+				spawned--;
 				AddBot ();
-				timeSinceLastSpawn = 10;
-				botSpawnCount--;
-			} else {
+				timeSinceLastSpawn = botSpawnInterval;
+			} else if (BotSpawnCount > 0) {
 				timeSinceLastSpawn--;
 			}
 
