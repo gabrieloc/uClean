@@ -67,6 +67,7 @@ namespace CleanKit
 
 		public float Score ()
 		{
+			// TODO extract this to allow different types of interactables to be scored individually
 			float distance = destination.Distance (transform.position);
 			float score = (kMinimumDistance - distance) / kMinimumDistance;
 			return score;
