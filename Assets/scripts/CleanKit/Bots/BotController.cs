@@ -79,8 +79,12 @@ namespace CleanKit
 			}
 
 			Vector3 contactPoint = actor.PrimaryContactPoint ();
+			int layerMask = Interactable.LayerMask;
+			Collider[] interactables = Physics.OverlapSphere (contactPoint, interactableDetectionRadius, layerMask);
 
-			foreach (Interactable interactable in interactionController.allInteractables) {
+			foreach (Collider collider in interactables) {
+				Interactable interactable = collider.GetComponent<Interactable> ();
+
 				float distance = Vector3.Distance (interactable.transform.position, contactPoint);
 
 				// A interactable was available, but select this one if it's closer

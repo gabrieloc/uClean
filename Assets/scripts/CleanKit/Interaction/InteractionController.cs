@@ -17,8 +17,9 @@ namespace CleanKit
 
 	public class InteractionController : MonoBehaviour
 	{
-		public List<Interactable> allInteractables = new List<Interactable> ();
-		private List<Interactable> availableInteractables = new List<Interactable> ();
+		List<Interactable> availableInteractables = new List<Interactable> ();
+
+		public List<Interactable> Interactables = new List<Interactable> ();
 		public Actor currentActor;
 		public InteractionDelegate interactionDelegate;
 

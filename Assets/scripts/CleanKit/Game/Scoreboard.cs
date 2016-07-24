@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 namespace CleanKit
 {
@@ -10,13 +9,15 @@ namespace CleanKit
 		public InteractionController interactionController;
 
 		float evaluationInterval = 0.0f;
+		float kEvaluationInterval = 10.0f;
 
 		Text scoreLabel;
 
 		// Use this for initialization
 		void Start ()
 		{
-				
+			scoreLabel = GetComponentInChildren<Text> ();
+			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
 		}
 		
 		// Update is called once per frame
@@ -25,7 +26,7 @@ namespace CleanKit
 			if (evaluationInterval > 0.0f) {
 				evaluationInterval--;
 			} else {
-				evaluationInterval = 60.0f;
+				evaluationInterval = kEvaluationInterval;
 				evaluateScore ();
 			}
 		}
@@ -33,9 +34,9 @@ namespace CleanKit
 		void evaluateScore ()
 		{
 			float score = 0.0f;
-			int propCount = interactionController.allInteractables.Count;
-			foreach (Interactable interactable in interactionController.allInteractables) {
-				float propScore = interactable.Score()
+			int propCount = interactionController.Interactables.Count;
+			foreach (Interactable interactable in interactionController.Interactables) {
+				float propScore = interactable.Score ();
 				score += (1.0f / propCount) * propScore;
 			}
 			setScore (score);
@@ -43,7 +44,8 @@ namespace CleanKit
 
 		void setScore (float score)
 		{
-			scoreLabel.text = score + "%";
+			float roundScore = Mathf.Round (score * 100);
+			scoreLabel.text = roundScore + "%";
 		}
 	}
 }

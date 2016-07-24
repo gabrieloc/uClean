@@ -8,6 +8,8 @@ namespace CleanKit
 {
 	public partial class Interactable : MonoBehaviour
 	{
+		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("interactable"); } }
+
 		public float kIndicatorSpacing = 2.0f;
 		readonly public List<InteractableIndicator> indicators = new List<InteractableIndicator> ();
 
@@ -55,6 +57,12 @@ namespace CleanKit
 				Destroy (indicator.gameObject);
 				indicators.Remove (indicator);
 			}
+		}
+
+		public void SetDestination (Destination d)
+		{
+			destination = d;
+			destination.name = name + " (destination)";
 		}
 
 		public float Score ()

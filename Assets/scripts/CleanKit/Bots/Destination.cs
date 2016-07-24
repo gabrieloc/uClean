@@ -22,6 +22,13 @@ namespace CleanKit
 			return Vector3.Distance (transform.position, referencePoint);
 		}
 
+		public bool ShouldRelocate (Transform compareTransform)
+		{
+			// TODO consider comparing rotation too
+			bool d = Distance (compareTransform.position) > 0.1f;
+			return d;
+		}
+
 		void Update ()
 		{
 			Color color = Live ? Color.blue : Color.gray; 

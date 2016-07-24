@@ -23,14 +23,29 @@ namespace CleanKit
 		public void SpawnRandomProp ()
 		{
 			GameObject prop = PropLoader.CreateTestProp ();
-			prop.name = "Random Prop";
+			prop.name = "Prop " + interactionController.Interactables.Count;
 			prop.transform.SetParent (transform, false);
-			prop.transform.position = new Vector3 ((Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1), 20, (Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1));
-			prop.transform.localScale = new Vector3 (Random.value * kMaxScale, Random.value * kMaxScale, Random.value * kMaxScale);
+			prop.transform.position = new Vector3 (
+				(Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1), 
+				20.0f, 
+				(Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1));
+			prop.transform.localScale = new Vector3 (
+				Random.value * kMaxScale, 
+				Random.value * kMaxScale, 
+				Random.value * kMaxScale);
 
+			float destinationDispersement = 30.0f;
+			Vector3 point = new Vector3 (
+				                Random.value * destinationDispersement,
+				                0.0f,
+				                Random.value * destinationDispersement);
+			Destination destination = Destination.Instantiate (point, Vector3.up);
+			destination.transform.SetParent (transform, false);
+				
 			Interactable interactable = prop.GetComponent<Interactable> ();
+			interactable.SetDestination (destination);
 			interactable.AddInteractionType (InteractionType.Move);
-			interactionController.allInteractables.Add (interactable);
+			interactionController.Interactables.Add (interactable);
 		}
 	}
 }
