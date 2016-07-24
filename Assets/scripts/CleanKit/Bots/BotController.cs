@@ -15,18 +15,15 @@ namespace CleanKit
 		int timeSinceLastSpawn = 0;
 		int botSpawnInterval = 5;
 
-		void Awake ()
-		{
-			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
-			interactionController.interactionDelegate = this;
-
-			selectionController = GameObject.Find ("SelectionController").GetComponent<SelectionController> ();
-			selectionController.selectionDelegate = this;
-		}
-
 		void Start ()
 		{
 			spawned = BotSpawnCount;
+
+			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
+			interactionController.interactionDelegate = this;
+			
+			selectionController = GameObject.Find ("SelectionController").GetComponent<SelectionController> ();
+			selectionController.selectionDelegate = this;
 		}
 
 		void Update ()

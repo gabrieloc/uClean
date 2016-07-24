@@ -45,16 +45,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Bullet.cs" />
+     <Compile Include="Assets\PlayerController.cs" />
      <Compile Include="Assets\scripts\CleanKit\Additions\GameObjectExtensions.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\Bot+Interaction.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\Bot.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\BotController.cs" />
-     <Compile Include="Assets\scripts\CleanKit\Bots\BotControllerEditor.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\BotNamer.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\Destination.cs" />
      <Compile Include="Assets\scripts\CleanKit\Bots\Swarm.cs" />
      <Compile Include="Assets\scripts\CleanKit\Controls\CameraController.cs" />
      <Compile Include="Assets\scripts\CleanKit\Controls\Controls.cs" />
+     <Compile Include="Assets\scripts\CleanKit\Game\Scoreboard.cs" />
      <Compile Include="Assets\scripts\CleanKit\Interaction\Actor.cs" />
      <Compile Include="Assets\scripts\CleanKit\Interaction\BotController+Interaction.cs" />
      <Compile Include="Assets\scripts\CleanKit\Interaction\Interactable.cs" />
@@ -62,7 +64,6 @@
      <Compile Include="Assets\scripts\CleanKit\Interaction\InteractionController.cs" />
      <Compile Include="Assets\scripts\CleanKit\Interaction\InteractionTypes.cs" />
      <Compile Include="Assets\scripts\CleanKit\Props\PropController.cs" />
-     <Compile Include="Assets\scripts\CleanKit\Props\PropControllerEditor.cs" />
      <Compile Include="Assets\scripts\CleanKit\Props\PropLoader.cs" />
      <Compile Include="Assets\scripts\CleanKit\Selection\ActorCell.cs" />
      <Compile Include="Assets\scripts\CleanKit\Selection\BotController+Selection.cs" />

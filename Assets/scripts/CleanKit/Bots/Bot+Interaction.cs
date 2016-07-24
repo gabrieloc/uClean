@@ -10,30 +10,14 @@ namespace CleanKit
 
 		private void moveTowardsInteractable ()
 		{
-			moveTowardsInteractable (interactable.transform.position);
-		}
-
-		private void moveTowardsInteractable (Vector3 desired)
-		{
-			int layerMask = 1 << LayerMask.NameToLayer ("Interactable");
-			RaycastHit hit;
-			Vector3 d = transform.TransformDirection (Vector3.forward);
-			if (Physics.SphereCast (transform.position, kMinimumInteractableDistance, d, out hit, kPersonalSpaceRadius, layerMask)) {
-				desired = hit.point;
-			}
-			// TODO make this work
-			desired.y = transform.position.y;
-			lookAtPoint (desired);
-
 			bool canInteract = canPerformInteraction ();
 			ignoreRelocationPoint = !canInteract;
 
 			if (!canInteract) {
-				float distanceDelta = kRelocationSpeed * Time.deltaTime;
-				transform.position = Vector3.MoveTowards (transform.position, desired, distanceDelta);
+				Collider collider = interactable.GetComponent<Collider> ();
+				Vector3 closestPoint = collider.ClosestPointOnBounds (transform.position);
+				moveTowardsPoint (closestPoint);
 			}
-
-			Debug.DrawLine (transform.position, desired, Color.blue);
 		}
 
 		// Actor
@@ -54,7 +38,6 @@ namespace CleanKit
 			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
 
 			interactable.BecomeUnavailable ();
-
 			CancelRelocation ();
 		}
 
@@ -86,8 +69,7 @@ namespace CleanKit
 		}
 
 		public float kLiftStrength = 1.5f;
-		private float kMaximumLiftableSize = 10.0f;
-		private Vector3 interactableContactPoint;
+		private float kMaximumLiftableSize = 50.0f;
 
 		private bool canPerformInteraction ()
 		{
@@ -127,11 +109,12 @@ namespace CleanKit
 
 		private bool canMoveInteractable ()
 		{
-			if (interactableIsLiftable ()) {
-				Vector3 hitPoint;
-				bool isBelowObject = rayCastAtInteractable (transform.TransformDirection (Vector3.up), out hitPoint, 1.0f);
-//				Debug.DrawLine (transform.position, hitPoint, isBelowObject ? Color.green : Color.red);
-				return isBelowObject;
+			Vector3 contactPoint;
+			if (interactableIsLiftable () && rayCastAtInteractable (out contactPoint)) {
+				Vector3 lContact = transform.InverseTransformPoint (contactPoint);
+				float angle = Mathf.Abs (Vector3.Angle (transform.position, lContact));
+				bool belowInteractable = angle > 45.0f;
+				return belowInteractable;
 			} else if (destination != null) {
 				float d = Vector3.Distance (transform.position, pushPosition ());
 				return d < kMinimumInteractableDistance;
@@ -150,6 +133,10 @@ namespace CleanKit
 
 		private void moveInteractable ()
 		{
+			if (destination == null) {
+				return;
+			}
+
 			ignoreRelocationPoint = false;
 
 			if (interactableIsLiftable ()) {
@@ -174,41 +161,31 @@ namespace CleanKit
 			if (holdJoint) {
 				Destroy (holdJoint);
 			}
-			if (isLookingAtInteractable () && interactableContactPoint != Vector3.zero) {
-				// Lift object
+			bool attemptLift = isLookingAtInteractable ();
+			NavMeshObstacle obstacle = interactable.GetComponent<NavMeshObstacle> ();
+			obstacle.enabled = !attemptLift;
+			Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
+			rigidBody.isKinematic = attemptLift;
 
-				// TODO: 	Don't rely on physics engine for lifting, considering applying
-				//			additive transform to interactable instead.
-				//			Transform should be a quaternion transformation which lerps 
-				//			between current quaternion and a desired quaternion
-
-//				ForceMode forceMode = ForceMode.Impulse;
-//				Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
-//				float force = kLiftStrength * rigidBody.mass;
-//				rigidBody.AddForceAtPosition (new Vector3 (0.0f, force, 0.0f), interactableContactPoint, forceMode);
-
+			if (attemptLift) {
 				Vector3 c = interactableContactPoint;
 
-
-				float step = kLiftStrength * Time.deltaTime;
 				Quaternion r0 = interactable.transform.rotation;
-				Quaternion r1 = Quaternion.AngleAxis (30.0f, Vector3.back);
-				Quaternion r = Quaternion.RotateTowards (r0, r1, step);
+				Vector3 axis = transform.TransformDirection (Vector3.right);
+				Quaternion r1 = Quaternion.AngleAxis (50.0f, axis);
+				Quaternion r = Quaternion.Lerp (r0, r1, 0.5f * Time.deltaTime);
 
-//				interactable.transform.rotation = Quaternion.Lerp (r0, r, 0.5f);
 				interactable.transform.rotation = r;
 
-
-				Debug.DrawRay (c, Vector3.up, Color.yellow);
-
-//				Debug.DrawLine (new Vector3 (c.x, c.y, c.z), new Vector3 (c.x, c.y + 4, c.z), Color.red);
-//				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x - 1, c.y + 3, c.z), Color.red);
-//				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x + 1, c.y + 3, c.z), Color.red);
-
-//				interactableContactPoint = Vector3.zero;
+				Debug.DrawLine (new Vector3 (c.x, c.y, c.z), new Vector3 (c.x, c.y + 4, c.z), Color.red);
+				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x - 1, c.y + 3, c.z), Color.red);
+				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x + 1, c.y + 3, c.z), Color.red);
 			} else {
-				// Attempt to go under
-				moveTowardsInteractable ();
+				Vector3 closestPoint = interactable.GetComponent<Collider> ().ClosestPointOnBounds (transform.position);
+				Debug.DrawLine (transform.position, closestPoint, Color.yellow);
+				if (Vector3.Distance (transform.position, closestPoint) > 1.0f) {
+					moveTowardsInteractable ();
+				}
 			}
 		}
 
@@ -228,10 +205,13 @@ namespace CleanKit
 		void prepareForPushingInteractable ()
 		{
 			// move to push point
+			bool destinationExists = destination != null;
+			NavMeshObstacle obstacle = interactable.GetComponent<NavMeshObstacle> ();
+			obstacle.enabled = destinationExists;
 
-			if (destination != null) {
+			if (destinationExists) {
 				Vector3 p = pushPosition ();
-				moveTowardsInteractable (p);
+				moveTowardsPoint (p);
 				Debug.DrawLine (transform.position, p, Color.yellow);
 			} else {
 				moveTowardsInteractable ();
@@ -242,14 +222,9 @@ namespace CleanKit
 
 		void pushInteractableToRelocationPoint ()
 		{
-			Vector3 p = pushPosition ();
-			Vector3 f = Vector3.Lerp (p, destination.transform.position, 0.5f);
-			float s = PushSpeed * Time.deltaTime;
-			Vector3 t = Vector3.MoveTowards (transform.position, f, s);
-				
-			transform.position = t;
-
-			Debug.DrawLine (transform.position, p, Color.cyan);
+			// TODO reduce speed
+			moveTowardsRelocationPoint ();
+			Debug.DrawLine (transform.position, destination.transform.position, Color.cyan);
 		}
 
 		Vector3 pushPosition ()
@@ -286,28 +261,30 @@ namespace CleanKit
 		bool isLookingAtInteractable ()
 		{
 			Vector3 contactPoint;
-			Vector3 p = transform.TransformDirection (Vector3.forward);
-			p.y += 0.01f;
-			bool looking = rayCastAtInteractable (p, out contactPoint, 1.0f);
-			Debug.DrawLine (transform.position, contactPoint, looking ? Color.green : Color.red);
+			bool looking = rayCastAtInteractable (out contactPoint);
 			interactableContactPoint = contactPoint;
+			Debug.DrawLine (transform.position, interactableContactPoint, looking ? Color.green : Color.red);
 			return looking;
 		}
 
-		private bool rayCastAtInteractable (Vector3 direction, out Vector3 contactPoint, float distance)
+		Vector3 interactableContactPoint;
+
+		private bool rayCastAtInteractable (out Vector3 contactPoint)
 		{
 			contactPoint = new Vector3 ();
-
+			
 			if (interactable == null) {
 				return false;
 			}
 
-			Ray ray = new Ray ();
-			ray.direction = direction;
-			ray.origin = transform.position;
+			Vector3 lPos = transform.InverseTransformPoint (interactable.transform.position);
+			lPos = lPos.normalized;
+			Vector3 direction = lPos;
 
+			Ray ray = new Ray (transform.position, transform.TransformDirection (direction));
 			RaycastHit hit;
 			Collider interactableCollider = interactable.gameObject.GetComponent<Collider> ();
+			float distance = 2.0f;
 
 			bool cast = interactableCollider.Raycast (ray, out hit, distance);
 

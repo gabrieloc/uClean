@@ -66,9 +66,14 @@ namespace CleanKit
 			return gameObject.name;
 		}
 
+		void moveTowardsPoint (Vector3 point)
+		{
+			agent.SetDestination (point);
+		}
+
 		private void moveTowardsRelocationPoint ()
 		{
-			agent.SetDestination (destination.transform.position);
+			moveTowardsPoint (destination.transform.position);
 		}
 
 		public bool debugDirection = false;
