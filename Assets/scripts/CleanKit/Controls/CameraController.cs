@@ -27,8 +27,9 @@ namespace CleanKit
 
 		#if UNITY_EDITOR
 
-		bool isPanning = false;
-		Vector3 panOrigin;
+		public float mouseSensitivityCurve = 0.0125f;
+
+		Vector3 panDelta = new Vector3 ();
 
 		void Update ()
 		{
@@ -37,22 +38,26 @@ namespace CleanKit
 				return;
 			}
 
-			float scrollPosition = Input.GetAxis ("Mouse ScrollWheel");
-			Vector3 mousePosition = Input.mousePosition;
-
 			if (Input.GetMouseButtonDown (0)) {
-				isPanning = true;
-				panPosition = _camera.transform.position;
-				panOrigin = Camera.main.ScreenToViewportPoint (mousePosition);
-			} else if (Input.GetMouseButtonUp (0)) {
-				isPanning = false;
+				panPosition = Input.mousePosition;
 			}
 
-			Vector3 position = _camera.ScreenToViewportPoint (Input.mousePosition) - panOrigin;
-			if (isPanning) {// && delta.magnitude > 0) {
-				_camera.transform.position = panPosition - position;
-			} else if (scrollPosition != 0.0f && mousePosition != Vector3.zero) {
-				_camera.orthographicSize -= Input.mouseScrollDelta.y;
+			if (Input.GetMouseButton (0)) {
+				panDelta = Input.mousePosition - panPosition;
+				panPosition = Input.mousePosition;
+			} else {
+				panDelta *= panDecelerationCurve;
+			}
+
+			float sensitivityMultiplier = 1.0f - Mathf.Pow (_camera.orthographicSize, mouseSensitivityCurve);
+			_camera.transform.Translate (
+				panDelta.x * moveSensitivityX * sensitivityMultiplier,
+				panDelta.y * moveSensitivityY * sensitivityMultiplier,
+				0);
+
+			if (Input.mousePresent) {
+				float scrollPosition = Input.GetAxis ("Mouse ScrollWheel");
+				_camera.orthographicSize -= (Input.mouseScrollDelta.y * sensitivityMultiplier);
 				_camera.orthographicSize = Mathf.Clamp (_camera.orthographicSize, minZoom, maxZoom);
 			}
 		}

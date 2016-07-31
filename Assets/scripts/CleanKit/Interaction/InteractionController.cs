@@ -19,11 +19,43 @@ namespace CleanKit
 	{
 		List<Interactable> availableInteractables = new List<Interactable> ();
 
-		public List<Interactable> Interactables = new List<Interactable> ();
-		public Actor currentActor;
+		public List<Interactable> Interactables { get; private set; }
+
+		Interactable selectedInteractable;
+
 		public InteractionDelegate interactionDelegate;
 
+		void Start ()
+		{
+			Interactables =	new List<Interactable> (GameObject.FindObjectsOfType<Interactable> ());
+		}
+
 		void Update ()
+		{
+			layoutIndicatorsIfNecessary ();
+
+			Interactable interactable;
+			if (panInputExists (out interactable)) {
+				
+			}
+		}
+
+		bool panInputExists (out Interactable interactable)
+		{
+			interactable = null;
+			GameObject selected = null;
+			if (Controls.PanInputExists (out selected)) {
+				bool selectedInteractable = selected.GetComponent<Interactable> ();
+				print (selectedInteractable);
+				if (selectedInteractable) {
+					interactable = selected.GetComponent<Interactable> ();
+				}
+				return selectedInteractable;
+			}
+			return false;
+		}
+
+		void layoutIndicatorsIfNecessary ()
 		{
 			if (availableInteractables.Count > 0) {
 				foreach (Interactable interactable in availableInteractables) {
@@ -37,7 +69,6 @@ namespace CleanKit
 			if (availableInteractables.Contains (interactable) == false && available) {
 				availableInteractables.Add (interactable);
 
-				currentActor = actor;
 				interactable.BecomeAvailableForActor (actor);
 				foreach (InteractableIndicator indicator in interactable.indicators) {
 					indicator.gameObject.transform.SetParent (transform);

@@ -1,10 +1,10 @@
-﻿Shader "CleanKit/Grid"
+﻿Shader "CleanKit/Surface"
 {
 	Properties
 	{
-		_stroke ("Stroke", Float) = 0.01
-		_size ("Cell Size", Float) = 10.0
-		_color ("Color", Color) = (1, 1, 1, 1)
+		_stroke ("Stroke", Float) = 0.05
+		_size ("Cell Size", Float) = 1.0
+		_color ("Color", Color) = (1, 0, 1, 1)
 	}
 
 	SubShader
