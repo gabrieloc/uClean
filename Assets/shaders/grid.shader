@@ -48,18 +48,22 @@
 			float4 frag(vertexOutput input): COLOR {
 
 				float x = input.worldPos.x;
-				float y = input.worldPos.z;
+				float y = input.worldPos.y;
+				float z = input.worldPos.z;
 
-				float mx = x % _size;
-				float my = y % _size;
+				float mx = (x % _size);
+				float my = (y % _size);
+				float mz = (z % _size);
 
 				mx += mx > 0 ? 0 : _size;
 				my += my > 0 ? 0 : _size;
+				mz += mz > 0 ? 0 : _size;
 
 				bool strokeX = mx < _stroke;
 				bool strokeY = my < _stroke;
+				bool strokeZ = mz < _stroke;
 
-				if (strokeX || strokeY) {
+				if (strokeX || strokeY || strokeZ) {
 					return _color;
 				}
 				return float4(0, 0, 0, 0);
