@@ -37,12 +37,11 @@ namespace CleanKit
 
 		public SelectionDelegate selectionDelegate;
 
-		private Button swarmButton;
+		public Button swarmButton;
 
 		void Awake ()
 		{
-			swarmButton = GameObject.Find ("SwarmButton").GetComponent<Button> ();
-			swarmButton.GetComponent<Button> ().onClick.AddListener (() => toggleSwarming ());
+//			swarmButton.onClick.AddListener (() => toggleSwarming ());
 		}
 
 		void Update ()
