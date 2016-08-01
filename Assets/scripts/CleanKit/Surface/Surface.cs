@@ -10,6 +10,7 @@ namespace CleanKit
 
 		Material surfaceMaterial;
 		Vector3 disclosurePoint = Vector3.zero;
+		float lastHighlightUpdate = 0.0f;
 
 		void Start ()
 		{
@@ -25,18 +26,23 @@ namespace CleanKit
 
 		void Update ()
 		{
-			if (disclosurePoint != Vector3.zero) {
-				Vector4 highlightVector = new Vector4 (
-					                          disclosurePoint.x, 
-					                          disclosurePoint.y,
-					                          disclosurePoint.z);
-				surfaceMaterial.SetVector ("_highlight", highlightVector);
-			}
+			Vector4 highlightVector = new Vector4 (
+				                          disclosurePoint.x, 
+				                          disclosurePoint.y,
+				                          disclosurePoint.z);
+			surfaceMaterial.SetVector ("_highlight", highlightVector);
+
+			float alpha = lastHighlightUpdate / 20.0f;
+			Color highlightColor = new Color (1, 0, 1, alpha);
+			surfaceMaterial.SetColor ("_color", highlightColor);
+
+			lastHighlightUpdate--;
 		}
 
 		public void DisclosePoint (Vector3 point)
 		{
 			disclosurePoint = point;
+			lastHighlightUpdate = 20.0f;
 		}
 	}
 }

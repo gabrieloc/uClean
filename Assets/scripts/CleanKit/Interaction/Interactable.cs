@@ -11,6 +11,8 @@ namespace CleanKit
 
 		float kHoverDistance = 2.0f;
 
+		GameObject ghost;
+
 		void Start ()
 		{
 			// TODO: Set destination
@@ -38,7 +40,8 @@ namespace CleanKit
 		void dragBegan (BaseEventData data)
 		{
 			EventSystem.current.SetSelectedGameObject (gameObject);
-			GetComponent<Rigidbody> ().isKinematic = true;
+			createGhost ();
+			dragUpdated (data);
 		}
 
 		void dragUpdated (BaseEventData data)
@@ -46,13 +49,13 @@ namespace CleanKit
 			PointerEventData pointerData = data as PointerEventData;
 			Vector3 screenPosition = pointerData.position;
 			Vector3 worldPosition = Camera.main.ScreenToWorldPoint (screenPosition);
-			transform.position = worldPosition;
+			ghost.transform.position = worldPosition;
 
 			Ray ray = Camera.main.ScreenPointToRay (screenPosition);
 			RaycastHit hitInfo;
 			int layerMask = Surface.LayerMask;
 
-			Vector3 dragPoint = transform.position;
+			Vector3 dragPoint = ghost.transform.position;
 			dragPoint.y -= kHoverDistance;
 
 			if (Physics.Raycast (dragPoint, ray.direction, out hitInfo, 100.0f, layerMask)) {
@@ -64,7 +67,33 @@ namespace CleanKit
 		void dragEnded (BaseEventData data)
 		{
 			EventSystem.current.SetSelectedGameObject (null);
-			GetComponent<Rigidbody> ().isKinematic = false;
+			destroyGhost ();
+		}
+
+		void createGhost ()
+		{
+			if (ghost != null) {
+				return;
+			}
+
+			ghost = GameObject.Instantiate (gameObject);
+			ghost.transform.SetParent (transform);
+			ghost.GetComponent<Rigidbody> ().isKinematic = true;
+
+			Shader ghostShader = Shader.Find ("CleanKit/Ghost");
+			Material ghostMaterial = new Material (ghostShader);
+			Renderer renderer = ghost.GetComponent<Renderer> ();
+			renderer.material = ghostMaterial;
+		}
+
+		void destroyGhost ()
+		{
+			if (ghost == null) {
+				return;
+			}
+
+			Destroy (ghost);
+			ghost = null;
 		}
 
 		// TODO: Refactor all this to use grid-based approach
