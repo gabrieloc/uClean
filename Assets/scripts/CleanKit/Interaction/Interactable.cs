@@ -9,6 +9,8 @@ namespace CleanKit
 	{
 		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("Interactable"); } }
 
+		float kHoverDistance = 2.0f;
+
 		void Start ()
 		{
 			// TODO: Set destination
@@ -49,7 +51,11 @@ namespace CleanKit
 			Ray ray = Camera.main.ScreenPointToRay (screenPosition);
 			RaycastHit hitInfo;
 			int layerMask = Surface.LayerMask;
-			if (Physics.Raycast (transform.position, ray.direction, out hitInfo, 100.0f, layerMask)) {
+
+			Vector3 dragPoint = transform.position;
+			dragPoint.y -= kHoverDistance;
+
+			if (Physics.Raycast (dragPoint, ray.direction, out hitInfo, 100.0f, layerMask)) {
 				Surface surface = hitInfo.transform.gameObject.GetComponent<Surface> ();
 				surface.DisclosePoint (hitInfo.point);
 			}

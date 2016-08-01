@@ -8,13 +8,15 @@ namespace CleanKit
 	{
 		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("Surface"); } }
 
+		Material surfaceMaterial;
 		Vector3 disclosurePoint = Vector3.zero;
 
 		void Start ()
 		{
 			gameObject.layer = UnityEngine.LayerMask.NameToLayer ("Surface");
 
-			Material surfaceMaterial = new Material (Shader.Find ("CleanKit/Surface"));
+			Shader surfaceShader = Shader.Find ("CleanKit/Surface");
+			surfaceMaterial = new Material (surfaceShader);
 			Renderer renderer = GetComponent<Renderer> ();
 			List<Material> materials = new List<Material> (renderer.materials);
 			materials.Add (surfaceMaterial);
@@ -24,7 +26,11 @@ namespace CleanKit
 		void Update ()
 		{
 			if (disclosurePoint != Vector3.zero) {
-					
+				Vector4 highlightVector = new Vector4 (
+					                          disclosurePoint.x, 
+					                          disclosurePoint.y,
+					                          disclosurePoint.z);
+				surfaceMaterial.SetVector ("_highlight", highlightVector);
 			}
 		}
 
