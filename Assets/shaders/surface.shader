@@ -5,6 +5,7 @@
 		_stroke ("Stroke", Float) = 0.05
 		_size ("Cell Size", Float) = 1.0
 		_color ("Color", Color) = (1, 0, 1, 1)
+		_highlight ("Highlight", Vector) = (0, 0, 0, 0)
 	}
 
 	SubShader
@@ -26,6 +27,7 @@
 			uniform float _stroke;
 			uniform float _size;
 			uniform float4 _color;
+			uniform float4 _highlight;
 
 			struct vertexInput {
 				float4 vertex: POSITION;
@@ -47,23 +49,24 @@
 			// Fragment shader
 			float4 frag(vertexOutput input): COLOR {
 
-				float x = input.worldPos.x;
-				float y = input.worldPos.y;
-				float z = input.worldPos.z;
+				bool colored = false;
+				bool highlighted = true;
 
-				float mx = (x % _size);
-				float my = (y % _size);
-				float mz = (z % _size);
+				for (int i = 0; i < 3; i++) {
+					float d = input.worldPos[i];
+					float md = d % _size;
+					if (md < 0) {
+						md += _size;
+					}
+					colored = colored | md < _stroke;
 
-				mx += mx > 0 ? 0 : _size;
-				my += my > 0 ? 0 : _size;
-				mz += mz > 0 ? 0 : _size;
+					float h = _highlight[i];
+					bool withinMaxHighlight = d > floor(h) * _size;
+					bool withinMinHighlight = d < (floor(h) + 1) * _size;
+					highlighted = highlighted && withinMaxHighlight && withinMinHighlight;
+				}
 
-				bool strokeX = mx < _stroke;
-				bool strokeY = my < _stroke;
-				bool strokeZ = mz < _stroke;
-
-				if (strokeX || strokeY || strokeZ) {
+				if (colored | highlighted) {
 					return _color;
 				}
 				return float4(0, 0, 0, 0);

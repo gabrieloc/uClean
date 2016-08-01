@@ -7,11 +7,14 @@ namespace CleanKit
 {
 	public partial class Interactable: MonoBehaviour
 	{
-		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("interactable"); } }
+		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("Interactable"); } }
 
 		void Start ()
 		{
 			// TODO: Set destination
+
+			int layermask = UnityEngine.LayerMask.NameToLayer ("Interactable");
+			gameObject.layer = layermask;
 
 			EventTrigger eventTrigger = gameObject.AddComponent<EventTrigger> ();
 			registerTriggerEntry (eventTrigger, EventTriggerType.BeginDrag, dragBegan);
@@ -33,6 +36,7 @@ namespace CleanKit
 		void dragBegan (BaseEventData data)
 		{
 			EventSystem.current.SetSelectedGameObject (gameObject);
+			GetComponent<Rigidbody> ().isKinematic = true;
 		}
 
 		void dragUpdated (BaseEventData data)
@@ -40,13 +44,21 @@ namespace CleanKit
 			PointerEventData pointerData = data as PointerEventData;
 			Vector3 screenPosition = pointerData.position;
 			Vector3 worldPosition = Camera.main.ScreenToWorldPoint (screenPosition);
-//			print ("point: " + screenPosition + " viewport: " + worldPosition);
 			transform.position = worldPosition;
+
+			Ray ray = Camera.main.ScreenPointToRay (screenPosition);
+			RaycastHit hitInfo;
+			int layerMask = Surface.LayerMask;
+			if (Physics.Raycast (transform.position, ray.direction, out hitInfo, 100.0f, layerMask)) {
+				Surface surface = hitInfo.transform.gameObject.GetComponent<Surface> ();
+				surface.DisclosePoint (hitInfo.point);
+			}
 		}
 
 		void dragEnded (BaseEventData data)
 		{
 			EventSystem.current.SetSelectedGameObject (null);
+			GetComponent<Rigidbody> ().isKinematic = false;
 		}
 
 		// TODO: Refactor all this to use grid-based approach
