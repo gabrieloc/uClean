@@ -8,7 +8,7 @@ namespace CleanKit
 		public float moveSensitivityX = 1.0f;
 		public float moveSensitivityY = 1.0f;
 		public bool updateZoomSensitivity = true;
-		public float orthoZoomSpeed = 0.05f;
+		public float orthoZoomSpeed = 1.0f;
 		public float minZoom = 1.0f;
 		public float maxZoom = 20.0f;
 
@@ -33,6 +33,11 @@ namespace CleanKit
 
 		void Update ()
 		{
+			if (Controls.InteractingWithScene ()) {
+				panDelta = Vector3.zero;
+				return;
+			}
+
 			Rect screenRect = new Rect (0, 0, Screen.width, Screen.height);
 			if (!screenRect.Contains (Input.mousePosition)) {
 				return;
@@ -40,9 +45,7 @@ namespace CleanKit
 
 			if (Input.GetMouseButtonDown (0)) {
 				panPosition = Input.mousePosition;
-			}
-
-			if (Input.GetMouseButton (0)) {
+			} else if (Input.GetMouseButton (0)) {
 				panDelta = Input.mousePosition - panPosition;
 				panPosition = Input.mousePosition;
 			} else {
@@ -54,12 +57,8 @@ namespace CleanKit
 				panDelta.x * moveSensitivityX * sensitivityMultiplier,
 				panDelta.y * moveSensitivityY * sensitivityMultiplier,
 				0);
-
-			if (Input.mousePresent) {
-				float scrollPosition = Input.GetAxis ("Mouse ScrollWheel");
-				_camera.orthographicSize -= (Input.mouseScrollDelta.y * sensitivityMultiplier);
-				_camera.orthographicSize = Mathf.Clamp (_camera.orthographicSize, minZoom, maxZoom);
-			}
+			_camera.orthographicSize += (Input.mouseScrollDelta.y * sensitivityMultiplier * orthoZoomSpeed);
+			_camera.orthographicSize = Mathf.Clamp (_camera.orthographicSize, minZoom, maxZoom);
 		}
 		#else
 		void Update ()

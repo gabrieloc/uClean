@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
 /*
@@ -33,26 +34,6 @@ namespace CleanKit
 		void Update ()
 		{
 			layoutIndicatorsIfNecessary ();
-
-			Interactable interactable;
-			if (panInputExists (out interactable)) {
-				
-			}
-		}
-
-		bool panInputExists (out Interactable interactable)
-		{
-			interactable = null;
-			GameObject selected = null;
-			if (Controls.PanInputExists (out selected)) {
-				bool selectedInteractable = selected.GetComponent<Interactable> ();
-				print (selectedInteractable);
-				if (selectedInteractable) {
-					interactable = selected.GetComponent<Interactable> ();
-				}
-				return selectedInteractable;
-			}
-			return false;
 		}
 
 		void layoutIndicatorsIfNecessary ()

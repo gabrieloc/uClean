@@ -46,11 +46,11 @@ namespace CleanKit
 			return Input.touchCount > 0 && Input.GetTouch (0).phase == TouchPhase.Began;	
 		}
 
-		public static bool PanInputExists (out GameObject panObject)
+		public static bool InteractingWithScene ()
 		{
 			EventSystem eventSystem = EventSystem.current;
-			panObject = eventSystem.currentSelectedGameObject;
-			return eventSystem.alreadySelecting;
+			GameObject interactingObject = eventSystem.currentSelectedGameObject;
+			return interactingObject != null;
 		}
 	}
 }
