@@ -11,7 +11,9 @@ namespace CleanKit
 
 		float kHoverDistance = 2.0f;
 
-		GameObject ghost;
+		InteractableGhost ghost;
+
+		Surface lastSurface;
 
 		void Start ()
 		{
@@ -48,19 +50,29 @@ namespace CleanKit
 		{
 			PointerEventData pointerData = data as PointerEventData;
 			Vector3 screenPosition = pointerData.position;
+			screenPosition.z = Camera.main.nearClipPlane;
 			Vector3 worldPosition = Camera.main.ScreenToWorldPoint (screenPosition);
-			ghost.transform.position = worldPosition;
 
 			Ray ray = Camera.main.ScreenPointToRay (screenPosition);
 			RaycastHit hitInfo;
 			int layerMask = Surface.LayerMask;
 
-			Vector3 dragPoint = ghost.transform.position;
+			Vector3 dragPoint = worldPosition;
 			dragPoint.y -= kHoverDistance;
-
+	
 			if (Physics.Raycast (dragPoint, ray.direction, out hitInfo, 100.0f, layerMask)) {
 				Surface surface = hitInfo.transform.gameObject.GetComponent<Surface> ();
-				surface.DisclosePoint (hitInfo.point);
+				Vector3 tilePosition = surface.DisclosePoint (hitInfo.point);
+				Vector3 point = tilePosition;
+				lastSurface = surface;
+
+				Bounds bounds = GetComponent<Renderer> ().bounds;
+				point.y = bounds.center.y;
+					
+				ghost.transform.position = point;
+			} else {
+				undiscloseSurface ();
+				ghost.SetDraggingTransform (worldPosition);
 			}
 		}
 
@@ -73,27 +85,30 @@ namespace CleanKit
 		void createGhost ()
 		{
 			if (ghost != null) {
-				return;
+				destroyGhost ();
 			}
 
-			ghost = GameObject.Instantiate (gameObject);
+			ghost = InteractableGhost.Instantiate (gameObject.GetComponent<Interactable> ());
 			ghost.transform.SetParent (transform);
-			ghost.GetComponent<Rigidbody> ().isKinematic = true;
+//			ghost.gameObject.transform.position = Vector3.zero;
 
-			Shader ghostShader = Shader.Find ("CleanKit/Ghost");
-			Material ghostMaterial = new Material (ghostShader);
-			Renderer renderer = ghost.GetComponent<Renderer> ();
-			renderer.material = ghostMaterial;
+			Destroy (ghost.GetComponent<Collider> ());
 		}
 
 		void destroyGhost ()
 		{
-			if (ghost == null) {
-				return;
+			if (ghost != null) {
+				undiscloseSurface ();
+				Destroy (ghost.gameObject);
+				ghost = null;
 			}
+		}
 
-			Destroy (ghost);
-			ghost = null;
+		void undiscloseSurface ()
+		{
+			if (lastSurface != null) {
+				lastSurface.Undisclose ();
+			}
 		}
 
 		// TODO: Refactor all this to use grid-based approach

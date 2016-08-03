@@ -9,8 +9,7 @@ namespace CleanKit
 		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("Surface"); } }
 
 		Material surfaceMaterial;
-		Vector3 disclosurePoint = Vector3.zero;
-		float lastHighlightUpdate = 0.0f;
+		Vector3? disclosurePoint;
 
 		void Start ()
 		{
@@ -22,27 +21,43 @@ namespace CleanKit
 			List<Material> materials = new List<Material> (renderer.materials);
 			materials.Add (surfaceMaterial);
 			renderer.materials = materials.ToArray ();
+
 		}
 
 		void Update ()
 		{
-			Vector4 highlightVector = new Vector4 (
-				                          disclosurePoint.x, 
-				                          disclosurePoint.y,
-				                          disclosurePoint.z);
-			surfaceMaterial.SetVector ("_highlight", highlightVector);
+			float cellSize = Grid.CellSize;
+			surfaceMaterial.SetFloat ("_size", cellSize);
 
-			float alpha = lastHighlightUpdate / 20.0f;
-			Color highlightColor = new Color (1, 0, 1, alpha);
+
+			Color highlightColor;
+			if (disclosurePoint.HasValue) {
+				Vector3 point = disclosurePoint.Value;
+
+				highlightColor = Color.blue;
+
+				Vector4 highlightVector = new Vector4 (
+					                          point.x, 
+					                          point.y,
+					                          point.z);
+				surfaceMaterial.SetVector ("_highlight", highlightVector);
+			} else {
+				highlightColor = Color.clear;
+			}
 			surfaceMaterial.SetColor ("_color", highlightColor);
-
-			lastHighlightUpdate--;
 		}
 
-		public void DisclosePoint (Vector3 point)
+		public Vector3 DisclosePoint (Vector3 point)
 		{
 			disclosurePoint = point;
-			lastHighlightUpdate = 20.0f;
+
+			Vector3 disclosePoint = Grid.ClosestIntersectingPoint (point);
+			return disclosePoint;
+		}
+
+		public void Undisclose ()
+		{
+			disclosurePoint = null;
 		}
 	}
 }

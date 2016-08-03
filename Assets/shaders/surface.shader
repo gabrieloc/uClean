@@ -51,18 +51,23 @@
 
 				bool colored = false;
 				bool highlighted = true;
+				float o = _size * 0.5;
 
 				for (int i = 0; i < 3; i++) {
 					float d = input.worldPos[i];
-					float md = d % _size;
-					if (md < 0) {
-						md += _size;
-					}
-					colored = colored | md < _stroke;
-
+					float md = d;
 					float h = _highlight[i];
-					bool withinMaxHighlight = d > floor(h) * _size;
-					bool withinMinHighlight = d < (floor(h) + 1) * _size;
+
+					if (d < 0) {
+						md -= o; 
+						colored = colored | (md % _size) + _size < _stroke;
+					} else {
+						md += o;
+						colored = colored | md % _size < _stroke;
+					}
+
+					bool withinMaxHighlight = d > (floor(h) - o) * _size;
+					bool withinMinHighlight = d < (floor(h) + 1 - o) * _size;
 					highlighted = highlighted && withinMaxHighlight && withinMinHighlight;
 				}
 

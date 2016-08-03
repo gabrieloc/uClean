@@ -5,8 +5,7 @@
 	}
 	SubShader
 	{
-		Tags { "Queue"="Transparent" }
-		LOD 100
+		Tags { "Queue"="Transparent+1" }
 
 		Pass
 		{
@@ -48,7 +47,7 @@
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				float4 col = float4(0, 0, 0, 0.25);
+				float4 col = float4(0, 0, 0, 0.5);
 				UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;
 			}
