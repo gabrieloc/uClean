@@ -1,4 +1,6 @@
-﻿Shader "CleanKit/Surface"
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+Shader "CleanKit/Surface"
 {
 	Properties
 	{
@@ -42,7 +44,7 @@
 			vertexOutput vert(vertexInput input) {
 				vertexOutput output;
 				output.pos = mul(UNITY_MATRIX_MVP, input.vertex);
-				output.worldPos = mul(_Object2World, input.vertex);
+				output.worldPos = mul(unity_ObjectToWorld, input.vertex);
 				return output;
 			}
 

@@ -4,14 +4,16 @@ using System.Collections;
 
 namespace CleanKit
 {
+	public enum Scene
+	{
+		Launch = 1,
+		Setup,
+		Room,
+		Playground
+	}
+
 	public class AppCoordinator : MonoBehaviour
 	{
-		enum Scene
-		{
-			Launch = 1,
-			Setup,
-			Room
-		}
 
 		public void RouteToSetup ()
 		{
