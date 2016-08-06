@@ -62,14 +62,20 @@ namespace CleanKit
 	
 			if (Physics.Raycast (dragPoint, ray.direction, out hitInfo, 100.0f, layerMask)) {
 				Surface surface = hitInfo.transform.gameObject.GetComponent<Surface> ();
-				Vector3 tilePosition = surface.DisclosePoint (hitInfo.point);
-				Vector3 point = tilePosition;
+				Vector3 hitPoint = hitInfo.point;
+				hitPoint.y = Mathf.Round (hitPoint.y); // Fixes issue with raycast being too precise
+
+				Bounds bounds = ghost.GetComponent<MeshRenderer> ().bounds;
+				Vector3 cellCenter = surface.DiscloseCells (hitPoint, bounds);
+//				Vector3 tilePosition = surface.DisclosePoint (hitPoint);
+
+
+				// TODO allow multiple points to be passed in representing collider edges to highlight many tiles
 				lastSurface = surface;
 
-				Bounds bounds = GetComponent<Renderer> ().bounds;
-				point.y = bounds.center.y;
+				cellCenter.y = bounds.center.y;
 					
-				ghost.transform.position = point;
+				ghost.transform.position = cellCenter;
 			} else {
 				undiscloseSurface ();
 				ghost.SetDraggingTransform (worldPosition);

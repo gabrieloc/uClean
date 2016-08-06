@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CleanKit
 {
@@ -29,7 +30,6 @@ namespace CleanKit
 			float cellSize = Grid.CellSize;
 			surfaceMaterial.SetFloat ("_size", cellSize);
 
-
 			Color highlightColor;
 			if (disclosurePoint.HasValue) {
 				Vector3 point = disclosurePoint.Value;
@@ -45,14 +45,32 @@ namespace CleanKit
 				highlightColor = Color.clear;
 			}
 			surfaceMaterial.SetColor ("_color", highlightColor);
+
+			for (int i = 0; i < vertList.Count; i++) {
+				int i2 = (i + 1) < vertList.Count ? i + 1 : 0;
+				Debug.DrawLine (vertList [i], vertList [i2], Color.green);
+			}
 		}
 
 		public Vector3 DisclosePoint (Vector3 point)
 		{
-			disclosurePoint = point;
+			disclosurePoint = Grid.ClosestIntersectingPoint (point);
+			return disclosurePoint.Value;
+		}
 
-			Vector3 disclosePoint = Grid.ClosestIntersectingPoint (point);
-			return disclosePoint;
+		List<Vector3> vertList = new List<Vector3> ();
+
+		public Vector3 DiscloseCells (Vector3 point, Bounds bounds)
+		{
+			Vector3 s = bounds.size;
+			Vector3[] verts = new Vector3[4];
+			verts [0] = bounds.center + new Vector3 (s.x, -s.y, s.z) * 0.5f;
+			verts [1] = bounds.center + new Vector3 (-s.x, -s.y, s.z) * 0.5f;
+			verts [2] = bounds.center + new Vector3 (-s.x, -s.y, -s.z) * 0.5f;
+			verts [3] = bounds.center + new Vector3 (s.x, -s.y, -s.z) * 0.5f;
+			vertList = verts.ToList ();
+
+			return DisclosePoint (point);
 		}
 
 		public void Undisclose ()

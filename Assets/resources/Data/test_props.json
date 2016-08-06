@@ -1,16 +1,22 @@
 {
+	"test": "A",
 	"props": [
 		{
-			"x": 	1,
-			"y": 	2,
-			"z":	0,
-			"name":	"CKCandy",
+			"name":	"CKFloss",
+			"x": 1,
+			"z": 1
 		},
 		{
-			"x": 	0,
-			"y": 	4,
-			"z":	0,
-			"name":	"CKFloss",
+			"name":	"CKComb",
+			"x": -1,
+			"z": -1
+		},
+		{
+			"name":	"CKMint",
+			"x": -1,
+			"z": 1,
+			"rw": 1
 		}
-	]	
+
+	]
 }

@@ -13,8 +13,18 @@ namespace CleanKit
 
 		public static GameObject CreateProp (PropInfo propInfo)
 		{
-			GameObject resource = Resources.Load<GameObject> (propInfo.name);
-			GameObject prop = GameObject.Instantiate (resource, propInfo.position, propInfo.rotation) as GameObject;
+			GameObject resource = Resources.Load<GameObject> ("Props/" + propInfo.name);
+			Vector3 position = propInfo.position;
+			Quaternion rotation = propInfo.rotation;
+			GameObject prop = GameObject.Instantiate (resource, position, rotation) as GameObject;
+			prop.transform.localEulerAngles = new Vector3 (-90.0f, 0.0f, 0.0f);
+
+			prop.AddComponent<Interactable> ();
+			prop.AddComponent<Rigidbody> ();
+
+			MeshCollider collider = prop.AddComponent<MeshCollider> ();
+			collider.convex = true;
+
 			return prop;
 		}
 	}

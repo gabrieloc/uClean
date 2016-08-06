@@ -6,13 +6,14 @@ namespace CleanKit
 	[System.Serializable]
 	public class RoomInfo
 	{
-		public List<PropInfo> props { get; private set; }
+		public string test;
+		public PropInfo[] props;
 
 		public static RoomInfo CreatePlayground ()
 		{
-			string config = "test_props";
-			TextAsset json = Resources.Load<TextAsset> ("Data/" + config);
-			RoomInfo roomInfo = JsonUtility.FromJson<RoomInfo> (json.text);
+			TextAsset jsonAsset = Resources.Load<TextAsset> ("Data/test_props");
+			string json = jsonAsset.text;
+			RoomInfo roomInfo = JsonUtility.FromJson<RoomInfo> (json);
 			return roomInfo;
 		}
 	}

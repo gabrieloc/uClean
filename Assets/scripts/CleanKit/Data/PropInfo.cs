@@ -7,8 +7,15 @@ namespace CleanKit
 	public class PropInfo
 	{
 		public string name;
-		public Vector3 position;
-		public Quaternion rotation;
+		public float x;
+		public float y;
+		public float z;
+
+		public float rw;
+
+		public Vector3 position { get { return new Vector3 (x, y, z); } }
+
+		public Quaternion rotation { get { return new Quaternion (0, 1, 0, rw); } }
 
 		public static PropInfo CreateFromJSON (string jsonString)
 		{
