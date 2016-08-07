@@ -12,6 +12,7 @@ namespace CleanKit
 		Material surfaceMaterial;
 		Vector3? disclosurePoint;
 		Vector3? disclosureSize;
+		bool disclosureValid;
 
 		void Start ()
 		{
@@ -34,7 +35,7 @@ namespace CleanKit
 			Color highlightColor;
 			if (disclosurePoint.HasValue && disclosureSize.HasValue) {
 				
-				highlightColor = Color.blue;
+				highlightColor = disclosureValid ? Color.blue : Color.red;
 
 				Vector3 position = disclosurePoint.Value;
 				Vector4 highlightPosition = new Vector4 (position.x, position.y, position.z);
@@ -44,21 +45,24 @@ namespace CleanKit
 				Vector4 highlightSize = new Vector4 (size.x, size.y, size.z);
 				surfaceMaterial.SetVector ("_highlightSize", highlightSize);
 			} else {
-				highlightColor = Color.red;//clear;
+				highlightColor = Color.gray;
+				surfaceMaterial.SetVector ("_highlightPosition", Vector4.zero);
+				surfaceMaterial.SetVector ("_highlightSize", Vector4.zero);
 			}
 			surfaceMaterial.SetColor ("_color", highlightColor);
 		}
 
-		public Vector3 DisclosePoint (Vector3 point)
+		public Vector3 DisclosePoint (Vector3 point, bool valid)
 		{
 			disclosurePoint = Grid.ClosestIntersectingPoint (point);
+			disclosureValid = valid;
 			return disclosurePoint.Value;
 		}
 
-		public Vector3 DiscloseCells (Vector3 point, Bounds bounds)
+		public Vector3 DiscloseCells (Vector3 point, bool valid, Vector3 size)
 		{
-			disclosureSize = Grid.ClosestIntersectingCell (bounds.size);
-			return DisclosePoint (point);
+			disclosureSize = Grid.ClosestIntersectingCell (size);
+			return DisclosePoint (point, valid);
 		}
 
 		public void Undisclose ()

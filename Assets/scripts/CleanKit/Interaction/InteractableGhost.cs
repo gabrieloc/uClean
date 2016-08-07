@@ -27,7 +27,8 @@ namespace CleanKit
 			}
 			renderer.materials = ghostMaterials;
 
-			Destroy (ghost.GetComponent<Collider> ());
+			Collider collider = ghost.GetComponent<Collider> ();
+			collider.isTrigger = true;
 
 			return ghost;
 		}
@@ -45,6 +46,30 @@ namespace CleanKit
 			// 		let them provide desired transform
 			//		Will need to be per-object
 			transform.rotation = new Quaternion ();
+		}
+
+		public bool CollisionWithInteractables { get; private set; }
+
+		void OnTriggerStay (Collider otherCollider)
+		{
+			if (shouldColliderUpdateValidity (otherCollider)) {
+				CollisionWithInteractables = true;
+			}
+		}
+
+		void OnTriggerExit (Collider otherCollider)
+		{
+			if (shouldColliderUpdateValidity (otherCollider)) {
+				CollisionWithInteractables = false;
+			}
+		}
+
+		bool shouldColliderUpdateValidity (Collider collider)
+		{
+			GameObject otherGameObject = collider.gameObject;
+			bool notParent = otherGameObject.transform.Equals (transform.parent) == false;
+			bool isInteractable = otherGameObject.GetComponent<Interactable> () != null;
+			return notParent && isInteractable;
 		}
 	}
 }

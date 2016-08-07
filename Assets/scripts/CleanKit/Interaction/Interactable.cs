@@ -63,16 +63,11 @@ namespace CleanKit
 				Vector3 hitPoint = hitInfo.point;
 				hitPoint.y = Mathf.Round (hitPoint.y); // Fixes issue with raycast being too precise
 
-				Bounds bounds = ghost.GetComponent<MeshRenderer> ().bounds;
-				Vector3 cellCenter = surface.DiscloseCells (hitPoint, bounds);
-//				Vector3 tilePosition = surface.DisclosePoint (hitPoint);
+				Vector3 size = ghost.GetComponent<Collider> ().bounds.size;
+				bool valid = ghost.CollisionWithInteractables == false;
+				Vector3 cellCenter = surface.DiscloseCells (hitPoint, valid, size);
 
-
-				// TODO allow multiple points to be passed in representing collider edges to highlight many tiles
 				lastSurface = surface;
-
-				cellCenter.y = hitPoint.y + bounds.size.y;
-					
 				ghost.transform.position = cellCenter;
 			} else {
 				undiscloseSurface ();
@@ -94,9 +89,6 @@ namespace CleanKit
 
 			ghost = InteractableGhost.Instantiate (gameObject.GetComponent<Interactable> ());
 			ghost.transform.SetParent (transform);
-//			ghost.gameObject.transform.position = Vector3.zero;
-
-			Destroy (ghost.GetComponent<Collider> ());
 		}
 
 		void destroyGhost ()
