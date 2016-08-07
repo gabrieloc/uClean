@@ -1,10 +1,8 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-
-Shader "CleanKit/Surface"
+﻿Shader "CleanKit/Surface"
 {
 	Properties
 	{
-		_stroke ("Stroke", Float) = 0.05
+		_stroke ("Stroke", Float) = 0.01
 		_size ("Cell Size", Float) = 1.0
 		_color ("Color", Color) = (1, 0, 1, 1)
 		_highlightPosition ("Highlight Position", Vector) = (0, 0, 0, 0)

@@ -1,5 +1,4 @@
 {
-	"test": "A",
 	"props": [
 		{
 			"name":	"CKFloss",
@@ -14,9 +13,57 @@
 		{
 			"name":	"CKMint",
 			"x": -1,
-			"z": 1,
-			"rw": 1
+			"z": 1		
+		},
+		{
+			"name": "CKCandle-m",
+			"x": 2,
+			"z": 3
+		},
+		{
+			"name": "CKCandle-s",
+			"x": 0,
+			"z": 3
+		},
+		{
+			"name": "CKCream",
+			"x": -2,
+			"z": 3
+		},
+		{
+			"name": "CKEarpick",
+			"x": -3,
+			"z": 0
+		},
+		{
+			"name": "CKNailclipper",
+			"x": 3,
+			"z": 0
+		},
+		{
+			"name": "CKRazor",
+			"x": -4,
+			"z": 0
+		},
+		{
+			"name": "CKToothbrush",
+			"x": 0,
+			"z": -2
+		},
+		{
+			"name": "CKToothpaste",
+			"x": 0,
+			"z": -3
+		},
+		{
+			"name": "CKTweezers",
+			"x": -5,
+			"z": 0
+		},
+		{
+			"name": "CKWax",
+			"x": 4,
+			"z": 2
 		}
-
 	]
 }

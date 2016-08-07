@@ -8,8 +8,8 @@ namespace CleanKit
 		public float moveSensitivityX = 1.0f;
 		public float moveSensitivityY = 1.0f;
 		public bool updateZoomSensitivity = true;
-		public float orthoZoomSpeed = 1.0f;
-		public float minZoom = 1.0f;
+		public float zoomSpeed = 1.0f;
+		public float minZoom = 0.0f;
 		public float maxZoom = 20.0f;
 
 		public float panDecelerationCurve = 0.75f;
@@ -27,7 +27,7 @@ namespace CleanKit
 
 		#if UNITY_EDITOR
 
-		public float mouseSensitivityCurve = 0.0125f;
+		public float mouseSensitivityCurve = 0.25f;
 
 		Vector3 panDelta = new Vector3 ();
 
@@ -52,13 +52,23 @@ namespace CleanKit
 				panDelta *= panDecelerationCurve;
 			}
 
-			float sensitivityMultiplier = 1.0f - Mathf.Pow (_camera.orthographicSize, mouseSensitivityCurve);
-			_camera.transform.Translate (
-				panDelta.x * moveSensitivityX * sensitivityMultiplier,
-				panDelta.y * moveSensitivityY * sensitivityMultiplier,
-				0);
-			_camera.orthographicSize += (Input.mouseScrollDelta.y * sensitivityMultiplier * orthoZoomSpeed);
-			_camera.orthographicSize = Mathf.Clamp (_camera.orthographicSize, minZoom, maxZoom);
+			float sensitivityMultiplier = 0.0f;
+			Ray ray = _camera.ViewportPointToRay (new Vector3 (0.5f, 0.5f, 0.0f));
+			RaycastHit hit;
+			if (Physics.Raycast (ray, out hit)) {
+				float distance = hit.distance;
+				float distanceMultiple = distance / maxZoom;
+				sensitivityMultiplier = Mathf.Pow (distanceMultiple, 2);
+				print (distanceMultiple + " -> " + sensitivityMultiplier);
+			}
+
+			// TODO install max and min zoom
+			float z = Input.mouseScrollDelta.y * sensitivityMultiplier * zoomSpeed;
+			Vector3 translate = new Vector3 (
+				                    panDelta.x * moveSensitivityX * sensitivityMultiplier * -0.01f,
+				                    panDelta.y * moveSensitivityY * sensitivityMultiplier * -0.01f,
+				                    z);
+			_camera.transform.Translate (translate);
 		}
 		#else
 		void Update ()
