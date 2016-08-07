@@ -9,10 +9,19 @@ namespace CleanKit
 
 		public static Vector3 ClosestIntersectingPoint (Vector3 point)
 		{
-			Vector3 cell = new Vector3 (
-				               Mathf.Floor (point.x / CellSize),
-				               Mathf.Floor (point.y / CellSize),
-				               Mathf.Floor (point.z / CellSize));
+			Vector3 cell = new Vector3 ();
+			for (int i = 0; i < 3; i++) {
+				cell [i] = Mathf.Floor ((point [i] + CellSize * 0.5f));// / CellSize);
+			}
+			return cell;
+		}
+
+		public static Vector3 ClosestIntersectingCell (Vector3 point)
+		{
+			Vector3 cell = new Vector3 ();
+			for (int i = 0; i < 3; i++) {
+				cell [i] = Mathf.Ceil (point [i] * CellSize);
+			}
 			return cell;
 		}
 	}

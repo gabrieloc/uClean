@@ -9,8 +9,6 @@ namespace CleanKit
 	{
 		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("Interactable"); } }
 
-		float kHoverDistance = 2.0f;
-
 		InteractableGhost ghost;
 
 		Surface lastSurface;
@@ -58,7 +56,7 @@ namespace CleanKit
 			int layerMask = Surface.LayerMask;
 
 			Vector3 dragPoint = worldPosition;
-			dragPoint.y -= kHoverDistance;
+			// TODO have ghost animate out of touch point
 	
 			if (Physics.Raycast (dragPoint, ray.direction, out hitInfo, 100.0f, layerMask)) {
 				Surface surface = hitInfo.transform.gameObject.GetComponent<Surface> ();
@@ -73,7 +71,7 @@ namespace CleanKit
 				// TODO allow multiple points to be passed in representing collider edges to highlight many tiles
 				lastSurface = surface;
 
-				cellCenter.y = bounds.center.y;
+				cellCenter.y = hitPoint.y + bounds.size.y;
 					
 				ghost.transform.position = cellCenter;
 			} else {

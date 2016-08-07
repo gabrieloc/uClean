@@ -7,7 +7,8 @@ Shader "CleanKit/Surface"
 		_stroke ("Stroke", Float) = 0.05
 		_size ("Cell Size", Float) = 1.0
 		_color ("Color", Color) = (1, 0, 1, 1)
-		_highlight ("Highlight", Vector) = (0, 0, 0, 0)
+		_highlightPosition ("Highlight Position", Vector) = (0, 0, 0, 0)
+		_highlightSize ("Highlight Size", Vector) = (0, 0, 0, 0)
 	}
 
 	SubShader
@@ -29,7 +30,8 @@ Shader "CleanKit/Surface"
 			uniform float _stroke;
 			uniform float _size;
 			uniform float4 _color;
-			uniform float4 _highlight;
+			uniform float4 _highlightPosition;
+			uniform float4 _highlightSize;
 
 			struct vertexInput {
 				float4 vertex: POSITION;
@@ -58,7 +60,7 @@ Shader "CleanKit/Surface"
 				for (int i = 0; i < 3; i++) {
 					float d = input.worldPos[i];
 					float md = d;
-					float h = _highlight[i];
+					float h = _highlightPosition[i];
 
 					if (d < 0) {
 						md -= o; 
@@ -68,8 +70,15 @@ Shader "CleanKit/Surface"
 						colored = colored | md % _size < _stroke;
 					}
 
-					bool withinMaxHighlight = d > (floor(h) - o) * _size;
-					bool withinMinHighlight = d < (floor(h) + 1 - o) * _size;
+					float minO = _highlightSize[i] * _size * 0.5f;
+					float maxO = minO;
+
+					if (_highlightSize[i] % 2 == 0) {
+						minO -= _size * 0.5f;
+						maxO += _size * 0.5f;
+					}
+					bool withinMaxHighlight = d > (floor(h) - minO);
+					bool withinMinHighlight = d < (floor(h) + maxO);
 					highlighted = highlighted && withinMaxHighlight && withinMinHighlight;
 				}
 
