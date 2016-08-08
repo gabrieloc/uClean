@@ -5,18 +5,25 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
+	public interface InteractableDelegate
+	{
+		void InstructionCreated (Interactable interactable, Instruction instruction);
+	}
+
 	public partial class Interactable: MonoBehaviour
 	{
+		public InteractableDelegate interactableDelegate;
+
 		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("Interactable"); } }
 
 		InteractableGhost ghost;
 
 		Surface lastSurface;
 
+		Instruction currentInstruction;
+
 		void Start ()
 		{
-			// TODO: Set destination
-
 			int layermask = UnityEngine.LayerMask.NameToLayer ("Interactable");
 			gameObject.layer = layermask;
 
@@ -78,7 +85,16 @@ namespace CleanKit
 		void dragEnded (BaseEventData data)
 		{
 			EventSystem.current.SetSelectedGameObject (null);
+			bool validPosition = ghost.CollisionWithInteractables == false;
 			destroyGhost ();
+
+			if (validPosition) {
+				Instruction instruction = new Instruction ();
+				instruction.assignee = this;
+				instruction.interactionType = InteractionType.Move;
+				currentInstruction = instruction;
+				interactableDelegate.InstructionCreated (this, instruction);
+			}
 		}
 
 		void createGhost ()

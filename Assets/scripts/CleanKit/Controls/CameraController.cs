@@ -59,7 +59,6 @@ namespace CleanKit
 				float distance = hit.distance;
 				float distanceMultiple = distance / maxZoom;
 				sensitivityMultiplier = Mathf.Pow (distanceMultiple, 2);
-				print (distanceMultiple + " -> " + sensitivityMultiplier);
 			}
 
 			// TODO install max and min zoom

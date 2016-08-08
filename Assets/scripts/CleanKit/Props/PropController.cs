@@ -1,20 +1,19 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public class PropController : MonoBehaviour
+	public partial class PropController : MonoBehaviour, InteractableDelegate
 	{
 		public int initialSpawn = 10;
 		public float displacement = 2.0f;
 		public float kMaxScale = 10.0f;
 
-		InteractionController interactionController;
+		public InteractionController interactionController;
+		public InstructionController instructionController;
 
 		void Start ()
 		{
-			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
-
 			for (int index = 0; index < initialSpawn; index++) {
 				SpawnRandomProp ();
 			}
@@ -46,6 +45,14 @@ namespace CleanKit
 			interactable.SetDestination (destination);
 			interactable.AddInteractionType (InteractionType.Move);
 			interactionController.Interactables.Add (interactable);
+		}
+
+		// InteractableDelegate
+
+
+		public void InstructionCreated (Interactable interactable, Instruction instruction)
+		{
+			instructionController.EnqueueInstruction (instruction);
 		}
 	}
 }
