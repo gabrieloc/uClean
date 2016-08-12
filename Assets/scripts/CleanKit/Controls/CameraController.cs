@@ -15,14 +15,42 @@ namespace CleanKit
 		public float panDecelerationCurve = 0.75f;
 		public float zoomDecelerationCurve = 0.8f;
 
-		private Vector3 panPosition;
-		private float zoomValue;
+		Vector3 panPosition;
+		float zoomValue;
 
-		private Camera _camera;
+		Camera _camera;
+
+		Vector3? moveTowardsPoint;
 
 		void Start ()
 		{
 			_camera = Camera.main;
+		}
+
+		void Update ()
+		{
+			if (moveTowardsPoint.HasValue) {
+				Vector3 destinationPosition = new Vector3 (
+					                              moveTowardsPoint.Value.x - 10.0f,
+					                              _camera.transform.position.y,
+					                              moveTowardsPoint.Value.z + 10.0f);
+				Vector3 position = Vector3.MoveTowards (
+					                   _camera.transform.position,
+					                   destinationPosition, 
+					                   Time.deltaTime * 10.0f);
+				_camera.transform.position = position;
+
+				if (Vector3.Distance (position, moveTowardsPoint.Value) < 0.1f) {
+					moveTowardsPoint = null;
+				}
+			}
+
+			updateInput ();
+		}
+
+		public void LookAtPoint (Vector3 point)
+		{
+			moveTowardsPoint = point;
 		}
 
 		#if UNITY_EDITOR
@@ -31,7 +59,7 @@ namespace CleanKit
 
 		Vector3 panDelta = new Vector3 ();
 
-		void Update ()
+		void updateInput ()
 		{
 			if (Controls.InteractingWithScene ()) {
 				panDelta = Vector3.zero;
@@ -41,6 +69,10 @@ namespace CleanKit
 			Rect screenRect = new Rect (0, 0, Screen.width, Screen.height);
 			if (!screenRect.Contains (Input.mousePosition)) {
 				return;
+			}
+
+			if (Input.GetMouseButtonDown (0) || Input.GetMouseButton (0)) {
+				moveTowardsPoint = null;
 			}
 
 			if (Input.GetMouseButtonDown (0)) {
@@ -70,7 +102,7 @@ namespace CleanKit
 			_camera.transform.Translate (translate);
 		}
 		#else
-		void Update ()
+		void updateInput ()
 		{
 			if (updateZoomSensitivity) {
 				moveSensitivityX = _camera.orthographicSize / 5.0f;

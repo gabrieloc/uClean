@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using System.Collections;
 
 namespace CleanKit
@@ -10,15 +11,27 @@ namespace CleanKit
 			GameObject clone = Instantiate (interactable.gameObject,
 				                   interactable.gameObject.transform.position,
 				                   interactable.gameObject.transform.rotation) as GameObject;
-
+			Destroy (clone.GetComponent<EventTrigger> ());
 			clone.gameObject.AddComponent<InteractableGhost> ();
 
 			InteractableGhost ghost = clone.GetComponent<InteractableGhost> ();
 
 			clone.GetComponent<Rigidbody> ().isKinematic = true;
+
+			Collider collider = ghost.GetComponent<Collider> ();
+			collider.isTrigger = true;
+
+			return ghost;
+		}
+
+		public void SetHighlighted (bool highlight)
+		{
 			Shader ghostShader = Shader.Find ("CleanKit/Ghost");
 			Material ghostMaterial = new Material (ghostShader);
-			Renderer renderer = ghost.GetComponent<Renderer> ();
+			Color color = highlight ? Color.blue : Color.gray;
+			color.a = 0.5f;
+			ghostMaterial.SetColor ("_color", color);
+			Renderer renderer = GetComponent<Renderer> ();
 
 			int materialCount = renderer.materials.Length;
 			Material[] ghostMaterials = new Material[materialCount];
@@ -26,11 +39,6 @@ namespace CleanKit
 				ghostMaterials [i] = ghostMaterial;
 			}
 			renderer.materials = ghostMaterials;
-
-			Collider collider = ghost.GetComponent<Collider> ();
-			collider.isTrigger = true;
-
-			return ghost;
 		}
 
 		public void SetDraggingTransform (Vector3 withPosition)

@@ -20,8 +20,6 @@ namespace CleanKit
 
 		Surface lastSurface;
 
-		Instruction currentInstruction;
-
 		void Start ()
 		{
 			int layermask = UnityEngine.LayerMask.NameToLayer ("Interactable");
@@ -42,6 +40,15 @@ namespace CleanKit
 			UnityAction<BaseEventData> action = new UnityAction<BaseEventData> (callback);
 			entry.callback.AddListener (action);
 			eventTrigger.triggers.Add (entry);
+		}
+
+		// Instructions
+
+		public void FocusOnInstruction (Instruction instruction)
+		{
+			createGhost (true);
+			ghost.transform.position = instruction.destination.position;
+			ghost.transform.rotation = instruction.destination.rotation;
 		}
 
 		void dragBegan (BaseEventData data)
@@ -85,6 +92,7 @@ namespace CleanKit
 		void dragEnded (BaseEventData data)
 		{
 			EventSystem.current.SetSelectedGameObject (null);
+			Transform destination = ghost.transform;
 			bool validPosition = ghost.CollisionWithInteractables == false;
 			destroyGhost ();
 
@@ -92,18 +100,19 @@ namespace CleanKit
 				Instruction instruction = new Instruction ();
 				instruction.assignee = gameObject.GetComponent<Interactable> ();
 				instruction.interactionType = InteractionType.Move;
-				currentInstruction = instruction;
+				instruction.destination = destination;
 				interactableDelegate.InstructionCreated (instruction.assignee, instruction);
 			}
 		}
 
-		void createGhost ()
+		void createGhost (bool highlight = false)
 		{
 			if (ghost != null) {
 				destroyGhost ();
 			}
 
 			ghost = InteractableGhost.Instantiate (gameObject.GetComponent<Interactable> ());
+			ghost.SetHighlighted (highlight);
 			ghost.transform.SetParent (transform);
 		}
 

@@ -7,5 +7,6 @@ namespace CleanKit
 	{
 		public InteractionType interactionType;
 		public Interactable assignee;
+		public Transform destination;
 	}
 }

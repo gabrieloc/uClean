@@ -44,6 +44,8 @@ namespace CleanKit
 			GameObject.Destroy (cellInteractable.GetComponent<Collider> ());
 			GameObject.Destroy (cellInteractable.GetComponent<Interactable> ());
 			GameObject.Destroy (cellInteractable.GetComponent<Rigidbody> ());
+
+			// TODO consider renderering to image for performance?
 		}
 	}
 }

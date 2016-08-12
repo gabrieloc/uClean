@@ -2,6 +2,7 @@
 {
 	Properties
 	{
+		_color ("Color", Color) = (1, 0, 1, 1)
 	}
 	SubShader
 	{
@@ -17,7 +18,10 @@
 			#pragma fragment frag
 			// make fog work
 			#pragma multi_compile_fog
-			
+
+			uniform float4 _color;
+
+
 			#include "UnityCG.cginc"
 
 			struct appdata
@@ -47,7 +51,7 @@
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				float4 col = float4(0, 0, 0, 0.5);
+				float4 col = _color;
 				UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;
 			}

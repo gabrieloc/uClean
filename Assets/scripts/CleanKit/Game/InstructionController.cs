@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,9 +21,11 @@ namespace CleanKit
 			GameObject instructionGameObject = GameObject.Instantiate (resource);
 			InstructionCell cell = instructionGameObject.GetComponent<InstructionCell> ();
 			cell.SetInstruction (instruction);
+			cell.GetComponent<Button> ().onClick.AddListener (() => didSelectInstructionCell (cell));
 			instructionGameObject.transform.SetParent (cellContainer);
-
 			instructionGameObject.transform.localScale = Vector3.one;
+
+			focusOnInstruction (instruction);
 
 			// TODO animate enqueue
 		}
@@ -43,6 +46,23 @@ namespace CleanKit
 				}
 			}
 			return null;
+		}
+
+		void didSelectInstructionCell (InstructionCell cell)
+		{
+			focusOnInstruction (cell.instruction);	
+		}
+
+		void focusOnInstruction (Instruction instruction)
+		{
+			Interactable assignee = instruction.assignee;
+			assignee.FocusOnInstruction (instruction);
+
+			Vector3 focusPoint = instruction.destination.position;
+			CameraController camera = Camera.main.GetComponent<CameraController> ();
+			camera.LookAtPoint (focusPoint);
+
+			// TODO figure out how to have camera center object on screen
 		}
 	}
 }
