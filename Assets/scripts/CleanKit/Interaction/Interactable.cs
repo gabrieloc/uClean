@@ -90,10 +90,10 @@ namespace CleanKit
 
 			if (validPosition) {
 				Instruction instruction = new Instruction ();
-				instruction.assignee = this;
+				instruction.assignee = gameObject.GetComponent<Interactable> ();
 				instruction.interactionType = InteractionType.Move;
 				currentInstruction = instruction;
-				interactableDelegate.InstructionCreated (this, instruction);
+				interactableDelegate.InstructionCreated (instruction.assignee, instruction);
 			}
 		}
 
