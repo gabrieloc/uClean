@@ -33,7 +33,7 @@ namespace CleanKit
 				GameObject prop = PropLoader.CreateProp (propInfo);
 				Interactable interactable = prop.GetComponent<Interactable> ();
 				interactable.interactableDelegate = propController;
-				prop.transform.SetParent (transform);
+				prop.transform.SetParent (propController.transform);
 			}
 		}
 	}

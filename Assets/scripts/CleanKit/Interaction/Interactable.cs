@@ -7,7 +7,7 @@ namespace CleanKit
 {
 	public interface InteractableDelegate
 	{
-		void InstructionCreated (Interactable interactable, Instruction instruction);
+		void InteractableMovedToDestination (Interactable interactable, Destination destination);
 	}
 
 	public partial class Interactable: MonoBehaviour
@@ -15,8 +15,6 @@ namespace CleanKit
 		public InteractableDelegate interactableDelegate;
 
 		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("Interactable"); } }
-
-		InteractableGhost ghost;
 
 		Surface lastSurface;
 
@@ -26,6 +24,7 @@ namespace CleanKit
 			gameObject.layer = layermask;
 
 			EventTrigger eventTrigger = gameObject.AddComponent<EventTrigger> ();
+			registerTriggerEntry (eventTrigger, EventTriggerType.PointerDown, dragBegan);
 			registerTriggerEntry (eventTrigger, EventTriggerType.BeginDrag, dragBegan);
 			registerTriggerEntry (eventTrigger, EventTriggerType.Drag, dragUpdated);
 			registerTriggerEntry (eventTrigger, EventTriggerType.EndDrag, dragEnded);
@@ -44,17 +43,22 @@ namespace CleanKit
 
 		// Instructions
 
-		public void FocusOnInstruction (Instruction instruction)
+		public bool IsGhostVisible ()
 		{
-			createGhost (true);
-			ghost.transform.position = instruction.destination.position;
-			ghost.transform.rotation = instruction.destination.rotation;
+			return destination != null && destination.IsGhostVisible ();
+		}
+
+		public void SetGhostVisible (bool visible, bool highlighted = false)
+		{
+			destination.SetGhostVisible (visible, highlighted);
 		}
 
 		void dragBegan (BaseEventData data)
 		{
 			EventSystem.current.SetSelectedGameObject (gameObject);
-			createGhost ();
+			if (destination == null) {
+				createDestination ();
+			}
 			dragUpdated (data);
 		}
 
@@ -64,7 +68,6 @@ namespace CleanKit
 			Vector3 screenPosition = pointerData.position;
 			screenPosition.z = Camera.main.nearClipPlane;
 			Vector3 worldPosition = Camera.main.ScreenToWorldPoint (screenPosition);
-
 			Ray ray = Camera.main.ScreenPointToRay (screenPosition);
 			RaycastHit hitInfo;
 			int layerMask = Surface.LayerMask;
@@ -72,6 +75,8 @@ namespace CleanKit
 			Vector3 dragPoint = worldPosition;
 			// TODO have ghost animate out of touch point
 	
+			InteractableGhost ghost = destination.ghost;
+
 			if (Physics.Raycast (dragPoint, ray.direction, out hitInfo, 100.0f, layerMask)) {
 				Surface surface = hitInfo.transform.gameObject.GetComponent<Surface> ();
 				Vector3 hitPoint = hitInfo.point;
@@ -92,37 +97,30 @@ namespace CleanKit
 		void dragEnded (BaseEventData data)
 		{
 			EventSystem.current.SetSelectedGameObject (null);
-			Transform destination = ghost.transform;
-			bool validPosition = ghost.CollisionWithInteractables == false;
-			destroyGhost ();
 
-			if (validPosition) {
-				Instruction instruction = new Instruction ();
-				instruction.assignee = gameObject.GetComponent<Interactable> ();
-				instruction.interactionType = InteractionType.Move;
-				instruction.destination = destination;
-				interactableDelegate.InstructionCreated (instruction.assignee, instruction);
-			}
-		}
-
-		void createGhost (bool highlight = false)
-		{
-			if (ghost != null) {
-				destroyGhost ();
-			}
-
-			ghost = InteractableGhost.Instantiate (gameObject.GetComponent<Interactable> ());
-			ghost.SetHighlighted (highlight);
-			ghost.transform.SetParent (transform);
-		}
-
-		void destroyGhost ()
-		{
-			if (ghost != null) {
+			if (destination.IsGhostPositionValid ()) {
 				undiscloseSurface ();
-				Destroy (ghost.gameObject);
-				ghost = null;
+				destination.SetGhostVisible (false);
+				interactableDelegate.InteractableMovedToDestination (this, destination);
+			} else {
+				discardDestination ();
 			}
+		}
+
+		void createDestination (bool highlight = false)
+		{
+			InteractableGhost ghost = InteractableGhost.Instantiate (gameObject);
+				
+			destination = Destination.Instantiate (transform.position, Vector3.up, ghost);
+			destination.transform.SetParent (transform);
+
+			destination.SetGhostVisible (true, false);
+		}
+
+		void discardDestination ()
+		{
+			undiscloseSurface ();
+			Destroy (destination);
 		}
 
 		void undiscloseSurface ()

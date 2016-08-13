@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System;
+using System.Collections.Generic;
 
 namespace CleanKit
 {
@@ -31,14 +32,14 @@ namespace CleanKit
 			return false;
 		}
 
-		private static bool inputAvailable ()
+		public static bool InputExists ()
 		{
 			return pointerInputAvailable () || touchInputAvailable ();	
 		}
 
 		private static bool pointerInputAvailable ()
 		{
-			return Input.GetMouseButtonDown (0);
+			return Input.GetMouseButton (0);
 		}
 
 		private static bool touchInputAvailable ()
@@ -51,6 +52,13 @@ namespace CleanKit
 			EventSystem eventSystem = EventSystem.current;
 			GameObject interactingObject = eventSystem.currentSelectedGameObject;
 			return interactingObject != null;
+		}
+
+		public static bool InteractingWithObjects (List<GameObject> gameObjects)
+		{
+			EventSystem eventSystem = EventSystem.current;
+			GameObject interactingObject = eventSystem.currentSelectedGameObject;
+			return gameObjects.Contains (interactingObject);
 		}
 	}
 }

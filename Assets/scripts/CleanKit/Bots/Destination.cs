@@ -7,14 +7,21 @@ namespace CleanKit
 		public bool Live;
 		private float radius;
 
-		public static Destination Instantiate (Vector3 point, Vector3 normal)
+		public InteractableGhost ghost { get { return GetComponentInChildren<InteractableGhost> (); } }
+
+		public static Destination Instantiate (Vector3 point, Vector3 normal, InteractableGhost ghost = null)
 		{
 			Vector3 relativeForward = Vector3.Cross (normal, Vector3.forward);
 			Quaternion rotation = Quaternion.LookRotation (relativeForward, normal);
 				
-			GameObject gameObject = Instantiate (Resources.Load ("Destination"), point, rotation) as GameObject;
-			Destination Destination = gameObject.GetComponent<Destination> ();
-			return Destination;
+			GameObject gameObject = Instantiate (Resources.Load ("Room/Destination"), point, rotation) as GameObject;
+			Destination destination = gameObject.GetComponent<Destination> ();
+
+			if (ghost != null) {
+				ghost.transform.SetParent (destination.transform);
+			}
+
+			return destination;
 		}
 
 		public float Distance (Vector3 referencePoint)
@@ -37,6 +44,24 @@ namespace CleanKit
 
 			Debug.DrawLine (transform.TransformPoint (new Vector3 (-radius, 0, 0)), transform.TransformPoint (new Vector3 (radius, 0, 0)), color);
 			Debug.DrawLine (transform.TransformPoint (new Vector3 (0, 0, -radius)), transform.TransformPoint (new Vector3 (0, 0, radius)), color);
+		}
+			
+		// Ghosts
+
+		public bool IsGhostVisible ()
+		{
+			return ghost.enabled;
+		}
+
+		public void SetGhostVisible (bool visible, bool highlighted = false)
+		{
+			ghost.enabled = visible;
+			ghost.SetHighlighted (highlighted);
+		}
+
+		public bool IsGhostPositionValid ()
+		{
+			return ghost.CollisionWithInteractables == false;
 		}
 	}
 }

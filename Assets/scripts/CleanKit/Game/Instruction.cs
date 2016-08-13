@@ -7,6 +7,8 @@ namespace CleanKit
 	{
 		public InteractionType interactionType;
 		public Interactable assignee;
-		public Transform destination;
+		public Destination destination;
+
+		public string name { get { return interactionType + " " + assignee.name; } }
 	}
 }

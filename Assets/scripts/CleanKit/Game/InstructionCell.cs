@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 namespace CleanKit
@@ -11,8 +12,28 @@ namespace CleanKit
 
 		public float MaxDimension = 60.0f;
 
+		bool _highlighted;
+
+		public bool highlighted {
+			get {
+				return _highlighted;
+			}
+			set {
+				_highlighted = value;
+				Image image = GetComponent<Image> ();
+				image.color = highlighted ? Color.blue : Color.white;
+			}
+		}
+
+		void Start ()
+		{
+			highlighted = false;
+		}
+
 		public void SetInstruction (Instruction instruction)
 		{
+			this.instruction = instruction;
+
 			Interactable assignee = instruction.assignee;
 			GameObject interactableObject = GameObject.Instantiate<GameObject> (assignee.gameObject);
 			foreach (Transform child in interactableObject.transform) {

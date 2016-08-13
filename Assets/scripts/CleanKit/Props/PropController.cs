@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace CleanKit
@@ -19,25 +21,36 @@ namespace CleanKit
 			}
 		}
 
+		void Update ()
+		{
+			List<Interactable> interactables = activeInteractables ().ToList ();
+			List<GameObject> active = interactables.Select (interactable => interactable.gameObject).ToList ();
+				
+			if (Controls.InputExists () && Controls.InteractingWithObjects (active) == false) {
+				instructionController.ClearSelection ();
+				clearActiveInteractables ();
+			}
+		}
+
 		public void SpawnRandomProp ()
 		{
 			GameObject prop = PropLoader.CreateTestProp ();
 			prop.name = "Prop " + interactionController.Interactables.Count;
 			prop.transform.SetParent (transform, false);
 			prop.transform.position = new Vector3 (
-				(Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1), 
+				(UnityEngine.Random.value + 1) * displacement * (UnityEngine.Random.value > 0.5 ? 1 : -1), 
 				20.0f, 
-				(Random.value + 1) * displacement * (Random.value > 0.5 ? 1 : -1));
+				(UnityEngine.Random.value + 1) * displacement * (UnityEngine.Random.value > 0.5 ? 1 : -1));
 			prop.transform.localScale = new Vector3 (
-				Random.value * kMaxScale, 
-				Random.value * kMaxScale, 
-				Random.value * kMaxScale);
+				UnityEngine.Random.value * kMaxScale, 
+				UnityEngine.Random.value * kMaxScale, 
+				UnityEngine.Random.value * kMaxScale);
 
 			float destinationDispersement = 30.0f;
 			Vector3 point = new Vector3 (
-				                Random.value * destinationDispersement,
+				                UnityEngine.Random.value * destinationDispersement,
 				                0.0f,
-				                Random.value * destinationDispersement);
+				                UnityEngine.Random.value * destinationDispersement);
 			Destination destination = Destination.Instantiate (point, Vector3.up);
 			destination.transform.SetParent (transform, false);
 				
@@ -47,11 +60,34 @@ namespace CleanKit
 			interactionController.Interactables.Add (interactable);
 		}
 
+		Interactable[] activeInteractables ()
+		{
+			Interactable[] interactables = GetComponentsInChildren<Interactable> ();
+			Interactable[] activeInteractables = Array.FindAll (interactables, interactableIsActive);
+			return activeInteractables;
+		}
+
+		void clearActiveInteractables ()
+		{
+			foreach (Interactable interactable in activeInteractables().ToList()) {
+				interactable.SetGhostVisible (false);
+			}
+		}
+
+		static bool interactableIsActive (Interactable interactable)
+		{
+			return interactable.IsGhostVisible ();
+		}
+
 		// InteractableDelegate
 
-
-		public void InstructionCreated (Interactable interactable, Instruction instruction)
+		public void InteractableMovedToDestination (Interactable interactable, Destination destination)
 		{
+			Instruction instruction = new Instruction ();
+			instruction.assignee = interactable;
+			instruction.destination = destination;
+			instruction.interactionType = InteractionType.Move;
+
 			instructionController.EnqueueInstruction (instruction);
 		}
 	}

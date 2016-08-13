@@ -25,6 +25,8 @@ namespace CleanKit
 			MeshCollider collider = prop.AddComponent<MeshCollider> ();
 			collider.convex = true;
 
+			prop.name = resource.name;
+
 			return prop;
 		}
 	}

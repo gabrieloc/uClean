@@ -6,12 +6,11 @@ namespace CleanKit
 {
 	public class InteractableGhost : MonoBehaviour
 	{
-		public static InteractableGhost Instantiate (Interactable interactable)
+		public static InteractableGhost Instantiate (GameObject interactableGameObject)
 		{
-			GameObject clone = Instantiate (interactable.gameObject,
-				                   interactable.gameObject.transform.position,
-				                   interactable.gameObject.transform.rotation) as GameObject;
-			Destroy (clone.GetComponent<EventTrigger> ());
+			GameObject clone = Instantiate (interactableGameObject,
+				                   interactableGameObject.transform.position,
+				                   interactableGameObject.transform.rotation) as GameObject;
 			clone.gameObject.AddComponent<InteractableGhost> ();
 
 			InteractableGhost ghost = clone.GetComponent<InteractableGhost> ();
@@ -20,6 +19,9 @@ namespace CleanKit
 
 			Collider collider = ghost.GetComponent<Collider> ();
 			collider.isTrigger = true;
+
+			Destroy (clone.GetComponent<EventTrigger> ());
+			Destroy (clone.GetComponent<Interactable> ());
 
 			return ghost;
 		}
