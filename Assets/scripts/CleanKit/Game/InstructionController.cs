@@ -7,8 +7,15 @@ using System.Linq;
 
 namespace CleanKit
 {
+	public interface InstructionDelegate
+	{
+		void InstructionCellSelected (InstructionController controller, InstructionCell cell);
+	}
+
 	public class InstructionController : MonoBehaviour
 	{
+		public InstructionDelegate instructionDelegate;
+
 		InstructionCell[] instructionQueue {
 			get {
 				return cellContainer.GetComponentsInChildren<InstructionCell> ();
@@ -43,7 +50,8 @@ namespace CleanKit
 			instructionGameObject.transform.SetParent (cellContainer);
 			instructionGameObject.transform.localScale = Vector3.one;
 
-			focusOnInstruction (instruction);
+			cell.highlighted = true;
+			instructionDelegate.InstructionCellSelected (this, cell);
 
 			// TODO animate enqueue
 		}
@@ -70,22 +78,7 @@ namespace CleanKit
 
 		void didSelectInstructionCell (InstructionCell cell)
 		{
-			focusOnInstruction (cell.instruction);	
-		}
-
-		void focusOnInstruction (Instruction instruction)
-		{
-			InstructionCell cell = cellForInstruction (instruction);
-			cell.highlighted = true;
-
-			Interactable assignee = instruction.assignee;
-			assignee.SetGhostVisible (true, true);
-
-			Vector3 focusPoint = instruction.destination.transform.position;
-			CameraController camera = Camera.main.GetComponent<CameraController> ();
-			camera.LookAtPoint (focusPoint);
-
-			// TODO figure out how to have camera center object on screen
+			instructionDelegate.InstructionCellSelected (this, cell);
 		}
 	}
 }

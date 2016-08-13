@@ -7,7 +7,7 @@ namespace CleanKit
 		public bool Live;
 		private float radius;
 
-		public InteractableGhost ghost { get { return GetComponentInChildren<InteractableGhost> (); } }
+		public InteractableGhost ghost;
 
 		public static Destination Instantiate (Vector3 point, Vector3 normal, InteractableGhost ghost = null)
 		{
@@ -18,6 +18,7 @@ namespace CleanKit
 			Destination destination = gameObject.GetComponent<Destination> ();
 
 			if (ghost != null) {
+				destination.ghost = ghost;
 				ghost.transform.SetParent (destination.transform);
 			}
 
@@ -50,12 +51,12 @@ namespace CleanKit
 
 		public bool IsGhostVisible ()
 		{
-			return ghost.enabled;
+			return ghost.gameObject.activeInHierarchy;
 		}
 
 		public void SetGhostVisible (bool visible, bool highlighted = false)
 		{
-			ghost.enabled = visible;
+			ghost.gameObject.SetActive (visible);
 			ghost.SetHighlighted (highlighted);
 		}
 

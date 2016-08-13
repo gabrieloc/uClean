@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public partial class PropController : MonoBehaviour, InteractableDelegate
+	public partial class PropController : MonoBehaviour, InteractableDelegate, InstructionDelegate
 	{
 		public int initialSpawn = 10;
 		public float displacement = 2.0f;
@@ -19,6 +19,8 @@ namespace CleanKit
 			for (int index = 0; index < initialSpawn; index++) {
 				SpawnRandomProp ();
 			}
+
+			instructionController.instructionDelegate = this;
 		}
 
 		void Update ()
@@ -79,6 +81,19 @@ namespace CleanKit
 			return interactable.IsGhostVisible ();
 		}
 
+		void highlightInstruction (Instruction instruction)
+		{
+			Interactable interactable = instruction.assignee;
+			interactable.SetGhostVisible (true, true);
+
+			Destination destination = instruction.destination;
+
+			Vector3 focusPoint = destination.transform.position;
+			CameraController camera = Camera.main.GetComponent<CameraController> ();
+			camera.LookAtPoint (focusPoint);
+			// TODO figure out how to have camera center object on screen
+		}
+
 		// InteractableDelegate
 
 		public void InteractableMovedToDestination (Interactable interactable, Destination destination)
@@ -89,6 +104,14 @@ namespace CleanKit
 			instruction.interactionType = InteractionType.Move;
 
 			instructionController.EnqueueInstruction (instruction);
+		}
+
+		// InstructionDelegate
+
+		public void InstructionCellSelected (InstructionController controller, InstructionCell cell)
+		{
+			Instruction instruction = cell.instruction;
+			highlightInstruction (instruction);
 		}
 	}
 }
