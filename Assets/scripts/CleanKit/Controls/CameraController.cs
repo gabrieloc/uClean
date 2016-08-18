@@ -3,6 +3,15 @@ using System.Collections;
 
 namespace CleanKit
 {
+	public enum ShotSize
+	{
+		ExtremeCloseUp,
+		CloseUp,
+		MidShot,
+		LongShot,
+		VeryLongShot
+	}
+
 	public class CameraController : MonoBehaviour
 	{
 		public float moveSensitivityX = 1.0f;
@@ -20,37 +29,78 @@ namespace CleanKit
 
 		Camera _camera;
 
-		Vector3? moveTowardsPoint;
+		Vector3? objectPosition;
+		float objectDistance;
+
+		public float FocusSpeed = 16.0f;
 
 		void Start ()
 		{
-			_camera = Camera.main;
+			_camera = GetComponent<Camera> ();
 		}
 
 		void Update ()
 		{
-			if (moveTowardsPoint.HasValue) {
-				Vector3 destinationPosition = new Vector3 (
-					                              moveTowardsPoint.Value.x - 10.0f,
-					                              _camera.transform.position.y,
-					                              moveTowardsPoint.Value.z + 10.0f);
-				Vector3 position = Vector3.MoveTowards (
-					                   _camera.transform.position,
-					                   destinationPosition, 
-					                   Time.deltaTime * 10.0f);
-				_camera.transform.position = position;
+			if (objectPosition.HasValue) {
+				
+				Vector3 p = objectPosition.Value;
+				float d = objectDistance;
+				Vector3 r = transform.eulerAngles * Mathf.Deg2Rad;
+				Vector3 screenPosition = _camera.WorldToScreenPoint (objectPosition.Value);
+				float w = Screen.width * 0.5f;
+				float h = Screen.height * 0.5f;
 
-				if (Vector3.Distance (position, moveTowardsPoint.Value) < 0.1f) {
-					moveTowardsPoint = null;
-				}
+				Vector3 offset = new Vector3 (
+					                 d * Mathf.Cos (r.x) * (screenPosition.x > w ? 1 : -1),
+					                 d * Mathf.Cos (r.y),
+					                 d * Mathf.Cos (r.x) * (screenPosition.y > h ? 1 : -1)
+				                 );
+
+				Vector3 position = objectPosition.Value + offset;
+				Vector2 screenMultiple = new Vector2 (
+					                         Mathf.Abs ((screenPosition.x - w) / w),
+					                         Mathf.Abs ((screenPosition.y - h) / h)
+				                         );
+				screenMultiple += new Vector2 (0.5f, 0.5f);
+
+				float currentDistance = Vector3.Distance (transform.position, p);
+				currentDistance = currentDistance > d ? currentDistance / d : d / currentDistance;
+				float zoomMultiple = Mathf.Pow (currentDistance, 2.0f);
+
+				float distanceDelta = Time.deltaTime * FocusSpeed * zoomMultiple * screenMultiple.sqrMagnitude;
+				Vector3 movePosition = Vector3.MoveTowards (_camera.transform.position, position, distanceDelta);
+
+				_camera.transform.position = movePosition;
 			}
 
 			updateInput ();
 		}
 
-		public void LookAtPoint (Vector3 point)
+		public void FocusOnSubject (GameObject subject, ShotSize shotSize = ShotSize.MidShot)
 		{
-			moveTowardsPoint = point;
+			objectPosition = subject.transform.position;
+
+			float fDistance = objectDistance * 0.5f / Mathf.Tan (_camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+//			print (fDistance);
+			objectDistance = 10.0f * frameFitMultipleForShotSize (shotSize); // TODO
+		}
+
+		float frameFitMultipleForShotSize (ShotSize shotSize)
+		{
+			switch (shotSize) {
+			case ShotSize.ExtremeCloseUp:
+				return 0.5f;
+			case ShotSize.CloseUp:
+				return 0.8f;
+			case ShotSize.MidShot:
+				return 1.5f;
+			case ShotSize.LongShot:
+				return 4.0f;
+			case ShotSize.VeryLongShot:
+				return 8.0f;
+			default:
+				return 1.0f;
+			}
 		}
 
 		#if UNITY_EDITOR
@@ -72,7 +122,7 @@ namespace CleanKit
 			}
 
 			if (Input.GetMouseButtonDown (0) || Input.GetMouseButton (0)) {
-				moveTowardsPoint = null;
+				objectPosition = null;
 			}
 
 			if (Input.GetMouseButtonDown (0)) {

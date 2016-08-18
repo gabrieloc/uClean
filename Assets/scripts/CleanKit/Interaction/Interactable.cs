@@ -7,7 +7,11 @@ namespace CleanKit
 {
 	public interface InteractableDelegate
 	{
-		void InteractableMovedToDestination (Interactable interactable, Destination destination);
+		void InteractableUpdatedMovement (Interactable interactable, Destination destination);
+
+		void InteractableCancelledMovement (Interactable interactable);
+
+		void InteractableConfirmedDestination (Interactable interactable, Destination destination);
 	}
 
 	public partial class Interactable: MonoBehaviour
@@ -62,6 +66,8 @@ namespace CleanKit
 			dragUpdated (data);
 		}
 
+		// TODO have this called outside EventTriggerType.Drag
+
 		void dragUpdated (BaseEventData data)
 		{
 			PointerEventData pointerData = data as PointerEventData;
@@ -92,6 +98,8 @@ namespace CleanKit
 				undiscloseSurface ();
 				ghost.SetDraggingTransform (worldPosition);
 			}
+
+			interactableDelegate.InteractableUpdatedMovement (this, destination);
 		}
 
 		void dragEnded (BaseEventData data)
@@ -101,9 +109,10 @@ namespace CleanKit
 			if (destination.IsGhostPositionValid ()) {
 				undiscloseSurface ();
 				destination.SetGhostVisible (false);
-				interactableDelegate.InteractableMovedToDestination (this, destination);
+				interactableDelegate.InteractableConfirmedDestination (this, destination);
 			} else {
 				discardDestination ();
+				interactableDelegate.InteractableCancelledMovement (this);
 			}
 		}
 

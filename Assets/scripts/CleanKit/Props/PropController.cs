@@ -14,6 +14,8 @@ namespace CleanKit
 		public InteractionController interactionController;
 		public InstructionController instructionController;
 
+		CameraController cameraController { get { return Camera.main.GetComponent<CameraController> (); } }
+
 		void Start ()
 		{
 			for (int index = 0; index < initialSpawn; index++) {
@@ -86,17 +88,25 @@ namespace CleanKit
 			Interactable interactable = instruction.assignee;
 			interactable.SetGhostVisible (true, true);
 
-			Destination destination = instruction.destination;
-
-			Vector3 focusPoint = destination.transform.position;
-			CameraController camera = Camera.main.GetComponent<CameraController> ();
-			camera.LookAtPoint (focusPoint);
 			// TODO figure out how to have camera center object on screen
+
+			Destination destination = instruction.destination;
+			cameraController.FocusOnSubject (destination.ghost.gameObject, ShotSize.CloseUp);
 		}
 
 		// InteractableDelegate
 
-		public void InteractableMovedToDestination (Interactable interactable, Destination destination)
+		public void InteractableUpdatedMovement (Interactable interactable, Destination destination)
+		{
+			cameraController.FocusOnSubject (destination.ghost.gameObject, ShotSize.LongShot);
+		}
+
+		public void InteractableCancelledMovement (Interactable interactable)
+		{
+			cameraController.FocusOnSubject (interactable.gameObject, ShotSize.MidShot);
+		}
+
+		public void InteractableConfirmedDestination (Interactable interactable, Destination destination)
 		{
 			Instruction instruction = new Instruction ();
 			instruction.assignee = interactable;
