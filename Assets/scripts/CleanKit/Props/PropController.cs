@@ -88,8 +88,6 @@ namespace CleanKit
 			Interactable interactable = instruction.assignee;
 			interactable.SetGhostVisible (true, true);
 
-			// TODO figure out how to have camera center object on screen
-
 			Destination destination = instruction.destination;
 			cameraController.FocusOnSubject (destination.ghost.gameObject, ShotSize.CloseUp);
 		}

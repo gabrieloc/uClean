@@ -32,7 +32,7 @@ namespace CleanKit
 		Vector3? objectPosition;
 		float objectDistance;
 
-		public float FocusSpeed = 16.0f;
+		public float FocusSpeed = 64.0f;
 
 		void Start ()
 		{
