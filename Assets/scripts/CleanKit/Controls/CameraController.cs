@@ -57,6 +57,7 @@ namespace CleanKit
 				                 );
 
 				Vector3 position = objectPosition.Value + offset;
+
 				Vector2 screenMultiple = new Vector2 (
 					                         Mathf.Abs ((screenPosition.x - w) / w),
 					                         Mathf.Abs ((screenPosition.y - h) / h)
@@ -79,25 +80,26 @@ namespace CleanKit
 		public void FocusOnSubject (GameObject subject, ShotSize shotSize = ShotSize.MidShot)
 		{
 			objectPosition = subject.transform.position;
-
-			float fDistance = objectDistance * 0.5f / Mathf.Tan (_camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
-//			print (fDistance);
-			objectDistance = 10.0f * frameFitMultipleForShotSize (shotSize); // TODO
+			Renderer renderer = subject.GetComponent<Renderer> ();
+			float magnitude = renderer.bounds.extents.magnitude;
+			float fDistance = magnitude / Mathf.Tan (_camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+			print (magnitude + " -> " + fDistance);
+			objectDistance = fDistance * frameFitMultipleForShotSize (shotSize); // TODO
 		}
 
 		float frameFitMultipleForShotSize (ShotSize shotSize)
 		{
 			switch (shotSize) {
 			case ShotSize.ExtremeCloseUp:
-				return 0.5f;
+				return 1.0f;
 			case ShotSize.CloseUp:
-				return 0.8f;
+				return 3.0f;
 			case ShotSize.MidShot:
-				return 1.5f;
+				return 6.0f;
 			case ShotSize.LongShot:
-				return 4.0f;
-			case ShotSize.VeryLongShot:
 				return 8.0f;
+			case ShotSize.VeryLongShot:
+				return 16.0f;
 			default:
 				return 1.0f;
 			}
