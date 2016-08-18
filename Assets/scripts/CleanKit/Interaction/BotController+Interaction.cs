@@ -7,7 +7,6 @@ namespace CleanKit
 	{
 		private Dictionary<Interactable, List<Actor>> availableInteractables = new Dictionary<Interactable, List<Actor>> ();
 		private Dictionary<Interactable, Actor> activeInteractables = new Dictionary<Interactable, Actor> ();
-		private InteractionController interactionController;
 
 		private void setInteractableForActor (Interactable interactable, Actor interactor)
 		{

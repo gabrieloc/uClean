@@ -4,8 +4,6 @@ namespace CleanKit
 {
 	public partial class BotController: SelectionDelegate
 	{
-		private SelectionController selectionController;
-
 		public void selectionControllerSelectedBot (Bot bot)
 		{
 			Debug.Log ("Selected " + bot.name);

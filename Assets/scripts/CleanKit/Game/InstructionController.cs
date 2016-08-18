@@ -12,9 +12,18 @@ namespace CleanKit
 		void InstructionCellSelected (InstructionController controller, InstructionCell cell);
 	}
 
+	public interface FulfillmentDelegate
+	{
+		void InstructionNeedsFulfillment (InstructionController controller, Instruction instruction);
+
+		void InstructionCancelled (InstructionController controller, Instruction instruction);
+	}
+
 	public class InstructionController : MonoBehaviour
 	{
 		public InstructionDelegate instructionDelegate;
+
+		public FulfillmentDelegate fulfillmentDelegate;
 
 		InstructionCell[] instructionQueue {
 			get {
@@ -52,6 +61,7 @@ namespace CleanKit
 
 			cell.highlighted = true;
 			instructionDelegate.InstructionCellSelected (this, cell);
+			fulfillmentDelegate.InstructionNeedsFulfillment (this, instruction);
 
 			// TODO animate enqueue
 		}
@@ -62,6 +72,8 @@ namespace CleanKit
 
 			InstructionCell cell = cellForInstruction (instruction);
 			Destroy (cell);
+
+			fulfillmentDelegate.InstructionCancelled (this, instruction);
 
 			// TODO animate dequeue
 		}

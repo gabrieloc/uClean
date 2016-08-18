@@ -5,6 +5,10 @@ namespace CleanKit
 {
 	public partial class BotController: MonoBehaviour, SelectionDelegate
 	{
+		public InstructionController instructionController;
+		public InteractionController interactionController;
+		public SelectionController selectionController;
+
 		public float speed = 15.0f;
 		public float interactableDetectionRadius = 10.0f;
 
@@ -19,11 +23,9 @@ namespace CleanKit
 		{
 			spawned = BotSpawnCount;
 
-			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
 			interactionController.interactionDelegate = this;
-			
-			selectionController = GameObject.Find ("SelectionController").GetComponent<SelectionController> ();
 			selectionController.selectionDelegate = this;
+			instructionController.fulfillmentDelegate = this;
 		}
 
 		void Update ()

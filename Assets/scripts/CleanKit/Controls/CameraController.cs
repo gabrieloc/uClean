@@ -51,6 +51,7 @@ namespace CleanKit
 				float oz = d * Mathf.Cos (r.y) * -1;
 				float oy = Mathf.Sqrt (Mathf.Pow (ox, 2) + Mathf.Pow (oz, 2));
 				Vector3 offset = new Vector3 (ox, oy, oz);
+				Vector3 position = objectPosition.Value + offset;
 
 				float w = Screen.width * 0.5f;
 				float h = Screen.height * 0.5f;
@@ -60,9 +61,7 @@ namespace CleanKit
 					                         Mathf.Abs ((screenPosition.x - w) / w),
 					                         Mathf.Abs ((screenPosition.y - h) / h)
 				                         );
-
-				Vector3 position = objectPosition.Value + offset;
-
+					
 				float currentDistance = Vector3.Distance (transform.position, p);
 				currentDistance = currentDistance > d ? currentDistance / d : d / currentDistance;
 				float zoomMultiple = Mathf.Pow (currentDistance, 2.0f);
