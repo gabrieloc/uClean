@@ -83,7 +83,7 @@ namespace CleanKit
 	
 			InteractableGhost ghost = destination.ghost;
 
-			if (Physics.Raycast (dragPoint, ray.direction, out hitInfo, 100.0f, layerMask)) {
+			if (Physics.Raycast (dragPoint, ray.direction, out hitInfo, Camera.main.farClipPlane, layerMask)) {
 				Surface surface = hitInfo.transform.gameObject.GetComponent<Surface> ();
 				Vector3 hitPoint = hitInfo.point;
 				hitPoint.y = Mathf.Round (hitPoint.y); // Fixes issue with raycast being too precise
@@ -96,6 +96,7 @@ namespace CleanKit
 				ghost.transform.position = cellCenter;
 			} else {
 				undiscloseSurface ();
+				worldPosition.y = Mathf.Min (Camera.main.farClipPlane, worldPosition.y);
 				ghost.SetDraggingTransform (worldPosition);
 			}
 

@@ -46,23 +46,22 @@ namespace CleanKit
 				Vector3 p = objectPosition.Value;
 				float d = objectDistance;
 				Vector3 r = transform.eulerAngles * Mathf.Deg2Rad;
-				Vector3 screenPosition = _camera.WorldToScreenPoint (objectPosition.Value);
+
+				float ox = d * Mathf.Cos (r.x) * -1;
+				float oz = d * Mathf.Cos (r.y) * -1;
+				float oy = Mathf.Sqrt (Mathf.Pow (ox, 2) + Mathf.Pow (oz, 2));
+				Vector3 offset = new Vector3 (ox, oy, oz);
+
 				float w = Screen.width * 0.5f;
 				float h = Screen.height * 0.5f;
-
-				Vector3 offset = new Vector3 (
-					                 d * Mathf.Cos (r.x) * (screenPosition.x > w ? 1 : -1),
-					                 d * Mathf.Cos (r.y),
-					                 d * Mathf.Cos (r.x) * (screenPosition.y > h ? 1 : -1)
-				                 );
-
-				Vector3 position = objectPosition.Value + offset;
-
+				
+				Vector3 screenPosition = _camera.WorldToScreenPoint (objectPosition.Value);
 				Vector2 screenMultiple = new Vector2 (
 					                         Mathf.Abs ((screenPosition.x - w) / w),
 					                         Mathf.Abs ((screenPosition.y - h) / h)
 				                         );
-				screenMultiple += new Vector2 (0.5f, 0.5f);
+
+				Vector3 position = objectPosition.Value + offset;
 
 				float currentDistance = Vector3.Distance (transform.position, p);
 				currentDistance = currentDistance > d ? currentDistance / d : d / currentDistance;
@@ -83,8 +82,7 @@ namespace CleanKit
 			Renderer renderer = subject.GetComponent<Renderer> ();
 			float magnitude = renderer.bounds.extents.magnitude;
 			float fDistance = magnitude / Mathf.Tan (_camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
-			print (magnitude + " -> " + fDistance);
-			objectDistance = fDistance * frameFitMultipleForShotSize (shotSize); // TODO
+			objectDistance = fDistance * frameFitMultipleForShotSize (shotSize);
 		}
 
 		float frameFitMultipleForShotSize (ShotSize shotSize)
@@ -93,13 +91,13 @@ namespace CleanKit
 			case ShotSize.ExtremeCloseUp:
 				return 1.0f;
 			case ShotSize.CloseUp:
-				return 3.0f;
+				return 2.0f;
 			case ShotSize.MidShot:
-				return 6.0f;
+				return 3.0f;
 			case ShotSize.LongShot:
-				return 8.0f;
+				return 5.0f;
 			case ShotSize.VeryLongShot:
-				return 16.0f;
+				return 8.0f;
 			default:
 				return 1.0f;
 			}
