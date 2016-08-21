@@ -28,13 +28,14 @@ namespace CleanKit
 
 		public static Bot Instantiate ()
 		{
-			GameObject gameObject = Instantiate (Resources.Load ("Bot"), new Vector3 (), new Quaternion ()) as GameObject;
+			Vector3 position = new Vector3 (Random.Range (-5, 5), 5, Random.Range (-5, 5));
+			GameObject gameObject = Instantiate (Resources.Load ("Room/Bot"), position, new Quaternion ()) as GameObject;
 			gameObject.SetSelected (false);
 			gameObject.name = BotNamer.New ();
 
 			Bot bot = gameObject.GetComponent<Bot> ();
 			bot.createCell ();
-			bot.SetInteraction (InteractionType.None);
+			bot.SetInstruction (null);
 			return bot;
 		}
 
@@ -45,7 +46,7 @@ namespace CleanKit
 
 		void Update ()
 		{
-			if (interactable != null) {
+			if (instruction != null) {
 				if (canPerformInteraction ()) {
 					performInteraction ();
 				} else {

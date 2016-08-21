@@ -19,6 +19,8 @@ namespace CleanKit
 		int timeSinceLastSpawn = 0;
 		int botSpawnInterval = 5;
 
+		Actor[] actors { get { return transform.GetComponentsInChildren<Actor> (); } }
+
 		void Start ()
 		{
 			spawned = BotSpawnCount;

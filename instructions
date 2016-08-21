@@ -1,0 +1,9 @@
+
+
+
+	X Assigned					X Fulfilled, Y Assigned		Y Fulfilled, Z Assigned 		Z Fulfilled
+B1	----------------------------|---------------------------|------------------------------|
+	X Assigned			Reallocated to Y					Y Fulfilled, Z Assigned			Z Fulfilled
+B2 	-------------------|------------------------------------|------------------------------|
+	X Assigned			Reallocated to Y	Reallocated to Z								Z Fulfilled
+B3	-------------------|-------------------|-----------------------------------------------|

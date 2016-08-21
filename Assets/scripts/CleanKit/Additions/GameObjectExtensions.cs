@@ -22,7 +22,7 @@ namespace CleanKit
 
 		static Color colorForSelected (bool selected)
 		{
-			return selected ? Color.red : Color.white;
+			return selected ? Color.red : Color.gray;
 		}
 
 		public static GameObject HUDCanvas ()

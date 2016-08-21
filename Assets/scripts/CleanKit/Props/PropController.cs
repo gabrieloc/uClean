@@ -85,7 +85,7 @@ namespace CleanKit
 
 		void highlightInstruction (Instruction instruction)
 		{
-			Interactable interactable = instruction.assignee;
+			Interactable interactable = instruction.interactable;
 			interactable.SetGhostVisible (true, true);
 
 			Destination destination = instruction.destination;
@@ -107,7 +107,7 @@ namespace CleanKit
 		public void InteractableConfirmedDestination (Interactable interactable, Destination destination)
 		{
 			Instruction instruction = new Instruction ();
-			instruction.assignee = interactable;
+			instruction.interactable = interactable;
 			instruction.destination = destination;
 			instruction.interactionType = InteractionType.Move;
 

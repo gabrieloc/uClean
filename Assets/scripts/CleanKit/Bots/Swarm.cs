@@ -48,9 +48,22 @@ namespace CleanKit
 
 		// Actor Conformance
 
+		public bool IsEmployed ()
+		{
+			return bots [0].IsEmployed ();
+		}
+
 		public void SetSelected (bool selected)
 		{
 			// TODO
+		}
+
+		public void Employ (Instruction instruction)
+		{
+			foreach (Bot bot in bots) {
+				bot.SetInstruction (instruction);
+			}
+			cell.SetInteraction (instruction.interactionType);
 		}
 
 		public string Name ()
@@ -58,28 +71,24 @@ namespace CleanKit
 			return "Swarm (" + bots.Count + ")";
 		}
 
-		// Interactables
-
-		private Interactable interactable;
-		private InteractionType interaction;
-
-		private Vector3 relocationPoint;
-
-		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
+		public bool IsDivisible ()
 		{
-			if (this.interactable != null && this.interactable.Equals (interactable) && interaction == interactionType) {
-				return;
-			}
-
-			this.interactable = interactable;
-				
-			SetInteraction (interactionType);
-
-			Debug.Log (Name () + " will " + interaction.Description () + " " + interactable.name);
-
-			interactable.BecomeUnavailable ();
-			cancelRelocation ();
+			return bots.Count > 1;
 		}
+
+		public Actor Bisect ()
+		{
+			Swarm newSwarm = new Swarm ();
+			int halfIndex = bots.Count / 2;
+			for (int i = 0; i < halfIndex; i++) {
+				Bot bot = BotAtIndex (i);
+				RemoveBot (bot);
+				newSwarm.AddBot (bot);
+			}
+			return newSwarm;
+		}
+
+		// Interactables
 
 		public Vector3 PrimaryContactPoint ()
 		{
@@ -106,12 +115,6 @@ namespace CleanKit
 			foreach (Bot bot in bots) {
 				bot.CancelRelocation ();
 			}
-		}
-
-		public void SetInteraction (InteractionType interaction)
-		{
-			this.interaction = interaction;
-			cell.SetInteraction (interaction);
 		}
 	}
 }

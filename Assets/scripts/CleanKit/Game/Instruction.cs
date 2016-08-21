@@ -6,9 +6,10 @@ namespace CleanKit
 	public class Instruction
 	{
 		public InteractionType interactionType;
-		public Interactable assignee;
+		public Interactable interactable;
 		public Destination destination;
+		public Actor actor;
 
-		public string name { get { return interactionType + " " + assignee.name; } }
+		public string name { get { return interactionType + " " + interactable.name; } }
 	}
 }

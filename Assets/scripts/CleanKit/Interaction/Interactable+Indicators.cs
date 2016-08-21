@@ -38,7 +38,8 @@ namespace CleanKit
 			foreach (InteractionType interactionType in interactionTypes) {
 				InteractableIndicator indicator = InteractableIndicator.Instantiate (name, interactionType.Description ());
 				indicators.Add (indicator);
-				indicator.OnSelection (() => actor.IndicatorForInteractableSelected (this, interactionType));
+				// TODO consider yanking all this out 
+//				indicator.OnSelection (() => actor.IndicatorForInteractableSelected (this, interactionType));
 			}
 		}
 

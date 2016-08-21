@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
+using System;
 
 namespace CleanKit
 {
 	public partial class Bot
 	{
-		private Interactable interactable = null;
-
-		private InteractionType interaction;
+		private Instruction instruction;
 
 		private void moveTowardsInteractable ()
 		{
@@ -14,7 +13,7 @@ namespace CleanKit
 			ignoreRelocationPoint = !canInteract;
 
 			if (!canInteract) {
-				Collider collider = interactable.GetComponent<Collider> ();
+				Collider collider = instruction.interactable.GetComponent<Collider> ();
 				Vector3 closestPoint = collider.ClosestPointOnBounds (transform.position);
 				moveTowardsPoint (closestPoint);
 			}
@@ -25,20 +24,6 @@ namespace CleanKit
 		public Vector3 PrimaryContactPoint ()
 		{
 			return transform.position;
-		}
-
-		public void IndicatorForInteractableSelected (Interactable interactable, InteractionType interactionType)
-		{
-			if (this.interactable != null && this.interactable.Equals (interactable) && interaction == interactionType) {
-				return;
-			}
-
-			this.interactable = interactable;
-			SetInteraction (interactionType);
-			Debug.Log (name + " will " + interaction.Description () + " " + interactable.name);
-
-			interactable.BecomeUnavailable ();
-			CancelRelocation ();
 		}
 
 		bool shouldRelocate ()
@@ -62,18 +47,40 @@ namespace CleanKit
 			}
 		}
 
-		public void SetInteraction (InteractionType interaction)
+		public void SetInstruction (Instruction instruction)
 		{
-			this.interaction = interaction;
-			cell.SetInteraction (interaction);
+			this.instruction = instruction;
+			cell.SetInteraction (instruction.interactionType);
 		}
+
+		public bool IsEmployed ()
+		{
+			return instruction != null;
+		}
+
+		public void Employ (Instruction instruction)
+		{
+			SetInstruction (instruction);
+		}
+
+		public bool IsDivisible ()
+		{
+			return false;
+		}
+
+		public Actor Bisect ()
+		{
+			return null;
+		}
+
+		// Interactions
 
 		public float kLiftStrength = 1.5f;
 		private float kMaximumLiftableSize = 50.0f;
 
 		private bool canPerformInteraction ()
 		{
-			switch (interaction) {
+			switch (instruction.interactionType) {
 			case InteractionType.Move:
 				return canMoveInteractable ();
 			case InteractionType.Clean:
@@ -84,7 +91,7 @@ namespace CleanKit
 
 		private void performInteraction ()
 		{
-			switch (interaction) {
+			switch (instruction.interactionType) {
 			case InteractionType.Move:
 				moveInteractable ();
 				break;
@@ -95,7 +102,7 @@ namespace CleanKit
 
 		private void prepareForInteraction ()
 		{
-			switch (interaction) {
+			switch (instruction.interactionType) {
 			case InteractionType.Move:
 				prepareForMovingInteractable ();
 				break;
@@ -150,13 +157,15 @@ namespace CleanKit
 
 		bool interactableIsLiftable ()
 		{
-			Bounds bounds = interactable.GetComponent<Collider> ().bounds;
+			Bounds bounds = instruction.interactable.GetComponent<Collider> ().bounds;
 			Vector3 size = bounds.size;
 			return size.magnitude < kMaximumLiftableSize;
 		}
 
 		void prepareForLiftingInteractable ()
 		{
+			Interactable interactable = instruction.interactable;
+
 			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
 			if (holdJoint) {
 				Destroy (holdJoint);
@@ -194,7 +203,7 @@ namespace CleanKit
 			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
 			if (holdJoint == null) {
 				holdJoint = gameObject.AddComponent<FixedJoint> ();
-				holdJoint.connectedBody = interactable.GetComponent<Rigidbody> ();
+				holdJoint.connectedBody = instruction.interactable.GetComponent<Rigidbody> ();
 			}
 
 			moveTowardsRelocationPoint ();
@@ -206,7 +215,7 @@ namespace CleanKit
 		{
 			// move to push point
 			bool destinationExists = destination != null;
-			NavMeshObstacle obstacle = interactable.GetComponent<NavMeshObstacle> ();
+			NavMeshObstacle obstacle = instruction.interactable.GetComponent<NavMeshObstacle> ();
 			obstacle.enabled = destinationExists;
 
 			if (destinationExists) {
@@ -229,6 +238,7 @@ namespace CleanKit
 
 		Vector3 pushPosition ()
 		{
+			Interactable interactable = instruction.interactable;
 			Vector3 d = destination.transform.position;
 			Vector3 d2 = interactable.transform.InverseTransformPoint (d);
 			d2 *= -1.0f;
@@ -273,17 +283,17 @@ namespace CleanKit
 		{
 			contactPoint = new Vector3 ();
 			
-			if (interactable == null) {
+			if (instruction == null) {
 				return false;
 			}
 
-			Vector3 lPos = transform.InverseTransformPoint (interactable.transform.position);
+			Vector3 lPos = transform.InverseTransformPoint (instruction.interactable.transform.position);
 			lPos = lPos.normalized;
 			Vector3 direction = lPos;
 
 			Ray ray = new Ray (transform.position, transform.TransformDirection (direction));
 			RaycastHit hit;
-			Collider interactableCollider = interactable.gameObject.GetComponent<Collider> ();
+			Collider interactableCollider = instruction.interactable.gameObject.GetComponent<Collider> ();
 			float distance = 2.0f;
 
 			bool cast = interactableCollider.Raycast (ray, out hit, distance);

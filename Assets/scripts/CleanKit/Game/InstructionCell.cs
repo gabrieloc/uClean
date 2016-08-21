@@ -34,7 +34,7 @@ namespace CleanKit
 		{
 			this.instruction = instruction;
 
-			Interactable assignee = instruction.assignee;
+			Interactable assignee = instruction.interactable;
 			GameObject interactableObject = GameObject.Instantiate<GameObject> (assignee.gameObject);
 			foreach (Transform child in interactableObject.transform) {
 				GameObject.Destroy (child.gameObject);

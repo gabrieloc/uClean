@@ -31,6 +31,13 @@ namespace CleanKit
 			}
 		}
 
+		public Instruction[] AvailableInstructions ()
+		{
+			// TODO consider sorting by priority (lowest number of acors)
+			InstructionCell[] unassignedCells = Array.FindAll (instructionQueue, isInstructionForCellAssigned);
+			return unassignedCells.Select (cell => cell.instruction).ToArray ();
+		}
+
 		public Transform cellContainer;
 
 		public void ClearSelection ()
@@ -44,6 +51,11 @@ namespace CleanKit
 		static bool isCellSelected (InstructionCell cell)
 		{
 			return cell.highlighted;
+		}
+
+		static bool isInstructionForCellAssigned (InstructionCell cell)
+		{
+			return cell.instruction == null;
 		}
 
 		public void EnqueueInstruction (Instruction instruction)
