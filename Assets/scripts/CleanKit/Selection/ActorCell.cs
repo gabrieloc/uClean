@@ -8,7 +8,7 @@ namespace CleanKit
 	{
 		public static ActorCell Instantiate ()
 		{
-			GameObject gameObject = Instantiate (Resources.Load ("ActorCell"), new Vector3 (), new Quaternion ()) as GameObject;
+			GameObject gameObject = Instantiate (Resources.Load ("UI/ActorCell"), new Vector3 (), new Quaternion ()) as GameObject;
 			gameObject.SetSelected (false);
 
 			ActorCell cell = gameObject.GetComponent<ActorCell> ();

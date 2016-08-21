@@ -35,7 +35,6 @@ namespace CleanKit
 
 			Bot bot = gameObject.GetComponent<Bot> ();
 			bot.createCell ();
-			bot.SetInstruction (null);
 			return bot;
 		}
 

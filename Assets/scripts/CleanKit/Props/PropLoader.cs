@@ -21,6 +21,7 @@ namespace CleanKit
 
 			prop.AddComponent<Interactable> ();
 			prop.AddComponent<Rigidbody> ();
+			prop.AddComponent<NavMeshObstacle> ();
 
 			MeshCollider collider = prop.AddComponent<MeshCollider> ();
 			collider.convex = true;
