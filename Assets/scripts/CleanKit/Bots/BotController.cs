@@ -6,7 +6,6 @@ namespace CleanKit
 	public partial class BotController: MonoBehaviour, SelectionDelegate
 	{
 		public InstructionController instructionController;
-		public InteractionController interactionController;
 		public SelectionController selectionController;
 
 		public float speed = 15.0f;
@@ -39,29 +38,17 @@ namespace CleanKit
 				timeSinceLastSpawn--;
 			}
 
-			updateInput ();
-			updateInteractables ();
+			updateInteractables (); // consider removing this entirely
 		}
 
-		private void updateInput ()
+		public void RelocateToPosition (Vector3 newPosition, Vector3 normal)
 		{
-			if (Controls.InputExists () == false) {
-				return;
-			}
-			
-			Ray ray = Camera.main.ScreenPointToRay (Controls.CurrentInput ().Value);
-			RaycastHit hit;
-			if (!Physics.Raycast (ray, out hit, 1000)) {
-				return;
-			}
+			relocateSelected (newPosition, normal);
+		}
 
-			Collider collider = hit.collider;
-			Actor actor = collider.GetComponentInParent<Actor> ();
-			if (actor != null) {
-				selectionController.didSelectCellForBot (actor as Bot);
-			} else {
-				relocateSelected (hit.point, hit.normal);
-			}
+		public void SelectBot (Bot bot)
+		{
+			selectionController.didSelectCellForBot (bot);
 		}
 
 		private void relocateSelected (Vector3 contactPoint, Vector3 contactNormal)

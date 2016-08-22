@@ -22,6 +22,7 @@ namespace CleanKit
 		Interactable selectedInteractable;
 		EventTrigger eventTrigger;
 		CameraController cameraController;
+		public BotController botController;
 
 		void Start ()
 		{
@@ -43,7 +44,19 @@ namespace CleanKit
 
 		void pointerClicked (BaseEventData eventData)
 		{
-			// forward to botController
+			PointerEventData pointerData = eventData as PointerEventData;
+			Vector3 screenPosition = pointerData.position;
+			Vector3 worldPosition = Camera.main.ScreenToWorldPoint (screenPosition);
+			Ray ray = Camera.main.ScreenPointToRay (screenPosition);
+			RaycastHit hitInfo;
+			if (Physics.Raycast (worldPosition, ray.direction, out hitInfo, Camera.main.farClipPlane)) {
+				GameObject hitObject = hitInfo.collider.gameObject;
+				if (Surface.LayerMask == (Surface.LayerMask | (1 << hitObject.layer))) {
+					botController.RelocateToPosition (screenPosition, hitInfo.normal);
+				} else if (Bot.LayerMask == (Bot.LayerMask | (1 << hitObject.layer))) {
+					botController.SelectBot (hitObject.GetComponentInParent<Bot> ());
+				}
+			}
 		}
 
 		void draggingBegan (BaseEventData eventData)

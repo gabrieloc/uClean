@@ -19,7 +19,7 @@ namespace CleanKit
 			if (availableInteractables.ContainsKey (interactable)) {
 				List<Actor> interactors = availableInteractables [interactable];
 				interactors.Add (interactor);
-				interactionController.SetInteractableAvailable (interactable, interactor, true);
+//				interactionController.SetInteractableAvailable (interactable, interactor, true);
 			} else {
 				availableInteractables [interactable] = new List<Actor> ();
 				setInteractableForActor (interactable, interactor);
@@ -64,7 +64,7 @@ namespace CleanKit
 
 			if (interactableForBot != null) {
 				bool interactableAvailable = interactableIsAvailable (interactableForBot);
-				interactionController.SetInteractableAvailable (interactableForBot, interactor, interactableAvailable);
+//				interactionController.SetInteractableAvailable (interactableForBot, interactor, interactableAvailable);
 			}
 		}
 

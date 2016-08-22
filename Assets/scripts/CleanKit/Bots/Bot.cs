@@ -6,7 +6,9 @@ namespace CleanKit
 {
 	public partial class Bot : MonoBehaviour, Actor
 	{
-		public Destination destination;
+		Destination destination;
+
+		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("Actor"); } }
 
 		NavMeshAgent agent;
 

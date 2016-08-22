@@ -24,7 +24,7 @@ namespace CleanKit
 			return CurrentInput ().HasValue && !InputOverUI ();
 		}
 
-		public static Vector3? CurrentInput ()
+		static Vector3? CurrentInput ()
 		{
 			if (pointerInputAvailable ()) {
 				return Input.mousePosition;
