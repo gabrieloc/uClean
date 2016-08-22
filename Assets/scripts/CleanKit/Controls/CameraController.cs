@@ -70,8 +70,9 @@ namespace CleanKit
 				Vector3 movePosition = Vector3.MoveTowards (_camera.transform.position, position, distanceDelta);
 
 				_camera.transform.position = movePosition;
+			} else {
+				panDelta *= panDecelerationCurve;
 			}
-
 			updateInput ();
 		}
 
@@ -102,6 +103,19 @@ namespace CleanKit
 			}
 		}
 
+		public void BeginPanning (Vector3 initialPosition)
+		{
+			panPosition = initialPosition;
+			objectPosition = null;
+		}
+
+		public void UpdatePanPosition (Vector3 newPosition)
+		{
+			panDelta = newPosition - panPosition;
+			panPosition = newPosition;
+			objectPosition = null;
+		}
+
 		#if UNITY_EDITOR
 
 		public float mouseSensitivityCurve = 0.25f;
@@ -110,29 +124,6 @@ namespace CleanKit
 
 		void updateInput ()
 		{
-			if (Controls.InteractingWithScene ()) {
-				panDelta = Vector3.zero;
-				return;
-			}
-
-			Rect screenRect = new Rect (0, 0, Screen.width, Screen.height);
-			if (!screenRect.Contains (Input.mousePosition)) {
-				return;
-			}
-
-			if (Input.GetMouseButtonDown (0) || Input.GetMouseButton (0)) {
-				objectPosition = null;
-			}
-
-			if (Input.GetMouseButtonDown (0)) {
-				panPosition = Input.mousePosition;
-			} else if (Input.GetMouseButton (0)) {
-				panDelta = Input.mousePosition - panPosition;
-				panPosition = Input.mousePosition;
-			} else {
-				panDelta *= panDecelerationCurve;
-			}
-
 			float sensitivityMultiplier = 0.0f;
 			Ray ray = _camera.ViewportPointToRay (new Vector3 (0.5f, 0.5f, 0.0f));
 			RaycastHit hit;
@@ -142,7 +133,7 @@ namespace CleanKit
 				sensitivityMultiplier = Mathf.Pow (distanceMultiple, 2);
 			}
 
-			// TODO install max and min zoom
+			// TODO Enforce max and min zoom
 			float z = Input.mouseScrollDelta.y * sensitivityMultiplier * zoomSpeed;
 			Vector3 translate = new Vector3 (
 				                    panDelta.x * moveSensitivityX * sensitivityMultiplier * -0.01f,

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public partial class BotController: InteractionDelegate
+	public partial class BotController
 	{
 		private Dictionary<Interactable, List<Actor>> availableInteractables = new Dictionary<Interactable, List<Actor>> ();
 		private Dictionary<Interactable, Actor> activeInteractables = new Dictionary<Interactable, Actor> ();

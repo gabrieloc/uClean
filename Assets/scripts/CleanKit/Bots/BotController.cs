@@ -25,7 +25,6 @@ namespace CleanKit
 		{
 			spawned = BotSpawnCount;
 
-			interactionController.interactionDelegate = this;
 			selectionController.selectionDelegate = this;
 			instructionController.fulfillmentDelegate = this;
 		}
@@ -46,11 +45,11 @@ namespace CleanKit
 
 		private void updateInput ()
 		{
-			if (Controls.RelocationInputExists () == false) {
+			if (Controls.InputExists () == false) {
 				return;
 			}
 			
-			Ray ray = Camera.main.ScreenPointToRay (Controls.RelocationInput ());
+			Ray ray = Camera.main.ScreenPointToRay (Controls.CurrentInput ().Value);
 			RaycastHit hit;
 			if (!Physics.Raycast (ray, out hit, 1000)) {
 				return;

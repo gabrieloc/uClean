@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using System;
 using System.Collections.Generic;
@@ -7,34 +8,42 @@ namespace CleanKit
 {
 	public static class Controls
 	{
-		public static bool RelocationInputExists ()
+		public	delegate void EventCallback (BaseEventData data);
+
+		public static void RegisterEvent (EventTrigger eventTrigger, EventTriggerType type, EventCallback callback)
 		{
-			return RelocationInput () != Vector3.zero && InputOverUI () == false;
+			EventTrigger.Entry entry = new EventTrigger.Entry ();
+			entry.eventID = type;
+			UnityAction<BaseEventData> action = new UnityAction<BaseEventData> (callback);
+			entry.callback.AddListener (action);
+			eventTrigger.triggers.Add (entry);
 		}
 
-		public static Vector3 RelocationInput ()
+		public static bool InputExists ()
+		{
+			return CurrentInput ().HasValue && !InputOverUI ();
+		}
+
+		public static Vector3? CurrentInput ()
 		{
 			if (pointerInputAvailable ()) {
 				return Input.mousePosition;
 			} else if (touchInputAvailable ()) {
 				return Input.GetTouch (0).position;
 			}
-			return Vector3.zero;
+			return null;
 		}
 
 		public static bool InputOverUI ()
 		{
+			bool selectedNotNull = EventSystem.current.currentSelectedGameObject != null;
+			bool overGameObject = false;
 			if (pointerInputAvailable ()) {
-				return EventSystem.current.IsPointerOverGameObject ();
+				overGameObject = EventSystem.current.IsPointerOverGameObject ();
 			} else if (touchInputAvailable ()) {
-				return EventSystem.current.IsPointerOverGameObject (Input.GetTouch (0).fingerId);
+				overGameObject = EventSystem.current.IsPointerOverGameObject (Input.GetTouch (0).fingerId);
 			}
-			return false;
-		}
-
-		public static bool InputExists ()
-		{
-			return pointerInputAvailable () || touchInputAvailable ();	
+			return overGameObject && selectedNotNull;
 		}
 
 		private static bool pointerInputAvailable ()

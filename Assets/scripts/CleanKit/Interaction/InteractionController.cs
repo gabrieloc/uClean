@@ -12,9 +12,6 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public interface InteractionDelegate
-	{
-	}
 
 	public class InteractionController : MonoBehaviour
 	{
@@ -23,17 +20,77 @@ namespace CleanKit
 		public List<Interactable> Interactables { get; private set; }
 
 		Interactable selectedInteractable;
-
-		public InteractionDelegate interactionDelegate;
+		EventTrigger eventTrigger;
+		CameraController cameraController;
 
 		void Start ()
 		{
 			Interactables =	new List<Interactable> (GameObject.FindObjectsOfType<Interactable> ());
+
+			eventTrigger = GetComponent<EventTrigger> ();
+			cameraController = Camera.main.GetComponent<CameraController> ();
+
+			Controls.RegisterEvent (eventTrigger, EventTriggerType.PointerClick, pointerClicked);
+			Controls.RegisterEvent (eventTrigger, EventTriggerType.BeginDrag, draggingBegan);
+			Controls.RegisterEvent (eventTrigger, EventTriggerType.Drag, draggingUpdated);
+			Controls.RegisterEvent (eventTrigger, EventTriggerType.EndDrag, draggingEnded);
 		}
 
 		void Update ()
 		{
 			layoutIndicatorsIfNecessary ();
+		}
+
+		void pointerClicked (BaseEventData eventData)
+		{
+			// forward to botController
+		}
+
+		void draggingBegan (BaseEventData eventData)
+		{
+			// TODO only select interactable if outside delay period
+			PointerEventData pointerData = eventData as PointerEventData;
+			Vector3 screenPosition = pointerData.position;
+
+			Vector3 worldPosition = Camera.main.ScreenToWorldPoint (screenPosition);
+			Ray ray = Camera.main.ScreenPointToRay (screenPosition);
+			RaycastHit hitInfo;
+			int layerMask = Interactable.LayerMask;
+			if (Physics.Raycast (worldPosition, ray.direction, out hitInfo, Camera.main.farClipPlane, layerMask)) {
+				GameObject hitObject = hitInfo.collider.gameObject;
+				Interactable interactable = hitObject.GetComponent<Interactable> ();
+				EventSystem.current.SetSelectedGameObject (interactable.gameObject);
+			} else {
+				cameraController.BeginPanning (screenPosition);
+			}
+		}
+
+		void draggingUpdated (BaseEventData eventData)
+		{
+			PointerEventData pointerData = eventData as PointerEventData;
+			Vector3 screenPosition = pointerData.position;
+
+			GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
+			if (currentSelected) {
+				Interactable interactable = currentSelected.GetComponent<Interactable> ();
+				if (interactable) {
+					interactable.UpdateDragPosition (screenPosition);
+				}
+			} else {
+				cameraController.UpdatePanPosition (screenPosition);
+			}
+		}
+
+		void draggingEnded (BaseEventData eventData)
+		{
+			GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
+			if (currentSelected) {
+				Interactable interactable = currentSelected.GetComponent<Interactable> ();
+				if (interactable) {
+					EventSystem.current.SetSelectedGameObject (null);
+					interactable.EndDragging ();
+				}
+			}
 		}
 
 		void layoutIndicatorsIfNecessary ()

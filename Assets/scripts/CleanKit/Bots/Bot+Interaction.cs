@@ -76,7 +76,9 @@ namespace CleanKit
 		// Interactions
 
 		public float kLiftStrength = 1.5f;
-		private float kMaximumLiftableSize = 50.0f;
+
+		// Bot cannot lift object more than half it's size
+		private float kMaximumLiftableSizeMultiple = 0.5f;
 
 		private bool canPerformInteraction ()
 		{
@@ -157,54 +159,64 @@ namespace CleanKit
 
 		bool interactableIsLiftable ()
 		{
-			Bounds bounds = instruction.interactable.GetComponent<Collider> ().bounds;
-			Vector3 size = bounds.size;
-			return size.magnitude < kMaximumLiftableSize;
+			return true;
+
+//			Vector3 botSize = GetComponent<Collider> ().bounds.size;
+//			Vector3 interactableSize = instruction.interactable.GetComponent<Collider> ().bounds.size;
+//			return botSize.magnitude / interactableSize.magnitude > kMaximumLiftableSizeMultiple;
 		}
 
 		void prepareForLiftingInteractable ()
 		{
 			Interactable interactable = instruction.interactable;
+			Vector3 anchor = Vector3.down * interactable.GetComponent<Collider> ().bounds.size.y;
 
-			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
-			if (holdJoint) {
-				Destroy (holdJoint);
-			}
-			bool attemptLift = isLookingAtInteractable ();
-			NavMeshObstacle obstacle = interactable.GetComponent<NavMeshObstacle> ();
-			obstacle.enabled = !attemptLift;
-			Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
-			rigidBody.isKinematic = attemptLift;
-
-			if (attemptLift) {
-				Vector3 c = interactableContactPoint;
-
-				Quaternion r0 = interactable.transform.rotation;
-				Vector3 axis = transform.TransformDirection (Vector3.right);
-				Quaternion r1 = Quaternion.AngleAxis (50.0f, axis);
-				Quaternion r = Quaternion.Lerp (r0, r1, 0.5f * Time.deltaTime);
-
-				interactable.transform.rotation = r;
-
-				Debug.DrawLine (new Vector3 (c.x, c.y, c.z), new Vector3 (c.x, c.y + 4, c.z), Color.red);
-				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x - 1, c.y + 3, c.z), Color.red);
-				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x + 1, c.y + 3, c.z), Color.red);
+			if (isLookingAtInteractable ()) {
+				Rigidbody interactableRigidBody = interactable.GetComponent<Rigidbody> ();
+				FixedJoint holdJoint = GetComponent<FixedJoint> ();
+				holdJoint.connectedBody = interactableRigidBody;
+				holdJoint.connectedAnchor = anchor;
+				
+				interactableRigidBody.isKinematic = true;
 			} else {
-				Vector3 closestPoint = interactable.GetComponent<Collider> ().ClosestPointOnBounds (transform.position);
-				Debug.DrawLine (transform.position, closestPoint, Color.yellow);
-				if (Vector3.Distance (transform.position, closestPoint) > 1.0f) {
-					moveTowardsInteractable ();
-				}
+				moveTowardsInteractable ();
 			}
+
+//			bool attemptLift = isLookingAtInteractable ();
+//			NavMeshObstacle obstacle = interactable.GetComponent<NavMeshObstacle> ();
+//			obstacle.enabled = !attemptLift;
+//			Rigidbody rigidBody = interactable.GetComponent<Rigidbody> ();
+//			rigidBody.isKinematic = attemptLift;
+//
+//			if (attemptLift) {
+//				Vector3 c = interactableContactPoint;
+//
+//				Quaternion r0 = interactable.transform.rotation;
+//				Vector3 axis = transform.TransformDirection (Vector3.right);
+//				Quaternion r1 = Quaternion.AngleAxis (50.0f, axis);
+//				Quaternion r = Quaternion.Lerp (r0, r1, 0.5f * Time.deltaTime);
+//
+//				interactable.transform.rotation = r;
+//
+//				Debug.DrawLine (new Vector3 (c.x, c.y, c.z), new Vector3 (c.x, c.y + 4, c.z), Color.red);
+//				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x - 1, c.y + 3, c.z), Color.red);
+//				Debug.DrawLine (new Vector3 (c.x, c.y + 4, c.z), new Vector3 (c.x + 1, c.y + 3, c.z), Color.red);
+//			} else {
+//				Vector3 closestPoint = interactable.GetComponent<Collider> ().ClosestPointOnBounds (transform.position);
+//				Debug.DrawLine (transform.position, closestPoint, Color.yellow);
+//				if (Vector3.Distance (transform.position, closestPoint) > 1.0f) {
+//					moveTowardsInteractable ();
+//				}
+//			}
 		}
 
 		void liftInteractableToRelocationPoint ()
 		{
-			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
-			if (holdJoint == null) {
-				holdJoint = gameObject.AddComponent<FixedJoint> ();
-				holdJoint.connectedBody = instruction.interactable.GetComponent<Rigidbody> ();
-			}
+//			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
+//			if (holdJoint == null) {
+//				holdJoint = gameObject.AddComponent<FixedJoint> ();
+//				holdJoint.connectedBody = instruction.interactable.GetComponent<Rigidbody> ();
+//			}
 
 			moveTowardsRelocationPoint ();
 		}

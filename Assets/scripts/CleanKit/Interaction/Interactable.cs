@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
 namespace CleanKit
@@ -26,23 +24,6 @@ namespace CleanKit
 		{
 			int layermask = UnityEngine.LayerMask.NameToLayer ("Interactable");
 			gameObject.layer = layermask;
-
-			EventTrigger eventTrigger = gameObject.AddComponent<EventTrigger> ();
-			registerTriggerEntry (eventTrigger, EventTriggerType.PointerDown, dragBegan);
-			registerTriggerEntry (eventTrigger, EventTriggerType.BeginDrag, dragBegan);
-			registerTriggerEntry (eventTrigger, EventTriggerType.Drag, dragUpdated);
-			registerTriggerEntry (eventTrigger, EventTriggerType.EndDrag, dragEnded);
-		}
-
-		delegate void eventCallback (BaseEventData data);
-
-		void registerTriggerEntry (EventTrigger eventTrigger, EventTriggerType type, eventCallback callback)
-		{
-			EventTrigger.Entry entry = new EventTrigger.Entry ();
-			entry.eventID = type;
-			UnityAction<BaseEventData> action = new UnityAction<BaseEventData> (callback);
-			entry.callback.AddListener (action);
-			eventTrigger.triggers.Add (entry);
 		}
 
 		// Instructions
@@ -57,21 +38,15 @@ namespace CleanKit
 			destination.SetGhostVisible (visible, highlighted);
 		}
 
-		void dragBegan (BaseEventData data)
+		// TODO have this called outside EventTriggerType.Drag
+
+		public void UpdateDragPosition (Vector3 newPosition)
 		{
-			EventSystem.current.SetSelectedGameObject (gameObject);
 			if (destination == null) {
 				createDestination ();
 			}
-			dragUpdated (data);
-		}
 
-		// TODO have this called outside EventTriggerType.Drag
-
-		void dragUpdated (BaseEventData data)
-		{
-			PointerEventData pointerData = data as PointerEventData;
-			Vector3 screenPosition = pointerData.position;
+			Vector3 screenPosition = newPosition;
 			screenPosition.z = Camera.main.nearClipPlane;
 			Vector3 worldPosition = Camera.main.ScreenToWorldPoint (screenPosition);
 			Ray ray = Camera.main.ScreenPointToRay (screenPosition);
@@ -103,10 +78,8 @@ namespace CleanKit
 			interactableDelegate.InteractableUpdatedMovement (this, destination);
 		}
 
-		void dragEnded (BaseEventData data)
+		public void EndDragging ()
 		{
-			EventSystem.current.SetSelectedGameObject (null);
-
 			if (destination.IsGhostPositionValid ()) {
 				undiscloseSurface ();
 				destination.SetGhostVisible (false);
@@ -120,11 +93,15 @@ namespace CleanKit
 		void createDestination (bool highlight = false)
 		{
 			InteractableGhost ghost = InteractableGhost.Instantiate (gameObject);
+			ghost.gameObject.layer = 0;
 				
 			destination = Destination.Instantiate (transform.position, Vector3.up, ghost);
-			destination.transform.SetParent (transform);
+			destination.transform.SetParent (transform.parent);
 
 			destination.SetGhostVisible (true, false);
+
+			destination.name = gameObject.name + " (Destination)";
+			destination.gameObject.layer = 0;
 		}
 
 		void discardDestination ()
