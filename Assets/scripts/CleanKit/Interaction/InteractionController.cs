@@ -51,8 +51,9 @@ namespace CleanKit
 			RaycastHit hitInfo;
 			if (Physics.Raycast (worldPosition, ray.direction, out hitInfo, Camera.main.farClipPlane)) {
 				GameObject hitObject = hitInfo.collider.gameObject;
+				Vector3 hitPoint = hitInfo.point;
 				if (Surface.LayerMask == (Surface.LayerMask | (1 << hitObject.layer))) {
-					botController.RelocateToPosition (screenPosition, hitInfo.normal);
+					botController.RelocateToPosition (hitPoint, hitInfo.normal);
 				} else if (Bot.LayerMask == (Bot.LayerMask | (1 << hitObject.layer))) {
 					botController.SelectBot (hitObject.GetComponentInParent<Bot> ());
 				}
