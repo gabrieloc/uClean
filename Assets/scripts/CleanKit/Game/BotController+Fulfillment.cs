@@ -35,12 +35,13 @@ namespace CleanKit
 
 		void employActor (Actor actor, Instruction job = null)
 		{
-			// If job is null, pull first available job from the queue
-			if (job == null) {
-				Instruction[] jobs = instructionController.AvailableInstructions ();
-				job = jobs [0];
+			Instruction[] jobs = instructionController.AvailableInstructions ();
+
+			if (job != null) {
+				actor.Employ (job);
+			} else if (jobs.Length > 0) {
+				actor.Employ (jobs [0]);
 			}
-			actor.Employ (job);
 		}
 
 		Actor createEmployableActor ()

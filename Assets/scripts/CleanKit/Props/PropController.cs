@@ -121,5 +121,11 @@ namespace CleanKit
 			Instruction instruction = cell.instruction;
 			highlightInstruction (instruction);
 		}
+
+		public void InstructionCellDestroyed (InstructionController controller, InstructionCell cell)
+		{
+			Instruction instruction = cell.instruction;
+			instruction.interactable.SetDestination (null);
+		}
 	}
 }

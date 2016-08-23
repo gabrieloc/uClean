@@ -68,11 +68,11 @@ namespace CleanKit
 				Vector3 cellCenter = surface.DiscloseCells (hitPoint, valid, size);
 
 				lastSurface = surface;
-				ghost.transform.position = cellCenter;
+				destination.transform.position = cellCenter;
 			} else {
 				undiscloseSurface ();
 				worldPosition.y = Mathf.Min (Camera.main.farClipPlane, worldPosition.y);
-				ghost.SetDraggingTransform (worldPosition);
+				destination.transform.position = worldPosition;
 			}
 
 			interactableDelegate.InteractableUpdatedMovement (this, destination);

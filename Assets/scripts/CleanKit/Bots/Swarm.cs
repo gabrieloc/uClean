@@ -61,7 +61,7 @@ namespace CleanKit
 		public void Employ (Instruction instruction)
 		{
 			foreach (Bot bot in bots) {
-				bot.SetInstruction (instruction);
+				bot.Employ (instruction);
 			}
 			cell.SetInteraction (instruction.interactionType);
 		}

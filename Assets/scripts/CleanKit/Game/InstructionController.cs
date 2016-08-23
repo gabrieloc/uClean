@@ -10,6 +10,8 @@ namespace CleanKit
 	public interface InstructionDelegate
 	{
 		void InstructionCellSelected (InstructionController controller, InstructionCell cell);
+
+		void InstructionCellDestroyed (InstructionController controller, InstructionCell cell);
 	}
 
 	public interface FulfillmentDelegate
@@ -83,9 +85,10 @@ namespace CleanKit
 			Assert.IsNotNull (instruction, "Cannot dequeue null instruction");
 
 			InstructionCell cell = cellForInstruction (instruction);
-			Destroy (cell);
-
+			instructionDelegate.InstructionCellDestroyed (this, cell);
 			fulfillmentDelegate.InstructionCancelled (this, instruction);
+
+			Destroy (cell.gameObject);
 
 			// TODO animate dequeue
 		}

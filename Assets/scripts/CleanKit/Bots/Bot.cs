@@ -8,6 +8,8 @@ namespace CleanKit
 	{
 		Destination destination;
 
+		public ActorDelegate actorDelegate;
+
 		public static int LayerMask { get { return 1 << UnityEngine.LayerMask.NameToLayer ("Actor"); } }
 
 		NavMeshAgent agent;
@@ -53,7 +55,7 @@ namespace CleanKit
 				} else {
 					prepareForInteraction ();
 				}
-			} else {
+			} else if (destination != null) {
 				if (shouldRelocate ()) {
 					destination.Live = true;
 					moveTowardsRelocationPoint ();
@@ -91,9 +93,9 @@ namespace CleanKit
 //			Debug.DrawRay (hit.point, hit.normal, Color.cyan);
 
 			// TODO: figure out how to align with surface normal
-			Vector3 lookPosition = point - transform.position;
-			lookPosition.y = 0.0f;
-			rotation = Quaternion.LookRotation (lookPosition, hit.normal);
+//			Vector3 lookPosition = point - transform.position;
+//			lookPosition.y = 0.0f;
+			rotation = Quaternion.LookRotation (point, Vector3.up);
 			rotation = Quaternion.Slerp (rotation, transform.rotation, Time.deltaTime * 20.0f);
 			transform.rotation = rotation;
 
@@ -125,7 +127,9 @@ namespace CleanKit
 			return destination.Distance (transform.position);
 		}
 
+		// is this still useful?
 		private bool ignoreRelocationPoint;
+
 		private float kMinimumInteractableDistance = 1.0f;
 
 		// Cells

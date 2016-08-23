@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CleanKit
 {
-	public partial class BotController: MonoBehaviour, SelectionDelegate
+	public partial class BotController: MonoBehaviour, SelectionDelegate, ActorDelegate
 	{
 		public InstructionController instructionController;
 		public SelectionController selectionController;
@@ -106,8 +106,16 @@ namespace CleanKit
 		public void AddBot ()
 		{
 			Bot bot = Bot.Instantiate ();
+			bot.actorDelegate = this;
 			bot.transform.SetParent (transform);
 			selectionController.DidInsertBot (bot);
+		}
+
+		// ActorDelegate
+
+		public void ActorFulfilledInstruction (Actor actor, Instruction instruction)
+		{
+			instructionController.DequeueInstruction (instruction);
 		}
 	}
 }

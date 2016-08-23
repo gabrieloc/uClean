@@ -43,11 +43,6 @@ namespace CleanKit
 			renderer.materials = ghostMaterials;
 		}
 
-		public void SetDraggingTransform (Vector3 withPosition)
-		{
-			transform.position = withPosition;
-		}
-
 		public void SetDroppedTransform (Vector3 withPosition)
 		{
 			transform.position = withPosition;

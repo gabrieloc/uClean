@@ -25,4 +25,9 @@ namespace CleanKit
 		// Cuts actor in half, returning new partition
 		Actor Bisect ();
 	}
+
+	public interface ActorDelegate
+	{
+		void ActorFulfilledInstruction (Actor actor, Instruction instruction);
+	}
 }

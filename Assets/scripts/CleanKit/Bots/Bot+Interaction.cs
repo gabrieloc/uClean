@@ -16,6 +16,7 @@ namespace CleanKit
 				Collider collider = instruction.interactable.GetComponent<Collider> ();
 				Vector3 closestPoint = collider.ClosestPointOnBounds (transform.position);
 				moveTowardsPoint (closestPoint);
+				lookAtPoint (closestPoint);
 			}
 		}
 
@@ -28,7 +29,7 @@ namespace CleanKit
 
 		bool shouldRelocate ()
 		{
-			return ignoreRelocationPoint == false && (destination != null && destination.ShouldRelocate (transform));
+			return ignoreRelocationPoint == false && destination != null;
 		}
 
 		public void RelocateToDestination (Destination newDestination)
@@ -47,12 +48,6 @@ namespace CleanKit
 			}
 		}
 
-		public void SetInstruction (Instruction instruction)
-		{
-			this.instruction = instruction;
-			cell.SetInteraction (instruction.interactionType);
-		}
-
 		public bool IsEmployed ()
 		{
 			return instruction != null;
@@ -60,7 +55,17 @@ namespace CleanKit
 
 		public void Employ (Instruction instruction)
 		{
-			SetInstruction (instruction);
+			destination = instruction.destination;
+			this.instruction = instruction;
+			cell.SetInteraction (instruction.interactionType);
+		}
+
+		public void EndEmployment ()
+		{
+			cell.SetInteraction (InteractionType.None);
+			actorDelegate.ActorFulfilledInstruction (this, instruction);
+			instruction = null;
+			destination = null;
 		}
 
 		public bool IsDivisible ()
@@ -118,12 +123,12 @@ namespace CleanKit
 
 		private bool canMoveInteractable ()
 		{
-			Vector3 contactPoint;
-			if (interactableIsLiftable () && rayCastAtInteractable (out contactPoint)) {
-				Vector3 lContact = transform.InverseTransformPoint (contactPoint);
-				float angle = Mathf.Abs (Vector3.Angle (transform.position, lContact));
-				bool belowInteractable = angle > 45.0f;
-				return belowInteractable;
+			Interactable interactable = instruction.interactable;
+			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
+			Rigidbody interactableRigidBody = interactable.GetComponent<Rigidbody> ();
+			bool holdJointConnected = holdJoint.connectedBody == interactableRigidBody;
+			if (interactableIsLiftable () && holdJointConnected) {
+				return true;
 			} else if (destination != null) {
 				float d = Vector3.Distance (transform.position, pushPosition ());
 				return d < kMinimumInteractableDistance;
@@ -159,6 +164,7 @@ namespace CleanKit
 
 		bool interactableIsLiftable ()
 		{
+			// TODO properly implement pushing interaction
 			return true;
 
 //			Vector3 botSize = GetComponent<Collider> ().bounds.size;
@@ -166,18 +172,33 @@ namespace CleanKit
 //			return botSize.magnitude / interactableSize.magnitude > kMaximumLiftableSizeMultiple;
 		}
 
+		bool withinInteractableDistance ()
+		{
+			Collider collider = instruction.interactable.GetComponent<Collider> ();
+			Vector3 closestPoint = collider.ClosestPointOnBounds (transform.position);
+			float distance = Vector3.Distance (closestPoint, transform.position);
+			return distance < 0.5f; // TODO allow bot to get closer
+		}
+
 		void prepareForLiftingInteractable ()
 		{
 			Interactable interactable = instruction.interactable;
-			Vector3 anchor = Vector3.down * interactable.GetComponent<Collider> ().bounds.size.y;
+			Rigidbody interactableRigidBody = interactable.GetComponent<Rigidbody> ();
+//			interactableRigidBody.isKinematic = true;
 
-			if (isLookingAtInteractable ()) {
-				Rigidbody interactableRigidBody = interactable.GetComponent<Rigidbody> ();
+			NavMeshObstacle obstacle = interactable.gameObject.GetComponent<NavMeshObstacle> ();
+			obstacle.enabled = false;
+
+			if (isLookingAtInteractable () && withinInteractableDistance ()) {
 				FixedJoint holdJoint = GetComponent<FixedJoint> ();
+				if (holdJoint.connectedBody != null) {
+					holdJoint.connectedBody = null;
+				}
 				holdJoint.connectedBody = interactableRigidBody;
-				holdJoint.connectedAnchor = anchor;
-				
-				interactableRigidBody.isKinematic = true;
+
+				// TODO connect joint at bottom of object
+//				Vector3 anchor = Vector3.down * interactable.GetComponent<Collider> ().bounds.size.y;
+//				holdJoint.connectedAnchor = anchor;
 			} else {
 				moveTowardsInteractable ();
 			}
@@ -212,13 +233,17 @@ namespace CleanKit
 
 		void liftInteractableToRelocationPoint ()
 		{
-//			FixedJoint holdJoint = gameObject.GetComponent<FixedJoint> ();
-//			if (holdJoint == null) {
-//				holdJoint = gameObject.AddComponent<FixedJoint> ();
-//				holdJoint.connectedBody = instruction.interactable.GetComponent<Rigidbody> ();
-//			}
+			float distance = Vector3.Distance (transform.position, destination.transform.position);
 
-			moveTowardsRelocationPoint ();
+			// TODO require certain amount of accuracy
+			if (distance > 1.0f) {
+				moveTowardsRelocationPoint ();
+			} else {
+				FixedJoint holdJoint = GetComponent<FixedJoint> ();
+				holdJoint.connectedBody = null;
+//				instruction.FulFill ();
+				EndEmployment ();
+			}
 		}
 
 		// Pushing
@@ -285,13 +310,13 @@ namespace CleanKit
 			Vector3 contactPoint;
 			bool looking = rayCastAtInteractable (out contactPoint);
 			interactableContactPoint = contactPoint;
-			Debug.DrawLine (transform.position, interactableContactPoint, looking ? Color.green : Color.red);
+			Debug.DrawLine (transform.position, interactableContactPoint, looking ? Color.cyan : Color.magenta);
 			return looking;
 		}
 
 		Vector3 interactableContactPoint;
 
-		private bool rayCastAtInteractable (out Vector3 contactPoint)
+		private bool rayCastAtInteractable (out Vector3 contactPoint, float distance = 2.0f)
 		{
 			contactPoint = new Vector3 ();
 			
@@ -306,7 +331,6 @@ namespace CleanKit
 			Ray ray = new Ray (transform.position, transform.TransformDirection (direction));
 			RaycastHit hit;
 			Collider interactableCollider = instruction.interactable.gameObject.GetComponent<Collider> ();
-			float distance = 2.0f;
 
 			bool cast = interactableCollider.Raycast (ray, out hit, distance);
 
