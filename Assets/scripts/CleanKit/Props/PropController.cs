@@ -7,10 +7,6 @@ namespace CleanKit
 {
 	public partial class PropController : MonoBehaviour, InteractableDelegate, InstructionDelegate
 	{
-		public int initialSpawn = 10;
-		public float displacement = 2.0f;
-		public float kMaxScale = 10.0f;
-
 		public InteractionController interactionController;
 		public InstructionController instructionController;
 
@@ -18,17 +14,13 @@ namespace CleanKit
 
 		void Start ()
 		{
-			for (int index = 0; index < initialSpawn; index++) {
-				SpawnRandomProp ();
-			}
-
 			instructionController.instructionDelegate = this;
 		}
 
 		void Update ()
 		{
-			List<Interactable> interactables = activeInteractables ().ToList ();
-			List<GameObject> active = interactables.Select (interactable => interactable.gameObject).ToList ();
+			List<Interactable> interactables = activeInteractables;
+			List<GameObject> active = interactables.Select (interactable => interactable.gameObject) as List<GameObject>;
 				
 			if (Controls.InputExists () && Controls.InteractingWithObjects (active) == false) {
 				instructionController.ClearSelection ();
@@ -36,54 +28,44 @@ namespace CleanKit
 			}
 		}
 
-		public void SpawnRandomProp ()
+		public void PrepareProps (List<PropInfo> props)
 		{
-			GameObject prop = PropLoader.CreateTestProp ();
-			prop.name = "Prop " + interactionController.Interactables.Count;
-			prop.transform.SetParent (transform, false);
-			prop.transform.position = new Vector3 (
-				(UnityEngine.Random.value + 1) * displacement * (UnityEngine.Random.value > 0.5 ? 1 : -1), 
-				20.0f, 
-				(UnityEngine.Random.value + 1) * displacement * (UnityEngine.Random.value > 0.5 ? 1 : -1));
-			prop.transform.localScale = new Vector3 (
-				UnityEngine.Random.value * kMaxScale, 
-				UnityEngine.Random.value * kMaxScale, 
-				UnityEngine.Random.value * kMaxScale);
-
-			float destinationDispersement = 30.0f;
-			Vector3 point = new Vector3 (
-				                UnityEngine.Random.value * destinationDispersement,
-				                0.0f,
-				                UnityEngine.Random.value * destinationDispersement);
-			Destination destination = Destination.Instantiate (point, Vector3.up);
-			destination.transform.SetParent (transform, false);
-				
-			Interactable interactable = prop.GetComponent<Interactable> ();
-			interactable.SetDestination (destination);
-			interactable.AddInteractionType (InteractionType.Move);
-			interactionController.Interactables.Add (interactable);
+			foreach (PropInfo propInfo in props) {
+				GameObject prop = PropLoader.CreateProp (propInfo, transform);
+				Interactable interactable = prop.GetComponent<Interactable> ();
+				interactable.interactableDelegate = this;
+			}
 		}
 
-		List<Interactable> activeInteractables ()
-		{
-			List<Interactable> interactables = GetComponentsInChildren<Interactable> ().ToList ();
-			return interactables.FindAll (i => i.IsGhostVisible ());
+		List<Interactable> activeInteractables {
+			get {
+				List<Interactable> interactables = GetComponentsInChildren<Interactable> ().ToList ();
+				return interactables.FindAll (i => i.specifiedDestination != null);
+			}
 		}
 
 		void clearActiveInteractables ()
 		{
-			foreach (Interactable interactable in activeInteractables().ToList()) {
-				interactable.SetGhostVisible (false);
-			}
+			activeInteractables.ForEach (i => i.DiscardSpecifiedDestination ());
 		}
 
 		void highlightInstruction (Instruction instruction)
 		{
 			Interactable interactable = instruction.interactable;
-			interactable.SetGhostVisible (true, true);
+			interactable.specifiedDestination.SetGhostState (GhostState.Bright);
 
 			Destination destination = instruction.destination;
 			cameraController.FocusOnSubject (destination.ghost.gameObject, ShotSize.CloseUp);
+		}
+
+		void enqueueInstructionForDestination (Interactable interactable, Destination destination)
+		{
+			Instruction instruction = new Instruction ();
+			instruction.interactable = interactable;
+			instruction.destination = destination;
+			instruction.interactionType = InteractionType.Move;
+
+			instructionController.EnqueueInstruction (instruction);
 		}
 
 		// InteractableDelegate
@@ -100,12 +82,7 @@ namespace CleanKit
 
 		public void InteractableConfirmedDestination (Interactable interactable, Destination destination)
 		{
-			Instruction instruction = new Instruction ();
-			instruction.interactable = interactable;
-			instruction.destination = destination;
-			instruction.interactionType = InteractionType.Move;
-
-			instructionController.EnqueueInstruction (instruction);
+			enqueueInstructionForDestination (interactable, destination);
 		}
 
 		// InstructionDelegate
@@ -119,7 +96,7 @@ namespace CleanKit
 		public void InstructionCellDestroyed (InstructionController controller, InstructionCell cell)
 		{
 			Instruction instruction = cell.instruction;
-			instruction.interactable.SetDestination (null);
+			instruction.interactable.DiscardSpecifiedDestination ();
 		}
 	}
 }

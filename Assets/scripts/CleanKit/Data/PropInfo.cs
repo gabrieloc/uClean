@@ -7,14 +7,11 @@ namespace CleanKit
 	public class PropInfo
 	{
 		public string name;
-		public int[] destination;
 		public int[] position;
 
 		public float rw;
 
 		public Vector3 Position { get { return arrayToVector3 (position); } }
-
-		public Vector3 DestinationPosition { get { return arrayToVector3 (destination); } }
 
 		public Quaternion Rotation { get { return new Quaternion (0, 1, 0, rw); } }
 

@@ -7,7 +7,9 @@ namespace CleanKit
 		public bool Live;
 		private float radius;
 
-		public InteractableGhost ghost;
+		public GhostState ghostState { get; private set; }
+
+		public InteractableGhost ghost { get; private set; }
 
 		public static Destination Instantiate (Vector3 point, Vector3 normal, InteractableGhost ghost = null)
 		{
@@ -50,15 +52,9 @@ namespace CleanKit
 			
 		// Ghosts
 
-		public bool IsGhostVisible ()
+		public void SetGhostState (GhostState state)
 		{
-			return ghost.gameObject.activeInHierarchy;
-		}
-
-		public void SetGhostVisible (bool visible, bool highlighted = false)
-		{
-			ghost.gameObject.SetActive (visible);
-			ghost.SetHighlighted (highlighted);
+			ghost.state = state;
 		}
 
 		public bool IsGhostPositionValid ()

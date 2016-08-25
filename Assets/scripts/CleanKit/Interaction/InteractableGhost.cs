@@ -1,9 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Linq;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace CleanKit
 {
+	public enum GhostState
+	{
+		Off,
+		Dimmed,
+		Bright
+	}
+
 	public class InteractableGhost : MonoBehaviour
 	{
 		public static InteractableGhost Instantiate (GameObject interactableGameObject)
@@ -26,21 +35,39 @@ namespace CleanKit
 			return ghost;
 		}
 
-		public void SetHighlighted (bool highlight)
+		GhostState _state;
+
+		public GhostState state {
+			get{ return _state; }
+			set {
+				Renderer renderer = GetComponent<Renderer> ();
+				Material material = materialForState (state);
+				List<Material> materials = new List<Material> ();
+				renderer.materials.ToList ().ForEach (m => materials.Add (material));
+				renderer.materials = materials.ToArray ();
+			}
+		}
+
+		Material materialForState (GhostState state)
 		{
 			Shader ghostShader = Shader.Find ("CleanKit/Ghost");
 			Material ghostMaterial = new Material (ghostShader);
-			Color color = highlight ? Color.blue : Color.gray;
-			color.a = 0.5f;
-			ghostMaterial.SetColor ("_color", color);
-			Renderer renderer = GetComponent<Renderer> ();
+			Color color = new Color ();
 
-			int materialCount = renderer.materials.Length;
-			Material[] ghostMaterials = new Material[materialCount];
-			for (int i = 0; i < materialCount; i++) {
-				ghostMaterials [i] = ghostMaterial;
+			switch (state) {
+			case GhostState.Off:
+				color = Color.clear;
+				break;
+			case GhostState.Dimmed:
+				color = new Color (0, 0, 0, 0.25f);
+				break;
+			case GhostState.Bright:
+				color = new Color (0, 1, 1, 0.5f);
+				break;
 			}
-			renderer.materials = ghostMaterials;
+
+			ghostMaterial.SetColor ("_color", color);
+			return ghostMaterial;
 		}
 
 		public void SetDroppedTransform (Vector3 withPosition)

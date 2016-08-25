@@ -2,8 +2,7 @@
 	"props": [
 		{
 			"name":	"CKCream",
-			"destination": [2, 0, 4],
-			"position": [1, 1, 1]
+			"position": [2, 0, 4]
 		}
 	],
 	"_props": [

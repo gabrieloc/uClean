@@ -11,12 +11,18 @@ namespace CleanKit
 			return testProp;
 		}
 
-		public static GameObject CreateProp (PropInfo propInfo)
+		public static GameObject CreateProp (PropInfo propInfo, Transform parentTransform)
 		{
 			GameObject resource = Resources.Load<GameObject> ("Props/" + propInfo.name);
-			Vector3 position = propInfo.Position;
 			Quaternion rotation = propInfo.Rotation;
 
+			float displacement = 5.0f;
+			Vector3 position = new Vector3 (
+				                   (UnityEngine.Random.value + 1) * displacement * (UnityEngine.Random.value > 0.5 ? 1 : -1), 
+				                   10.0f, 
+				                   (UnityEngine.Random.value + 1) * displacement * (UnityEngine.Random.value > 0.5 ? 1 : -1));
+			
+				
 			GameObject prop = GameObject.Instantiate (resource, position, rotation) as GameObject;
 			prop.transform.localEulerAngles = new Vector3 (-90.0f, 0.0f, 0.0f);
 			prop.AddComponent<Rigidbody> ();
@@ -26,9 +32,10 @@ namespace CleanKit
 			MeshCollider collider = prop.AddComponent<MeshCollider> ();
 			collider.convex = true;
 
-			// Add the Interactable component last, since it assumes a configured gameObject
+			prop.transform.SetParent (parentTransform);
+
 			Interactable interactable = prop.AddComponent<Interactable> ();
-			interactable.CreateDestination (propInfo.DestinationPosition);
+			interactable.SetPreferredPosition (propInfo.Position);
 
 			return prop;
 		}

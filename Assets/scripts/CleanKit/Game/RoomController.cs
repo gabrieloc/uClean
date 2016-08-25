@@ -29,15 +29,7 @@ namespace CleanKit
 
 		void preparePropsInRoom (RoomInfo roomInfo)
 		{
-			foreach (PropInfo propInfo in roomInfo.props) {
-				GameObject prop = PropLoader.CreateProp (propInfo);
-				Interactable interactable = prop.GetComponent<Interactable> ();
-				interactable.interactableDelegate = propController;
-				prop.transform.SetParent (propController.transform);
-				if (interactable.destination) {
-					interactable.destination.transform.SetParent (propController.transform);
-				}
-			}
+			propController.PrepareProps (roomInfo.props);
 		}
 	}
 }

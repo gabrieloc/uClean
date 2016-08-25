@@ -22,7 +22,7 @@ namespace CleanKit
 
 		public List<Interactable> InstructionedInteractables {
 			get {
-				return Interactables.FindAll (i => i.destination != null);
+				return Interactables.FindAll (i => i.specifiedDestination != null);
 			}
 		}
 

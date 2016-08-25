@@ -11,9 +11,6 @@ namespace CleanKit
 		{
 			DrawDefaultInspector ();
 			PropController propController = (PropController)target;
-			if (GUILayout.Button ("Add Prop")) {
-				propController.SpawnRandomProp ();
-			}
 		}
 	}
 }

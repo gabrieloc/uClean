@@ -50,14 +50,14 @@ namespace CleanKit
 			}
 		}
 
-		public void SetDestination (Destination d)
+		public void SetSpecifiedDestination (Destination d)
 		{
 			if (d != null) {
-				destination = d;
-				destination.name = name + " (destination)";
+				specifiedDestination = d;
+				specifiedDestination.name = name + " (specified destination)";
 			} else {
-				Destroy (destination.gameObject);	
-				destination = null;
+				Destroy (specifiedDestination.gameObject);	
+				specifiedDestination = null;
 			}
 		}
 	}
