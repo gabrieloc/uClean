@@ -7,9 +7,9 @@ namespace CleanKit
 {
 	public partial class BotController : FulfillmentDelegate
 	{
-		Actor[] unemployedActors { get { return Array.FindAll (actors, actorIsEmployable); } }
+		List<Actor> unemployedActors { get { return actors.FindAll (a => !a.IsEmployed ()); } }
 
-		Actor[] divisibleActors { get { return Array.FindAll (actors, actorIsDivisible); } }
+		List<Actor> divisibleActors { get { return actors.FindAll (a => a.IsDivisible ()); } }
 
 		public void InstructionNeedsFulfillment (InstructionController controller, Instruction instruction)
 		{
@@ -35,11 +35,11 @@ namespace CleanKit
 
 		void employActor (Actor actor, Instruction job = null)
 		{
-			Instruction[] jobs = instructionController.AvailableInstructions ();
+			List<Instruction> jobs = instructionController.AvailableInstructions ();
 
 			if (job != null) {
 				actor.Employ (job);
-			} else if (jobs.Length > 0) {
+			} else if (jobs.Count > 0) {
 				actor.Employ (jobs [0]);
 			}
 		}
@@ -47,12 +47,12 @@ namespace CleanKit
 		Actor createEmployableActor ()
 		{
 			// First, look for unemployed actors
-			if (unemployedActors.Length > 0) {
+			if (unemployedActors.Count > 0) {
 				return unemployedActors [0];
 			}
 
 			// Next, look for reassignable actors
-			if (divisibleActors.Length > 0) {
+			if (divisibleActors.Count > 0) {
 				Actor divisible = divisibleActors [0];
 				Actor newActor = divisible.Bisect ();
 				return newActor;
@@ -60,16 +60,6 @@ namespace CleanKit
 
 			// If neither unemployed or reassignable actors exist, return nothing
 			return null;
-		}
-
-		static bool actorIsEmployable (Actor actor)
-		{
-			return actor.IsEmployed () == false;
-		}
-
-		static bool actorIsDivisible (Actor actor)
-		{
-			return actor.IsDivisible ();
 		}
 	}
 }

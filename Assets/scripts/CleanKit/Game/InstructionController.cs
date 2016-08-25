@@ -2,8 +2,8 @@
 using UnityEngine.UI;
 using UnityEngine.Assertions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace CleanKit
 {
@@ -27,37 +27,27 @@ namespace CleanKit
 
 		public FulfillmentDelegate fulfillmentDelegate;
 
-		InstructionCell[] instructionQueue {
+		List<InstructionCell> instructionQueue {
 			get {
-				return cellContainer.GetComponentsInChildren<InstructionCell> ();
+				return cellContainer.GetComponentsInChildren<InstructionCell> ().ToList ();
 			}
 		}
 
-		public Instruction[] AvailableInstructions ()
+		public List<Instruction> AvailableInstructions ()
 		{
 			// TODO consider sorting by priority (lowest number of acors)
-			InstructionCell[] unassignedCells = Array.FindAll (instructionQueue, isInstructionForCellAssigned);
-			return unassignedCells.Select (cell => cell.instruction).ToArray ();
+//			List<Actor> unemployedActors { get { return actors.FindAll (a => !a.IsEmployed ()); } }
+
+			List<InstructionCell> unassignedCells = instructionQueue.FindAll (cell => cell.instruction == null);
+			return unassignedCells.Select (cell => cell.instruction) as List<Instruction>;
 		}
 
 		public Transform cellContainer;
 
 		public void ClearSelection ()
 		{
-			InstructionCell[] selectedCells = Array.FindAll (instructionQueue, isCellSelected);
-			foreach (InstructionCell cell in selectedCells.ToList()) {
-				cell.highlighted = false;
-			}
-		}
-
-		static bool isCellSelected (InstructionCell cell)
-		{
-			return cell.highlighted;
-		}
-
-		static bool isInstructionForCellAssigned (InstructionCell cell)
-		{
-			return cell.instruction == null;
+			List<InstructionCell> selectedCells = instructionQueue.FindAll (cell => cell.highlighted);
+			selectedCells.ForEach (cell => cell.highlighted = false);
 		}
 
 		public void EnqueueInstruction (Instruction instruction)

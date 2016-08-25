@@ -2,6 +2,9 @@
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+
+using System;
+using System.Linq;
 using System.Collections.Generic;
 
 /*
@@ -16,6 +19,12 @@ namespace CleanKit
 	public class InteractionController : MonoBehaviour
 	{
 		List<Interactable> availableInteractables = new List<Interactable> ();
+
+		public List<Interactable> InstructionedInteractables {
+			get {
+				return Interactables.FindAll (i => i.destination != null);
+			}
+		}
 
 		public List<Interactable> Interactables { get; private set; }
 

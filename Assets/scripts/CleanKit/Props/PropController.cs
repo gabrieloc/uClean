@@ -64,11 +64,10 @@ namespace CleanKit
 			interactionController.Interactables.Add (interactable);
 		}
 
-		Interactable[] activeInteractables ()
+		List<Interactable> activeInteractables ()
 		{
-			Interactable[] interactables = GetComponentsInChildren<Interactable> ();
-			Interactable[] activeInteractables = Array.FindAll (interactables, interactableIsActive);
-			return activeInteractables;
+			List<Interactable> interactables = GetComponentsInChildren<Interactable> ().ToList ();
+			return interactables.FindAll (i => i.IsGhostVisible ());
 		}
 
 		void clearActiveInteractables ()
@@ -76,11 +75,6 @@ namespace CleanKit
 			foreach (Interactable interactable in activeInteractables().ToList()) {
 				interactable.SetGhostVisible (false);
 			}
-		}
-
-		static bool interactableIsActive (Interactable interactable)
-		{
-			return interactable.IsGhostVisible ();
 		}
 
 		void highlightInstruction (Instruction instruction)

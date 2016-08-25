@@ -233,6 +233,8 @@ namespace CleanKit
 
 		void liftInteractableToRelocationPoint ()
 		{
+			// TODO move interactable to exact point, don't let it end up off-grid
+
 			float distance = Vector3.Distance (transform.position, destination.transform.position);
 
 			// TODO require certain amount of accuracy

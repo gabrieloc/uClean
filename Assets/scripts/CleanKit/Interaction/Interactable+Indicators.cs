@@ -11,8 +11,6 @@ namespace CleanKit
 		float kIndicatorSpacing = 2.0f;
 		readonly public List<InteractableIndicator> indicators = new List<InteractableIndicator> ();
 
-		Destination destination;
-
 		public void LayoutIndicators ()
 		{
 			Vector3 center = RectTransformUtility.WorldToScreenPoint (Camera.main, transform.position);

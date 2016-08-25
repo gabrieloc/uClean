@@ -7,7 +7,7 @@ namespace CleanKit
 	public class RoomInfo
 	{
 		public string test;
-		public PropInfo[] props;
+		public List<PropInfo> props;
 
 		public static RoomInfo CreatePlayground ()
 		{

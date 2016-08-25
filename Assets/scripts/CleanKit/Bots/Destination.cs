@@ -20,6 +20,7 @@ namespace CleanKit
 			if (ghost != null) {
 				destination.ghost = ghost;
 				ghost.transform.SetParent (destination.transform);
+				ghost.transform.localPosition = Vector3.zero;
 			}
 
 			return destination;

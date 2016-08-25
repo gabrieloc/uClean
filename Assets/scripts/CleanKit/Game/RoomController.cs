@@ -34,6 +34,9 @@ namespace CleanKit
 				Interactable interactable = prop.GetComponent<Interactable> ();
 				interactable.interactableDelegate = propController;
 				prop.transform.SetParent (propController.transform);
+				if (interactable.destination) {
+					interactable.destination.transform.SetParent (propController.transform);
+				}
 			}
 		}
 	}

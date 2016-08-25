@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace CleanKit
@@ -18,7 +19,7 @@ namespace CleanKit
 		int timeSinceLastSpawn = 0;
 		int botSpawnInterval = 5;
 
-		Actor[] actors { get { return transform.GetComponentsInChildren<Actor> (); } }
+		List<Actor> actors { get { return transform.GetComponentsInChildren<Actor> ().ToList (); } }
 
 		void Start ()
 		{

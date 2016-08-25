@@ -20,6 +20,8 @@ namespace CleanKit
 
 		Surface lastSurface;
 
+		public Destination destination { get; private set; }
+
 		void Start ()
 		{
 			int layermask = UnityEngine.LayerMask.NameToLayer ("Interactable");
@@ -43,7 +45,9 @@ namespace CleanKit
 		public void UpdateDragPosition (Vector3 newPosition)
 		{
 			if (destination == null) {
-				createDestination ();
+				CreateDestination (transform.position, true);
+			} else {
+				destination.SetGhostVisible (true);
 			}
 
 			Vector3 screenPosition = newPosition;
@@ -90,15 +94,15 @@ namespace CleanKit
 			}
 		}
 
-		void createDestination (bool highlight = false)
+		public void CreateDestination (Vector3 position, bool ghostVisible = false)
 		{
 			InteractableGhost ghost = InteractableGhost.Instantiate (gameObject);
 			ghost.gameObject.layer = 0;
 				
-			destination = Destination.Instantiate (transform.position, Vector3.up, ghost);
-			destination.transform.SetParent (transform.parent);
+			destination = Destination.Instantiate (position, Vector3.up, ghost);
+			destination.transform.SetParent (gameObject.transform.parent);
 
-			destination.SetGhostVisible (true, false);
+			destination.SetGhostVisible (visible: ghostVisible, highlighted: false);
 
 			destination.name = gameObject.name + " (Destination)";
 			destination.gameObject.layer = 0;
@@ -117,17 +121,14 @@ namespace CleanKit
 			}
 		}
 
-		// TODO: Refactor all this to use grid-based approach
-
-		const float kMinimumDistance = 50.0f;
+		const float kScorableDistance = 50.0f;
 
 		public float Score ()
 		{
 			// TODO extract this to allow different types of interactables to be scored individually
-//			float distance = destination.Distance (transform.position);
-//			float score = (kMinimumDistance - distance) / kMinimumDistance;
-//			return score;
-			return 0.5f;
+			float distance = destination.Distance (transform.position);
+			float score = (kScorableDistance - distance) / kScorableDistance;
+			return score;
 		}
 	}
 }

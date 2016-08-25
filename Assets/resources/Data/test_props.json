@@ -1,6 +1,13 @@
 {
 	"props": [
 		{
+			"name":	"CKCream",
+			"destination": [2, 0, 4],
+			"position": [1, 1, 1]
+		}
+	],
+	"_props": [
+		{
 			"name":	"CKFloss",
 			"x": 1,
 			"z": 1

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace CleanKit
 {
@@ -13,14 +14,12 @@ namespace CleanKit
 
 		Text scoreLabel;
 
-		// Use this for initialization
 		void Start ()
 		{
 			scoreLabel = GetComponentInChildren<Text> ();
 			interactionController = GameObject.Find ("InteractionController").GetComponent<InteractionController> ();
 		}
-		
-		// Update is called once per frame
+
 		void Update ()
 		{
 			if (evaluationInterval > 0.0f) {
@@ -33,13 +32,17 @@ namespace CleanKit
 
 		void evaluateScore ()
 		{
+			List<Interactable> interactables = interactionController.InstructionedInteractables;
+			int count = interactables.Count;
 			float score = 0.0f;
-			int propCount = interactionController.Interactables.Count;
-			foreach (Interactable interactable in interactionController.Interactables) {
-				float propScore = interactable.Score ();
-				score += (1.0f / propCount) * propScore;
-			}
+			interactables.ForEach (i => score += (1.0f / count) * i.Score ());
 			setScore (score);
+			setScoreboardVisible (count > 0);
+		}
+
+		void setScoreboardVisible (bool visible)
+		{
+			enabled = visible;
 		}
 
 		void setScore (float score)
