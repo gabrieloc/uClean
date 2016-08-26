@@ -36,8 +36,6 @@ namespace CleanKit
 		public List<Instruction> AvailableInstructions ()
 		{
 			// TODO consider sorting by priority (lowest number of acors)
-//			List<Actor> unemployedActors { get { return actors.FindAll (a => !a.IsEmployed ()); } }
-
 			List<InstructionCell> unassignedCells = instructionQueue.FindAll (cell => cell.instruction == null);
 			return unassignedCells.Select (cell => cell.instruction) as List<Instruction>;
 		}

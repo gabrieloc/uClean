@@ -67,7 +67,7 @@ namespace CleanKit
 		{
 			EventSystem eventSystem = EventSystem.current;
 			GameObject interactingObject = eventSystem.currentSelectedGameObject;
-			return gameObjects.Contains (interactingObject);
+			return interactingObject ? gameObjects.Contains (interactingObject) : false;
 		}
 	}
 }

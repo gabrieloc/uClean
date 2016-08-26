@@ -40,8 +40,10 @@ namespace CleanKit
 		public GhostState state {
 			get{ return _state; }
 			set {
+				_state = value;
+
 				Renderer renderer = GetComponent<Renderer> ();
-				Material material = materialForState (state);
+				Material material = materialForState (_state);
 				List<Material> materials = new List<Material> ();
 				renderer.materials.ToList ().ForEach (m => materials.Add (material));
 				renderer.materials = materials.ToArray ();

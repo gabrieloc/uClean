@@ -39,7 +39,7 @@ namespace CleanKit
 
 			if (job != null) {
 				actor.Employ (job);
-			} else if (jobs.Count > 0) {
+			} else if (jobs != null && jobs.Count > 0) {
 				actor.Employ (jobs [0]);
 			}
 		}
