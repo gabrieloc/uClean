@@ -40,10 +40,10 @@ namespace CleanKit
 			eventTrigger = GetComponent<EventTrigger> ();
 			cameraController = Camera.main.GetComponent<CameraController> ();
 
-			Controls.RegisterEvent (eventTrigger, EventTriggerType.PointerClick, pointerClicked);
-			Controls.RegisterEvent (eventTrigger, EventTriggerType.BeginDrag, draggingBegan);
-			Controls.RegisterEvent (eventTrigger, EventTriggerType.Drag, draggingUpdated);
-			Controls.RegisterEvent (eventTrigger, EventTriggerType.EndDrag, draggingEnded);
+			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.PointerClick, pointerClicked);
+			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.BeginDrag, draggingBegan);
+			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.Drag, draggingUpdated);
+			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.EndDrag, draggingEnded);
 		}
 
 		void Update ()
