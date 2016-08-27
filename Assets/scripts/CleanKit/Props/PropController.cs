@@ -40,7 +40,7 @@ namespace CleanKit
 		List<Interactable> activeInteractables {
 			get {
 				List<Interactable> interactables = GetComponentsInChildren<Interactable> ().ToList ();
-				return interactables.FindAll (i => i.specifiedDestination != null);
+				return interactables.FindAll (i => i.HasSpecifiedDestination ());
 			}
 		}
 
@@ -52,7 +52,7 @@ namespace CleanKit
 		void highlightInstruction (Instruction instruction)
 		{
 			Interactable interactable = instruction.interactable;
-			interactable.specifiedDestination.SetGhostState (GhostState.Bright);
+			interactable.RevealPreferredDestination ();
 
 			Destination destination = instruction.destination;
 			cameraController.FocusOnSubject (destination.ghost.gameObject, ShotSize.CloseUp);

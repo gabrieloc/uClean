@@ -22,7 +22,7 @@ namespace CleanKit
 
 		public List<Interactable> InstructionedInteractables {
 			get {
-				return Interactables.FindAll (i => i.specifiedDestination != null);
+				return Interactables.FindAll (i => i.HasSpecifiedDestination ());
 			}
 		}
 
@@ -59,12 +59,19 @@ namespace CleanKit
 			Ray ray = Camera.main.ScreenPointToRay (screenPosition);
 			RaycastHit hitInfo;
 			if (Physics.Raycast (worldPosition, ray.direction, out hitInfo, Camera.main.farClipPlane)) {
+
 				GameObject hitObject = hitInfo.collider.gameObject;
 				Vector3 hitPoint = hitInfo.point;
-				if (Surface.LayerMask == (Surface.LayerMask | (1 << hitObject.layer))) {
+				int hitLayer = (1 << hitObject.layer);
+
+				if (Surface.LayerMask == (Surface.LayerMask | hitLayer)) {
 					botController.RelocateToPosition (hitPoint, hitInfo.normal);
-				} else if (Bot.LayerMask == (Bot.LayerMask | (1 << hitObject.layer))) {
+				} else if (Bot.LayerMask == (Bot.LayerMask | hitLayer)) {
 					botController.SelectBot (hitObject.GetComponentInParent<Bot> ());
+				} else if (Interactable.LayerMask == (Interactable.LayerMask | hitLayer)) {
+					Interactable interactable = hitObject.GetComponent<Interactable> ();
+					interactable.RevealPreferredDestination ();
+					// TODO: should toggle
 				}
 			}
 		}

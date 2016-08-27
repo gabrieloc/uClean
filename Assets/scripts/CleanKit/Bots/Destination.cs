@@ -54,7 +54,9 @@ namespace CleanKit
 
 		public void SetGhostState (GhostState state)
 		{
-			ghost.state = state;
+			if (ghost.state != state) {
+				ghost.state = state;
+			}
 		}
 
 		public bool IsGhostPositionValid ()

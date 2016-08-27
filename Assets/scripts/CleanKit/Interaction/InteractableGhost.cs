@@ -23,6 +23,7 @@ namespace CleanKit
 			clone.gameObject.AddComponent<InteractableGhost> ();
 
 			InteractableGhost ghost = clone.GetComponent<InteractableGhost> ();
+			ghost.state = GhostState.Off;
 
 			clone.GetComponent<Rigidbody> ().isKinematic = true;
 

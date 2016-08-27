@@ -22,9 +22,20 @@ namespace CleanKit
 
 		Destination _preferredDestination;
 
-		public Destination preferredDestination { get { return _preferredDestination; } }
+		Destination preferredDestination {
+			get {
+				return _preferredDestination;
+			}
+			set {
+				if (_preferredDestination != null) {
+					Destroy (_preferredDestination);
+					_preferredDestination = null;
+				}
+				_preferredDestination = value;
+			}
+		}
 
-		public Destination specifiedDestination { get; private set; }
+		Destination specifiedDestination;
 
 		void Start ()
 		{
@@ -34,11 +45,12 @@ namespace CleanKit
 
 		public void SetPreferredPosition (Vector3 position)
 		{
-			if (_preferredDestination) {
-				Destroy (_preferredDestination);
-				_preferredDestination = null;
-			}
 			_preferredDestination = CreateDestination (position, GhostState.Off, "Preferred");
+		}
+
+		public void RevealPreferredDestination ()
+		{
+			preferredDestination.SetGhostState (GhostState.Bright);
 		}
 
 		// TODO have this called outside EventTriggerType.Drag
@@ -50,6 +62,8 @@ namespace CleanKit
 			} else {
 				specifiedDestination.SetGhostState (GhostState.Dimmed);
 			}
+
+			preferredDestination.SetGhostState (GhostState.Bright);
 
 			Vector3 screenPosition = newPosition;
 			screenPosition.z = Camera.main.nearClipPlane;
@@ -110,17 +124,23 @@ namespace CleanKit
 			return destination;
 		}
 
+		public bool HasSpecifiedDestination ()
+		{
+			return specifiedDestination != null;
+		}
+
 		void CommitSpecifiedDestination ()
 		{
 			undiscloseSurface ();
-			specifiedDestination.SetGhostState (GhostState.Off);
+			specifiedDestination.SetGhostState (GhostState.Dimmed);
 			interactableDelegate.InteractableConfirmedDestination (this, specifiedDestination);
 		}
 
 		public void DiscardSpecifiedDestination ()
 		{
 			undiscloseSurface ();
-			Destroy (specifiedDestination);
+			Destroy (specifiedDestination.gameObject);
+			preferredDestination.SetGhostState (GhostState.Off);
 		}
 
 		void undiscloseSurface ()

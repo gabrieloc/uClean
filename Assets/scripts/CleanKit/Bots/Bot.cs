@@ -127,7 +127,7 @@ namespace CleanKit
 			return destination.Distance (transform.position);
 		}
 
-		// is this still useful?
+		// is this still useful? can be calculated based off employment status
 		private bool ignoreRelocationPoint;
 
 		private float kMinimumInteractableDistance = 1.0f;
