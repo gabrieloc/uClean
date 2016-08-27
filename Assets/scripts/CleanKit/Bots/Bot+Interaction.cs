@@ -16,7 +16,6 @@ namespace CleanKit
 				Collider collider = instruction.interactable.GetComponent<Collider> ();
 				Vector3 closestPoint = collider.ClosestPointOnBounds (transform.position);
 				moveTowardsPoint (closestPoint);
-				lookAtPoint (closestPoint);
 			}
 		}
 

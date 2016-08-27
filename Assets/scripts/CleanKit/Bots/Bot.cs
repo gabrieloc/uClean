@@ -37,6 +37,17 @@ namespace CleanKit
 			gameObject.SetSelected (false);
 			gameObject.name = BotNamer.New ();
 
+			float minScale = 0.1f;
+			float maxScale = 1;
+			Vector3 scale = new Vector3 (
+				                Random.Range (minScale, maxScale),
+				                Random.Range (minScale, maxScale), 
+				                Random.Range (minScale, maxScale));
+			gameObject.transform.localScale = scale;
+
+			NavMeshAgent agent = gameObject.GetComponent<NavMeshAgent> ();
+			agent.speed = 5.0f / scale.magnitude;
+
 			Bot bot = gameObject.GetComponent<Bot> ();
 			bot.createCell ();
 			return bot;
@@ -72,6 +83,7 @@ namespace CleanKit
 
 		void moveTowardsPoint (Vector3 point)
 		{
+			lookAtPoint (point);
 			agent.SetDestination (point);
 		}
 
@@ -80,36 +92,14 @@ namespace CleanKit
 			moveTowardsPoint (destination.transform.position);
 		}
 
-		public bool debugDirection = false;
-		float distanceFromTarget;
-		float speedMultiplier;
-
 		void lookAtPoint (Vector3 point)
 		{
-			Quaternion rotation = new Quaternion ();
-
-			RaycastHit hit;
-			Physics.Raycast (transform.position, Vector3.down, out hit, 1.0f);
-//			Debug.DrawRay (hit.point, hit.normal, Color.cyan);
-
-			// TODO: figure out how to align with surface normal
-//			Vector3 lookPosition = point - transform.position;
-//			lookPosition.y = 0.0f;
-			rotation = Quaternion.LookRotation (point, Vector3.up);
-			rotation = Quaternion.Slerp (rotation, transform.rotation, Time.deltaTime * 20.0f);
-			transform.rotation = rotation;
-
-			if (debugDirection) {
-				Vector3 arrowHead = transform.TransformPoint (new Vector3 (0, 0, 2.0f));
-				Debug.DrawLine (transform.position, arrowHead, Color.green);
-				Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (-0.5f, 0, 1.5f)), Color.green);
-				Debug.DrawLine (arrowHead, transform.TransformPoint (new Vector3 (0.5f, 0, 1.5f)), Color.green);	
+			Vector3 lookPoint = point - transform.position;
+			if (lookPoint.magnitude < 1.0f) {
+				return;
 			}
-		}
-
-		Vector3 Direction (Vector3 origin, Vector3 destination)
-		{
-			return	(destination - origin).normalized;	
+			Quaternion rotation = Quaternion.LookRotation (lookPoint);
+			transform.rotation = Quaternion.Lerp (transform.rotation, rotation, Time.deltaTime * 5.0f);
 		}
 
 		public bool kDebugPersonalSpace = false;
