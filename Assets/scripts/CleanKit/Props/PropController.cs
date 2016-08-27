@@ -17,17 +17,6 @@ namespace CleanKit
 			instructionController.instructionDelegate = this;
 		}
 
-		void Update ()
-		{
-			List<Interactable> interactables = activeInteractables;
-			List<GameObject> active = interactables.Select (interactable => interactable.gameObject) as List<GameObject>;
-				
-			if (Controls.InputExists () && Controls.InteractingWithObjects (active) == false) {
-				instructionController.ClearSelection ();
-				clearActiveInteractables ();
-			}
-		}
-
 		public void PrepareProps (List<PropInfo> props)
 		{
 			foreach (PropInfo propInfo in props) {
