@@ -45,7 +45,7 @@ namespace CleanKit
 
 		public void SetPreferredPosition (Vector3 position)
 		{
-			_preferredDestination = CreateDestination (position, GhostState.Off, "Preferred");
+			preferredDestination = CreateDestination (position, GhostState.Off, "Preferred");
 		}
 
 		public void RevealPreferredDestination ()
@@ -151,6 +151,13 @@ namespace CleanKit
 		}
 
 		const float kScorableDistance = 50.0f;
+
+		public bool CanBeEvaluated ()
+		{
+			// TODO extend this to allow other means of evaluation
+
+			return preferredDestination != null;
+		}
 
 		public float Score ()
 		{

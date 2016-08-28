@@ -12,6 +12,8 @@ namespace CleanKit
 			bool canInteract = canPerformInteraction ();
 			ignoreRelocationPoint = !canInteract;
 
+			prepareInteractableForMovement (true);
+
 			if (!canInteract) {
 				Collider collider = instruction.interactable.GetComponent<Collider> ();
 				Vector3 closestPoint = collider.ClosestPointOnBounds (transform.position);
@@ -108,9 +110,11 @@ namespace CleanKit
 
 		private void prepareForInteraction ()
 		{
+			Interactable interactable = instruction.interactable;
+
 			switch (instruction.interactionType) {
 			case InteractionType.Move:
-				prepareForMovingInteractable ();
+				prepareForMovingInteractable (interactable);
 				break;
 			case InteractionType.Clean:
 				prepareForCleaningInteractable ();
@@ -135,10 +139,10 @@ namespace CleanKit
 			return false;
 		}
 
-		private void prepareForMovingInteractable ()
+		private void prepareForMovingInteractable (Interactable interactable)
 		{
 			if (interactableIsLiftable ()) {
-				prepareForLiftingInteractable ();
+				prepareForLiftingInteractable (interactable);
 			} else {
 				prepareForPushingInteractable ();
 			}
@@ -159,7 +163,50 @@ namespace CleanKit
 			}
 		}
 
+		void prepareInteractableForMovement (bool movable)
+		{
+			Interactable interactable = instruction.interactable;
+			NavMeshObstacle obstacle = interactable.gameObject.GetComponent<NavMeshObstacle> ();
+			obstacle.enabled = !movable;
+		}
+
 		// Lifting
+
+		void liftInteractable (Interactable interactable)
+		{
+			// TODO animate moving under thing
+
+			Vector3 destinationPosition = interactable.transform.position;
+			destinationPosition.y = transform.position.y;
+			transform.position = destinationPosition;
+
+			// TODO ensure interactable is upright
+
+			Rigidbody interactableRigidBody = interactable.GetComponent<Rigidbody> ();
+			//			interactableRigidBody.isKinematic = true;
+
+			// TODO move bot to center below object
+			FixedJoint holdJoint = GetComponent<FixedJoint> ();
+			if (holdJoint.connectedBody != null) {
+				holdJoint.connectedBody = null;
+			}
+			holdJoint.connectedBody = interactableRigidBody;
+			// TODO connect joint at bottom of object
+			//				Vector3 anchor = Vector3.down * interactable.GetComponent<Collider> ().bounds.size.y;
+			//				holdJoint.connectedAnchor = anchor;
+
+			prepareInteractableForMovement (true);
+		}
+
+		void dropInteractable ()
+		{
+			FixedJoint holdJoint = GetComponent<FixedJoint> ();
+			holdJoint.connectedBody = null;
+			Interactable interactable = instruction.interactable;
+			interactable.transform.position = Grid.ClosestIntersectingPoint (destination.transform.position);
+
+			prepareInteractableForMovement (false);
+		}
 
 		bool interactableIsLiftable ()
 		{
@@ -179,25 +226,10 @@ namespace CleanKit
 			return distance < 0.5f; // TODO allow bot to get closer
 		}
 
-		void prepareForLiftingInteractable ()
+		void prepareForLiftingInteractable (Interactable interactable)
 		{
-			Interactable interactable = instruction.interactable;
-			Rigidbody interactableRigidBody = interactable.GetComponent<Rigidbody> ();
-//			interactableRigidBody.isKinematic = true;
-
-			NavMeshObstacle obstacle = interactable.gameObject.GetComponent<NavMeshObstacle> ();
-			obstacle.enabled = false;
-
 			if (isLookingAtInteractable () && withinInteractableDistance ()) {
-				FixedJoint holdJoint = GetComponent<FixedJoint> ();
-				if (holdJoint.connectedBody != null) {
-					holdJoint.connectedBody = null;
-				}
-				holdJoint.connectedBody = interactableRigidBody;
-
-				// TODO connect joint at bottom of object
-//				Vector3 anchor = Vector3.down * interactable.GetComponent<Collider> ().bounds.size.y;
-//				holdJoint.connectedAnchor = anchor;
+				liftInteractable (interactable);
 			} else {
 				moveTowardsInteractable ();
 			}
@@ -205,19 +237,21 @@ namespace CleanKit
 
 		void liftInteractableToRelocationPoint ()
 		{
-			// TODO move interactable to exact point, don't let it end up off-grid
-
-			float distance = Vector3.Distance (transform.position, destination.transform.position);
-
-			// TODO require certain amount of accuracy
-			if (distance > 1.0f) {
-				moveTowardsRelocationPoint ();
-			} else {
-				FixedJoint holdJoint = GetComponent<FixedJoint> ();
-				holdJoint.connectedBody = null;
-//				instruction.FulFill ();
+			if (interactableAtDestination ()) {
+				dropInteractable ();
 				EndEmployment ();
+			} else {
+				moveTowardsRelocationPoint ();
 			}
+		}
+
+		bool interactableAtDestination ()
+		{
+			Interactable interactable = instruction.interactable;
+			Vector3 interactablePoint = Grid.ClosestIntersectingPoint (interactable.transform.position);
+			Vector3 destinationPoint = Grid.ClosestIntersectingPoint (destination.transform.position);
+
+			return Vector3.Equals (interactablePoint, destinationPoint);
 		}
 
 		// Pushing

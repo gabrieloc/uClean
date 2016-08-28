@@ -32,7 +32,7 @@ namespace CleanKit
 
 		void evaluateScore ()
 		{
-			List<Interactable> interactables = interactionController.InstructionedInteractables;
+			List<Interactable> interactables = interactionController.EvaluatableInstructables;
 			int count = interactables.Count;
 			float score = 0.0f;
 			interactables.ForEach (i => score += (1.0f / count) * i.Score ());

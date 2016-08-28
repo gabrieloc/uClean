@@ -18,15 +18,14 @@ namespace CleanKit
 
 	public class InteractionController : MonoBehaviour
 	{
-		List<Interactable> availableInteractables = new List<Interactable> ();
 
-		public List<Interactable> InstructionedInteractables {
+		public List<Interactable> EvaluatableInstructables {
 			get {
-				return Interactables.FindAll (i => i.HasSpecifiedDestination ());
+				return interactables.FindAll (i => i.CanBeEvaluated ());
 			}
 		}
 
-		public List<Interactable> Interactables { get; private set; }
+		List<Interactable> interactables = new List<Interactable> ();
 
 		Interactable selectedInteractable;
 		EventTrigger eventTrigger;
@@ -35,7 +34,7 @@ namespace CleanKit
 
 		void Start ()
 		{
-			Interactables =	new List<Interactable> (GameObject.FindObjectsOfType<Interactable> ());
+			interactables =	new List<Interactable> (GameObject.FindObjectsOfType<Interactable> ());
 
 			eventTrigger = GetComponent<EventTrigger> ();
 			cameraController = Camera.main.GetComponent<CameraController> ();
@@ -44,11 +43,6 @@ namespace CleanKit
 			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.BeginDrag, draggingBegan);
 			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.Drag, draggingUpdated);
 			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.EndDrag, draggingEnded);
-		}
-
-		void Update ()
-		{
-			layoutIndicatorsIfNecessary ();
 		}
 
 		void pointerClicked (BaseEventData eventData)
@@ -120,30 +114,6 @@ namespace CleanKit
 					EventSystem.current.SetSelectedGameObject (null);
 					interactable.EndDragging ();
 				}
-			}
-		}
-
-		void layoutIndicatorsIfNecessary ()
-		{
-			if (availableInteractables.Count > 0) {
-				foreach (Interactable interactable in availableInteractables) {
-					interactable.LayoutIndicators ();
-				}	
-			}
-		}
-
-		public void SetInteractableAvailable (Interactable interactable, Actor actor, bool available)
-		{
-			if (availableInteractables.Contains (interactable) == false && available) {
-				availableInteractables.Add (interactable);
-
-				interactable.BecomeAvailableForActor (actor);
-				foreach (InteractableIndicator indicator in interactable.indicators) {
-					indicator.gameObject.transform.SetParent (transform);
-				}
-			} else if (availableInteractables.Contains (interactable) == true && !available) {
-				availableInteractables.Remove (interactable);
-				interactable.BecomeUnavailable ();
 			}
 		}
 	}

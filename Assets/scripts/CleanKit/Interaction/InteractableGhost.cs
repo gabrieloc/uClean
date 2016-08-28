@@ -32,6 +32,7 @@ namespace CleanKit
 
 			Destroy (clone.GetComponent<EventTrigger> ());
 			Destroy (clone.GetComponent<Interactable> ());
+			Destroy (clone.GetComponent<NavMeshObstacle> ());
 
 			return ghost;
 		}

@@ -11,7 +11,7 @@ namespace CleanKit
 		{
 			Vector3 cell = new Vector3 ();
 			for (int i = 0; i < 3; i++) {
-				cell [i] = Mathf.Floor ((point [i] + CellSize * 0.5f));// / CellSize);
+				cell [i] = Mathf.Floor ((point [i] + CellSize * 0.5f) / CellSize);
 			}
 			return cell;
 		}
