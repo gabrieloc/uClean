@@ -18,10 +18,9 @@ namespace CleanKit
 
 			float displacement = 5.0f;
 			Vector3 position = new Vector3 (
-				                   (UnityEngine.Random.value + 1) * displacement * (UnityEngine.Random.value > 0.5 ? 1 : -1), 
-				                   10.0f, 
-				                   (UnityEngine.Random.value + 1) * displacement * (UnityEngine.Random.value > 0.5 ? 1 : -1));
-			
+				                   Random.Range (-1, 1) * displacement,
+				                   1.0f, 
+				                   Random.Range (-1, 1) * displacement);			
 				
 			GameObject prop = GameObject.Instantiate (resource, position, rotation) as GameObject;
 			prop.transform.localEulerAngles = new Vector3 (-90.0f, 0.0f, 0.0f);

@@ -43,6 +43,15 @@ namespace CleanKit
 			gameObject.layer = layermask;
 		}
 
+		void Update ()
+		{
+			if (transform.position.y < 0) {
+				Vector3 position = transform.position;
+				position.y = 1;
+				transform.position = position;
+			}	
+		}
+
 		public void SetPreferredPosition (Vector3 position)
 		{
 			preferredDestination = CreateDestination (position, GhostState.Off, "Preferred");
