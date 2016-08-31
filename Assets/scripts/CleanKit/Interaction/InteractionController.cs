@@ -116,6 +116,13 @@ namespace CleanKit
 				}
 			}
 		}
+
+		void scrollUpdated (BaseEventData eventData)
+		{
+			PointerEventData pointerData = eventData as PointerEventData;
+			Vector2 scroll = pointerData.position;
+			print (scroll);
+		}
 	}
 }
 

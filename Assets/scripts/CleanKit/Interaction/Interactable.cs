@@ -52,6 +52,11 @@ namespace CleanKit
 			}	
 		}
 
+		public void MatchPreferredRotation ()
+		{
+			transform.localEulerAngles = new Vector3 (-90.0f, 0.0f, 0.0f);
+		}
+
 		public void SetPreferredPosition (Vector3 position)
 		{
 			preferredDestination = CreateDestination (position, GhostState.Off, "Preferred");

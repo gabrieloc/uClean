@@ -174,26 +174,21 @@ namespace CleanKit
 
 		void liftInteractable (Interactable interactable)
 		{
-			// TODO animate moving under thing
-
+			// TODO animate movement to interactable center
 			Vector3 destinationPosition = interactable.transform.position;
 			destinationPosition.y = transform.position.y;
 			transform.position = destinationPosition;
 
-			// TODO ensure interactable is upright
+			// TODO animate upright rotation
+			interactable.MatchPreferredRotation ();
 
-			Rigidbody interactableRigidBody = interactable.GetComponent<Rigidbody> ();
-			//			interactableRigidBody.isKinematic = true;
-
-			// TODO move bot to center below object
 			FixedJoint holdJoint = GetComponent<FixedJoint> ();
 			if (holdJoint.connectedBody != null) {
 				holdJoint.connectedBody = null;
 			}
+			Rigidbody interactableRigidBody = interactable.GetComponent<Rigidbody> ();
 			holdJoint.connectedBody = interactableRigidBody;
-			// TODO connect joint at bottom of object
-			//				Vector3 anchor = Vector3.down * interactable.GetComponent<Collider> ().bounds.size.y;
-			//				holdJoint.connectedAnchor = anchor;
+			// TODO set anchor to directly below interactable
 
 			prepareInteractableForMovement (true);
 		}
