@@ -43,6 +43,7 @@ namespace CleanKit
 			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.BeginDrag, draggingBegan);
 			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.Drag, draggingUpdated);
 			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.EndDrag, draggingEnded);
+			EventAdditions.RegisterEvent (eventTrigger, EventTriggerType.Scroll, scrollUpdated);
 		}
 
 		void pointerClicked (BaseEventData eventData)
@@ -120,9 +121,37 @@ namespace CleanKit
 		void scrollUpdated (BaseEventData eventData)
 		{
 			PointerEventData pointerData = eventData as PointerEventData;
-			Vector2 scroll = pointerData.position;
+			float scroll = pointerData.scrollDelta.y;
+			cameraController.UpdateZoomValue (scroll);
 			print (scroll);
 		}
+
+		#if !UNITY_EDITOR
+		
+		void Update ()
+		{
+			// TODO consider rebuilding this to use event system?
+
+			bool zoomInputExists = Input.touchCount == 2;
+			eventTrigger.enabled = !zoomInputExists;
+			if (zoomInputExists) {
+
+				Touch firstTouch = Input.GetTouch (0);
+				Touch secondTouch = Input.GetTouch (1);
+
+				Vector2 firstTouchDelta = firstTouch.position - firstTouch.deltaPosition;
+				Vector2 secondTouchDelta = secondTouch.position - secondTouch.deltaPosition;
+
+				float previousMagnitude = (firstTouchDelta - secondTouchDelta).magnitude;
+				float magnitude = (firstTouch.position - secondTouch.position).magnitude;
+
+				float deltaMagnitude = previousMagnitude - magnitude;
+				cameraController.UpdateZoomValue (deltaMagnitude * 0.1f);
+				print (deltaMagnitude);
+			}
+		}
+
+		#endif
 	}
 }
 
