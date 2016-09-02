@@ -127,14 +127,14 @@ namespace CleanKit
 		public void UpdatePanPosition (Vector3 newPosition)
 		{
 			panDelta = newPosition - panPosition.Value;
-			print (newPosition);
+//			print (newPosition);
 			panPosition = newPosition;
 			objectPosition = null;
 		}
 
 		public void UpdateZoomValue (float zoomValue)
 		{
-			print (zoomValue);
+//			print (zoomValue);
 			Vector3 translate = Vector3.zero;
 			float depth = centerDepth ();
 

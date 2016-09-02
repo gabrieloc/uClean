@@ -146,8 +146,7 @@ namespace CleanKit
 				float magnitude = (firstTouch.position - secondTouch.position).magnitude;
 
 				float deltaMagnitude = previousMagnitude - magnitude;
-				cameraController.UpdateZoomValue (deltaMagnitude * 0.1f);
-				print (deltaMagnitude);
+				cameraController.UpdateZoomValue (deltaMagnitude * -0.1f);
 			}
 		}
 

@@ -31,25 +31,27 @@
 			uniform float4 _highlightPosition;
 			uniform float4 _highlightSize;
 
+			sampler2D _MainTex;
+
 			struct vertexInput {
 				float4 vertex: POSITION;
 			};
 
 			struct vertexOutput {
-				float4 pos: SV_POSITION;
+				float4 vertex: SV_POSITION;
 				float4 worldPos: TEXCOORD0;
 			};
 
 			// Vertex shader
 			vertexOutput vert(vertexInput input) {
 				vertexOutput output;
-				output.pos = mul(UNITY_MATRIX_MVP, input.vertex);
+				output.vertex = mul(UNITY_MATRIX_MVP, input.vertex);
 				output.worldPos = mul(unity_ObjectToWorld, input.vertex);
 				return output;
 			}
-
+		
 			// Fragment shader
-			float4 frag(vertexOutput input): COLOR {
+			float4 frag(vertexOutput input) : COLOR {
 
 				bool colored = false;
 				bool highlighted = true;
