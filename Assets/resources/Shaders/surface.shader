@@ -64,10 +64,10 @@
 
 					if (d < 0) {
 						md -= o; 
-						colored = colored | (md % _size) + _size < _stroke;
+						colored = colored || (md % _size) + _size < _stroke;
 					} else {
 						md += o;
-						colored = colored | md % _size < _stroke;
+						colored = colored || md % _size < _stroke;
 					}
 
 					float minO = _highlightSize[i] * _size * 0.5f;
@@ -82,7 +82,8 @@
 					highlighted = highlighted && withinMaxHighlight && withinMinHighlight;
 				}
 
-				if (colored | highlighted) {
+
+				if (colored || highlighted) {
 					return _color;
 				}
 				return float4(0, 0, 0, 0);
