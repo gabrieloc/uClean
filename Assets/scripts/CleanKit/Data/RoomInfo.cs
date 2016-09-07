@@ -9,9 +9,9 @@ namespace CleanKit
 		public string test;
 		public List<PropInfo> props;
 
-		public static RoomInfo CreatePlayground ()
+		public static RoomInfo RoomNamed (string name)
 		{
-			TextAsset jsonAsset = Resources.Load<TextAsset> ("Data/test_props");
+			TextAsset jsonAsset = Resources.Load<TextAsset> ("Data/" + name);
 			string json = jsonAsset.text;
 			RoomInfo roomInfo = JsonUtility.FromJson<RoomInfo> (json);
 			return roomInfo;

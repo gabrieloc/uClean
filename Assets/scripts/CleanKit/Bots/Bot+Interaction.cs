@@ -199,6 +199,7 @@ namespace CleanKit
 			holdJoint.connectedBody = null;
 			Interactable interactable = instruction.interactable;
 			interactable.transform.position = Grid.ClosestIntersectingPoint (destination.transform.position);
+			interactable.MatchPreferredRotation ();
 
 			prepareInteractableForMovement (false);
 		}
@@ -242,11 +243,15 @@ namespace CleanKit
 
 		bool interactableAtDestination ()
 		{
-			Interactable interactable = instruction.interactable;
-			Vector3 interactablePoint = Grid.ClosestIntersectingPoint (interactable.transform.position);
+//			Interactable interactable = instruction.interactable;
+			// TODO Figure out how to use interactable's position instead
+			// TODO have this return true if bot is in front of destination instead,
+			//		so it doesnt have to move into the destination's position
+			Vector3 interactablePoint = Grid.ClosestIntersectingPoint (gameObject.transform.position);
 			Vector3 destinationPoint = Grid.ClosestIntersectingPoint (destination.transform.position);
+			float distance = Vector3.Distance (interactablePoint, destinationPoint);
 
-			return Vector3.Equals (interactablePoint, destinationPoint);
+			return distance < Grid.CellSize;
 		}
 
 		// Pushing

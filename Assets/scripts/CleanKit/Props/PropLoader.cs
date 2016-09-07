@@ -14,16 +14,15 @@ namespace CleanKit
 		public static GameObject CreateProp (PropInfo propInfo, Transform parentTransform)
 		{
 			GameObject resource = Resources.Load<GameObject> ("Props/" + propInfo.name);
-			Quaternion rotation = propInfo.Rotation;
 
-			float displacement = 5.0f;
-			Vector3 position = new Vector3 (
-				                   Random.Range (-1, 1) * displacement,
-				                   1.0f, 
-				                   Random.Range (-1, 1) * displacement);			
+			Vector3 initial = propInfo.Position;
+			Quaternion rotation = new Quaternion (
+				                      Random.Range (0.0f, 1.0f),
+				                      Random.Range (0.0f, 1.0f),
+				                      Random.Range (0.0f, 1.0f),
+				                      Random.Range (0.0f, 1.0f));
 				
-			GameObject prop = GameObject.Instantiate (resource, position, rotation) as GameObject;
-			prop.transform.localEulerAngles = new Vector3 (-90.0f, 0.0f, 0.0f);
+			GameObject prop = GameObject.Instantiate (resource, initial, rotation) as GameObject;
 			prop.AddComponent<Rigidbody> ();
 			prop.AddComponent<NavMeshObstacle> ();
 			prop.name = resource.name;

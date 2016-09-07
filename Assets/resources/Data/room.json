@@ -1,0 +1,25 @@
+{
+	"props": [
+		{ "name": "CKCream", 		"position": [5, 23, -4] },
+		{ "name": "CKCandle-m", 	"position": [-16, 36, -3] },
+		{ "name": "CKCandle-s", 	"position": [-16, 35, -1] },
+		{ "name": "CKMint", 		"position": [-16, 35, 1] },
+		{ "name": "CKMint", 		"position": [-17, 35, 1] },
+		{ "name": "CKMint", 		"position": [-16, 35, 2] },
+		{ "name": "CKMint", 		"position": [-17, 35, 2] },
+		{ "name": "CKWatch", 		"position": [-19, 36, -3] },
+		{ "name": "CKTweezers",		"position": [-20, 35, -3] },
+		{ "name": "CKNailclipper",	"position": [-19, 35, -1] },
+		{ "name": "CKFloss",		"position": [-10, 22, -3] },
+		{ "name": "CKFloss",		"position": [-10, 22, -2] },
+		{ "name": "CKFloss",		"position": [-10, 22, -1] },
+		{ "name": "CKFloss",		"position": [-10, 22, 0] },
+		{ "name": "CKRazor",		"position": [-10, 22, 5] },
+		{ "name": "CKToothpaste",	"position": [-4, 23, -5] },
+		{ "name": "CKToothbrush",	"position": [-4, 23, -3] },
+		{ "name": "CKMouthwash",	"position": [8, 23, -4] },
+		{ "name": "CKSoapdish",		"position": [10, 22, 3] },
+		{ "name": "CKSoap",			"position": [10, 23, 3] },
+		{ "name": "CKComb",			"position": [-16, 27, 1] }
+	]
+}

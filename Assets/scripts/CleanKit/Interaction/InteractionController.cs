@@ -21,7 +21,10 @@ namespace CleanKit
 
 		public List<Interactable> EvaluatableInstructables {
 			get {
-				return interactables.FindAll (i => i.CanBeEvaluated ());
+				if (interactables.Count > 0) {
+					return interactables.FindAll (i => i.CanBeEvaluated ());
+				}
+				return null;
 			}
 		}
 
@@ -123,7 +126,6 @@ namespace CleanKit
 			PointerEventData pointerData = eventData as PointerEventData;
 			float scroll = pointerData.scrollDelta.y;
 			cameraController.UpdateZoomValue (scroll);
-			print (scroll);
 		}
 
 		#if !UNITY_EDITOR

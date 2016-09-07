@@ -7,9 +7,12 @@ namespace CleanKit
 	public class PropInfo
 	{
 		public string name;
+		public int[] initial;
 		public int[] position;
 
 		public float rw;
+
+		public Vector3 Initial { get { return arrayToVector3 (initial); } }
 
 		public Vector3 Position { get { return arrayToVector3 (position); } }
 

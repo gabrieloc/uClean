@@ -13,22 +13,23 @@ namespace CleanKit
 		void Start ()
 		{
 			switch (scene) {
+
 			case Scene.Playground:
-				preparePlayground ();
+				preparePropsInRoomNamed ("playground");
 				break;
+			
+			case Scene.Room:
+				preparePropsInRoomNamed ("room");
+				break;
+
 			default:
 				break;
 			}
 		}
 
-		void preparePlayground ()
+		void preparePropsInRoomNamed (string name)
 		{
-			RoomInfo playground = RoomInfo.CreatePlayground ();
-			preparePropsInRoom (playground);
-		}
-
-		void preparePropsInRoom (RoomInfo roomInfo)
-		{
+			RoomInfo roomInfo = RoomInfo.RoomNamed (name);
 			propController.PrepareProps (roomInfo.props);
 		}
 	}

@@ -125,6 +125,7 @@ namespace CleanKit
 		{
 			InteractableGhost ghost = InteractableGhost.Instantiate (gameObject);
 			ghost.gameObject.layer = 0;
+			ghost.gameObject.transform.localEulerAngles = new Vector3 (-90, 0, 0);
 				
 			Destination destination = Destination.Instantiate (position, Vector3.up, ghost);
 
@@ -153,8 +154,10 @@ namespace CleanKit
 		public void DiscardSpecifiedDestination ()
 		{
 			undiscloseSurface ();
-			Destroy (specifiedDestination.gameObject);
 			preferredDestination.SetGhostState (GhostState.Off);
+			if (specifiedDestination != null) {
+				Destroy (specifiedDestination.gameObject);
+			}
 		}
 
 		void undiscloseSurface ()
