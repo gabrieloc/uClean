@@ -24,7 +24,6 @@ namespace CleanKit
 			List<Material> materials = new List<Material> (renderer.materials);
 			materials.Add (surfaceMaterial);
 			renderer.materials = materials.ToArray ();
-
 		}
 
 		void Update ()
