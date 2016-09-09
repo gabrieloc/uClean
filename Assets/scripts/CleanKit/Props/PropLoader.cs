@@ -22,9 +22,12 @@ namespace CleanKit
 				                      Random.Range (0.0f, 1.0f),
 				                      Random.Range (0.0f, 1.0f));
 				
-			GameObject prop = GameObject.Instantiate (resource, initial, rotation) as GameObject;
+			var prop = GameObject.Instantiate (resource, initial, rotation) as GameObject;
 			prop.AddComponent<Rigidbody> ();
-			prop.AddComponent<NavMeshObstacle> ();
+
+			var obstacle = prop.AddComponent<NavMeshObstacle> ();
+			obstacle.carving = true;
+
 			prop.name = resource.name;
 
 			MeshCollider collider = prop.AddComponent<MeshCollider> ();

@@ -3,7 +3,9 @@
 		{
 			"name":	"CKCream",
 			"position": [2, 0, 4]
-		},
+		}
+		],
+	"other": [
 		{
 			"name":	"CKFloss",
 			"position": [1, 0, 1]

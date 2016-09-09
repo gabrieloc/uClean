@@ -97,7 +97,9 @@ namespace CleanKit
 			float distanceDelta = Time.deltaTime * FocusSpeed * zoomMultiple * screenMultiple.sqrMagnitude;
 			Vector3 movePosition = Vector3.MoveTowards (_camera.transform.position, position, distanceDelta);
 
+			// TODO this is fucky
 			_camera.transform.position = movePosition;
+			print (d);
 		}
 
 		float frameFitMultipleForShotSize (ShotSize shotSize)
@@ -134,7 +136,7 @@ namespace CleanKit
 
 		public void UpdateZoomValue (float zoomValue)
 		{
-//			print (zoomValue);
+			print (zoomValue);
 			Vector3 translate = Vector3.zero;
 			float depth = centerDepth ();
 
